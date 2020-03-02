@@ -1,0 +1,19 @@
+{
+    "name": "xyng/yuoshi",
+    "type": "studip-plugin",
+    "authors": [
+        {
+            "name": "Daniel Melchior",
+            "email": "dmelchior@uos.de"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Xyng\\Yuoshi\\": "src"
+        }
+    },
+    "require": {},
+    "require-dev": {
+        "symfony/var-dumper": "^4.3"
+    }
+}
