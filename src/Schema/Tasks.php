@@ -26,10 +26,11 @@ class Tasks extends SchemaProvider
         return [
             'title' => $resource->title,
             'image' => $resource->image,
-            'type' => $resource->type,
+            'kind' => $resource->kind,
             'description' => $resource->description,
             'credits' => $resource->credits,
             'is_training' => $resource->is_training,
+            'attributes' => $resource->attributes,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

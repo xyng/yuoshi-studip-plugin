@@ -3,6 +3,7 @@ namespace Xyng\Yuoshi\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 use Neomerx\JsonApi\Document\Link;
+use Xyng\Yuoshi\Model\TaskContents;
 
 class Contents extends SchemaProvider
 {
@@ -19,6 +20,8 @@ class Contents extends SchemaProvider
 
     /**
      * @inheritDoc
+     *
+     * @param TaskContents $resource
      */
     public function getAttributes($resource)
     {
@@ -26,6 +29,8 @@ class Contents extends SchemaProvider
             'title' => $resource->title,
             'intro' => $resource->intro,
             'outro' => $resource->outro,
+            'keywords' => $resource->keywords->pluck("keyword"),
+            'images' => $resource->images->toArray(),
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -39,6 +44,20 @@ class Contents extends SchemaProvider
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
+                ],
+            ],
+            'keywords' => [
+                self::DATA => $resource->keywords,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'keywords')
+                ],
+            ],
+            'images' => [
+                self::DATA => $resource->images,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'images')
                 ],
             ]
         ];

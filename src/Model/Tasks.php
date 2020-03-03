@@ -8,6 +8,7 @@ use SimpleORMap;
  * @package Xyng\Yuoshi\Model
  *
  * @property string $title
+ * @property string $kind
  */
 class Tasks extends BaseModel {
     protected static function configure($config = []) {

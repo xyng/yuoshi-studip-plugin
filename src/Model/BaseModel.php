@@ -9,6 +9,7 @@ use SimpleORMap;
  * Class BaseModel
  * @package Xyng\Yuoshi\Model
  *
+ * @property string $id
  * @property DateTime $chdate
  * @property DateTime $mkdate
  */
