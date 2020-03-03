@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: studip
--- Generation Time: 2020-03-03 11:29:22.8790
+-- Generation Time: 2020-03-03 14:18:21.3850
 -- -------------------------------------------------------------
 
 
@@ -99,6 +99,15 @@ CREATE TABLE `yuoshi_task_content_quests` (
   CONSTRAINT `yuoshi_task_content_quests_ibfk_1` FOREIGN KEY (`content_id`) REFERENCES `yuoshi_task_contents` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `yuoshi_user_task_solutions` (
+  `id` varchar(32) NOT NULL,
+  `task_id` varchar(32) NOT NULL,
+  `user_id` varchar(32) NOT NULL,
+  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
+  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 CREATE TABLE `yuoshi_task_content_keywords` (
   `id` varchar(32) NOT NULL,
   `content_id` varchar(32) NOT NULL,
@@ -120,6 +129,34 @@ CREATE TABLE `yuoshi_task_content_quest_answers` (
   PRIMARY KEY (`id`),
   KEY `quest_id` (`quest_id`),
   CONSTRAINT `yuoshi_task_content_quest_answers_ibfk_1` FOREIGN KEY (`quest_id`) REFERENCES `yuoshi_task_content_quests` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `yuoshi_user_task_content_solutions` (
+  `id` varchar(32) NOT NULL,
+  `solution_id` varchar(32) NOT NULL,
+  `content_id` varchar(32) NOT NULL,
+  `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`value`)),
+  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
+  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `solution_id` (`solution_id`),
+  KEY `content_id` (`content_id`),
+  CONSTRAINT `yuoshi_user_task_content_solutions_ibfk_1` FOREIGN KEY (`solution_id`) REFERENCES `yuoshi_user_task_solutions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `yuoshi_user_task_content_solutions_ibfk_2` FOREIGN KEY (`content_id`) REFERENCES `yuoshi_task_contents` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `yuoshi_user_task_content_quest_solutions` (
+  `id` varchar(32) NOT NULL,
+  `content_solution_id` varchar(32) NOT NULL,
+  `quest_id` varchar(32) NOT NULL,
+  `answer_id` varchar(32) NOT NULL,
+  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
+  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `quest_id` (`quest_id`),
+  KEY `answer_id` (`answer_id`),
+  CONSTRAINT `yuoshi_user_task_content_quest_solutions_ibfk_1` FOREIGN KEY (`quest_id`) REFERENCES `yuoshi_task_content_quests` (`id`),
+  CONSTRAINT `yuoshi_user_task_content_quest_solutions_ibfk_2` FOREIGN KEY (`answer_id`) REFERENCES `yuoshi_task_content_quest_answers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 

@@ -26,6 +26,12 @@ class Tasks extends BaseModel {
             'assoc_foreign_key' => 'task_id'
         ];
 
+        $config['has_many']['solutions'] = [
+            'on_store' => true,
+            'class_name' => UserTaskSolutions::class,
+            'assoc_foreign_key' => 'task_id'
+        ];
+
         parent::configure($config);
     }
 }
