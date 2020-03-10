@@ -8,6 +8,7 @@ use SimpleORMap;
  * Class Packages
  * @package Xyng\Yuoshi\Model
  *
+ * @property string $course_id
  * @property Tasks[] $tasks
  */
 class Packages extends BaseModel {

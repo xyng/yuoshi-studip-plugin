@@ -82,6 +82,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     public function registerAuthenticatedRoutes(\Slim\App $app)
     {
         $app->get('/courses/{id}/packages', PackagesController::class . ':index');
+        $app->post('/courses/{id}/packages', PackagesController::class . ':create');
         $app->get('/packages/{id}', PackagesController::class . ':show');
         $app->get('/packages/{id}/tasks', TasksController::class . ':index');
         $app->get('/tasks/{id}/contents', TaskContentsController::class . ':index');
