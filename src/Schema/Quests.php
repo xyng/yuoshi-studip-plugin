@@ -23,12 +23,12 @@ class Quests extends SchemaProvider
     public function getAttributes($resource)
     {
         return [
-            'title' => $resource->title,
+            'name' => $resource->name,
             'image' => $resource->image,
             'prePhrase' => $resource->prePhrase,
             'question' => $resource->question,
             'content' => $resource->content,
-            'multiple' => $resource->multiple,
+            'multiple' => (bool) $resource->multiple,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

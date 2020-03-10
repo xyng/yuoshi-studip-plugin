@@ -24,12 +24,13 @@ class Tasks extends SchemaProvider
     {
         /** @var \Xyng\Yuoshi\Model\Tasks $resource */
         return [
+            'sequence' => (int) $resource->sequence,
             'title' => $resource->title,
             'image' => $resource->image,
             'kind' => $resource->kind,
             'description' => $resource->description,
-            'credits' => $resource->credits,
-            'is_training' => $resource->is_training,
+            'credits' => (int) $resource->credits,
+            'is_training' => (bool) $resource->is_training,
             'attributes' => $resource->attributes,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
