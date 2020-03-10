@@ -12,9 +12,19 @@ use Xyng\Yuoshi\Model\Tasks;
 
 class TasksController extends JsonApiController
 {
+    protected $allowedPagingParameters = ['offset', 'limit'];
+    protected $allowedFilteringParameters = ['sequence'];
+
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $sequence = $request->getQueryParams()['sequence'] ?? 0;
+
         ['id' => $id] = $args;
-        $tasks = Tasks::findByPackage_id($id);
+        $where = [
+            'package_id' => $id,
+            'sequence' => $sequence
+        ];
+
+        $tasks = Tasks::findWhere($where);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
