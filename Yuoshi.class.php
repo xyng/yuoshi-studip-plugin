@@ -1,5 +1,6 @@
 <?php
 
+use Cake\Datasource\ConnectionManager;
 use JsonApi\Contracts\JsonApiPlugin;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
@@ -12,6 +13,27 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         parent::__construct();
 
         require_once 'vendor/autoload.php';
+
+        \Cake\Core\Configure::write('App.namespace', 'Xyng\Yuoshi');
+        ConnectionManager::setConfig('default', [
+            'className' => \Cake\Database\Connection::class,
+            'driver' => \Xyng\Yuoshi\Classes\StudipDbDriver::class,
+        ]);
+
+        \Cake\Log\Log::setConfig('default', function () {
+            return new \Xyng\Yuoshi\Classes\StudipLogger();
+        });
+
+        $test = \Cake\ORM\TableRegistry::getTableLocator()->get('Packages');
+
+        $newPackage = $test->newEntity([
+            'title' => 'Cake Test',
+            'course_id' => 'a07535cf2f8a72df33c12ddfa4b53dde',
+        ]);
+
+        // dd($test->save($newPackage));
+
+        dd($test->find()->toArray());
     }
 
     /**
