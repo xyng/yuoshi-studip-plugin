@@ -40,6 +40,28 @@ class TasksController extends JsonApiController
         );
     }
 
+    public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $sql = <<<'EOD'
+            LEFT JOIN yuoshi_user_task_solutions Solutions ON (
+                Solutions.task_id = yuoshi_tasks.id AND
+                Solutions.user_id = :user_id
+            )
+            WHERE (
+                Solutions.id IS NULL
+                AND `yuoshi_tasks`.`package_id` = :package_id
+            )
+            ORDER BY `yuoshi_tasks`.`sequence`
+EOD;
+
+        ['id' => $package_id] = $args;
+        $task = Tasks::findOneBySQL(trim($sql), [
+            'user_id' => $this->getUser($request)->id,
+            'package_id' => $package_id,
+        ]);
+
+        return $this->getContentResponse($task);
+    }
+
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         ['id' => $package_id] = $args;
         /** @var Packages|null $task */
