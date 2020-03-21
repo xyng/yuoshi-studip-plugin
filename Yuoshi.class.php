@@ -114,7 +114,6 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Schema\Tasks::class,
             \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Schema\Contents::class,
             \Xyng\Yuoshi\Model\TaskContentImages::class => \Xyng\Yuoshi\Schema\TaskContentImages::class,
-            \Xyng\Yuoshi\Model\TaskContentKeywords::class => \Xyng\Yuoshi\Schema\TaskContentKeywords::class,
             \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Schema\Quests::class,
             \Xyng\Yuoshi\Model\TaskContentQuestAnswers::class => \Xyng\Yuoshi\Schema\Answers::class,
         ];

@@ -18,12 +18,6 @@ class TaskContents extends BaseModel {
             'assoc_foreign_key' => 'content_id'
         ];
 
-        $config['has_many']['keywords'] = [
-            'on_store' => true,
-            'class_name' => TaskContentKeywords::class,
-            'assoc_foreign_key' => 'content_id'
-        ];
-
         $config['has_many']['images'] = [
             'on_store' => true,
             'class_name' => TaskContentImages::class,

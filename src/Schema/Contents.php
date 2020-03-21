@@ -29,7 +29,6 @@ class Contents extends SchemaProvider
             'title' => $resource->title,
             'intro' => $resource->intro,
             'outro' => $resource->outro,
-            'keywords' => $resource->keywords->pluck("keyword"),
             'images' => $resource->images->toArray(),
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
@@ -44,13 +43,6 @@ class Contents extends SchemaProvider
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
-                ],
-            ],
-            'keywords' => [
-                self::DATA => $resource->keywords,
-                self::SHOW_SELF => true,
-                self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'keywords')
                 ],
             ],
             'images' => [
