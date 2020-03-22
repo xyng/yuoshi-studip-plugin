@@ -87,11 +87,13 @@ class BaseModel extends SimpleORMap {
         $sql = '';
         $params = [];
 
+        $no_right_side = ['is null', 'is not null'];
+
         $numItems = count($conditions);
         foreach ($conditions as $field => $condition) {
             $lastItem = --$numItems == 0;
 
-            if (is_numeric($field) || strtolower($field) == 'or' || strtolower($field) == 'and') {
+            if (is_numeric($field) && is_array($condition) || strtolower($field) == 'or' || strtolower($field) == 'and') {
                 $keyword = strtolower($field) == 'or' ? " OR " : " AND ";
 
                 if (!is_array($condition)) {
@@ -116,8 +118,13 @@ class BaseModel extends SimpleORMap {
                 continue;
             }
 
+            if (is_numeric($field)) {
+                $field = $condition;
+                $condition = null;
+            }
+
             $field = trim($field);
-            $split = explode(" ", $field, 1);
+            $split = explode(' ', $field, 2);
 
             $special_conditions = ['or', 'and'];
             if (!($split[1] ?? false)) {
@@ -127,8 +134,6 @@ class BaseModel extends SimpleORMap {
                     $comp = "=";
                 }
             } else {
-                $condition = $split[0];
-
                 $comp = trim($split[1] ?? '=');
                 $comp_whitelist = ['=', '>=', '<=', '>', '<', '!=', 'in', 'not in', 'is null', 'is not null'];
                 if (!in_array(strtolower($comp), $comp_whitelist)) {
@@ -141,18 +146,26 @@ class BaseModel extends SimpleORMap {
             }
 
             if (strtolower($comp) == 'is null' || strtolower($comp) == 'is not null') {
-                $sql .= sprintf("%s %s", $field, $comp);
+                $sql .= sprintf("%s %s", $split[0], $comp);
             } else {
-                $sql .= sprintf("%s %s ?", $field, $comp);
-
                 if (
                     strtolower($comp) == 'in'
                     || strtolower($comp) == 'not in'
                 ) {
-                    $condition = '(' . join(",", $condition) . ')';
+                    $placeholders = '(' . join(",", array_fill(0, count($condition), '?')) . ')';
+                } else {
+                    $placeholders = '?';
                 }
 
-                $params[] = $condition;
+                $sql .= sprintf("%s %s %s", $split[0], $comp, $placeholders);
+
+                if (is_array($condition)) {
+                    foreach ($condition as $value) {
+                        $params[] = $value;
+                    }
+                } else {
+                    $params[] = $condition;
+                }
             }
         }
 
