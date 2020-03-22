@@ -1,10 +1,12 @@
 import React from "react"
-import { hot } from 'react-hot-loader/root';
+import { hot } from "react-hot-loader/root"
 
-import Style from "./App.module.css"
+import Packages from "./pages/Packages"
 
 const App: React.FC = () => {
-    return <div className={Style.test}>Hallo</div>
+    return <div>
+        <Packages />
+    </div>
 };
 
 export default hot(App)
