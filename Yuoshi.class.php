@@ -121,4 +121,61 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
             \Xyng\Yuoshi\Model\TaskContentQuestAnswers::class => \Xyng\Yuoshi\Schema\Answers::class,
         ];
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function perform($unconsumedPath)
+    {
+        $this->loadAssets(['main']);
+
+        $trailsRoot = $this->getPluginPath();
+        $trailsUri = rtrim(PluginEngine::getLink($this, [], null, true), '/');
+
+        $dispatcher = new Trails_Dispatcher($trailsRoot, $trailsUri, 'yuoshi');
+        $dispatcher->plugin = $this;
+        $dispatcher->dispatch($unconsumedPath);
+    }
+
+    private function loadAssets($keys = []) {
+        // get webpack manifest
+        $path = __DIR__ . DIRECTORY_SEPARATOR . 'dist' . DIRECTORY_SEPARATOR . 'manifest.json';
+        $json = file_get_contents($path);
+
+        if ($json) {
+            // parse if existing
+            $manifest = json_decode($json, true);
+
+            $entries = $manifest['entrypoints'] ?? [];
+
+            foreach ($entries as $key => $entry) {
+                if (!in_array($key, $keys)) {
+                    continue;
+                }
+                $scripts = $entry['js'] ?? [];
+                foreach ($scripts as $script) {
+                    ['src' => $src, 'integrity' => $integrity] = $manifest[$script];
+
+                    // load asset.
+                    \PageLayout::addScript(
+                        $this->getPluginUrl() . '/dist/' . $src,
+                        [
+                            'async' => 'async',
+                            'integrity' => $integrity
+                        ]
+                    );
+                }
+
+                $styles = $entry['css'] ?? [];
+                foreach ($styles as $style) {
+                    ['src' => $src] = $manifest[$style];
+
+                    // load asset.
+                    \PageLayout::addStylesheet(
+                        $this->getPluginUrl() . '/dist/' . $src
+                    );
+                }
+            }
+        }
+    }
 }
