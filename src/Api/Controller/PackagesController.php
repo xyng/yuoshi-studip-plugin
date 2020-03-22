@@ -18,19 +18,40 @@ use Xyng\Yuoshi\Model\Packages;
 
 class PackagesController extends JsonApiController
 {
+    protected $allowedFilteringParameters = ['course'];
+    protected $allowedPagingParameters = ['offset', 'limit'];
+
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        ['id' => $course_id] = $args;
-        /** @var Course|null $course */
-        $course = Course::find($course_id);
+        $course_id = $args['id'] ?? null;
 
-        if ($course == null) {
-            throw new RecordNotFoundException();
-        }
-        if (!CourseAuthority::canShowCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
-            throw new AuthorizationFailedException();
+        $course_ids = $course_id ? [$course_id] : [];
+
+        if (!$course_ids) {
+            $filters = $this->getQueryParameters()->getFilteringParameters();
+            $course_ids = explode(',', $filters['course'] ?? '');
         }
 
-        $packages = Packages::findByCourse_id($course_id);
+        foreach ($course_ids as $course_id) {
+            /** @var Course|null $course */
+            $course = Course::find($course_id);
+
+            if ($course == null) {
+                throw new RecordNotFoundException();
+            }
+
+            if (!CourseAuthority::canShowCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
+                throw new AuthorizationFailedException();
+            }
+        }
+
+        if ($course_ids) {
+            $packages = Packages::findWhere([
+                'course_id IN' => $course_ids,
+                'course_id IS NOT NULL'
+            ]);
+        } else {
+            $packages = [];
+        }
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
