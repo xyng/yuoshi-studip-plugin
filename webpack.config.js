@@ -6,20 +6,30 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const TerserJSPlugin = require('terser-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
+const dotenv = require("dotenv")
+
 const prod = process.env.NODE_ENV === "production"
+
+const { parsed: env } = dotenv.config({ path: path.resolve(__dirname, "./.webpack.env") })
 
 module.exports = {
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
+        alias: {
+            "react-dom": prod ? "react-dom" : "@hot-loader/react-dom"
+        }
     },
     context: path.resolve(__dirname, "./app"),
     mode: prod ? "production" : "development",
-    entry: "./index.tsx",
+    entry: [
+        "react-hot-loader/patch",
+        "./index.tsx"
+    ],
     output: {
         // TODO: add hash to output file (make studip load the has file)
         filename: "js/bundle.[hash].js",
         path: path.resolve(__dirname, "./dist"),
-        publicPath: "/",
+        publicPath: `${env.PLUGIN_PATH}/dist/`,
     },
     module: {
         rules: [
@@ -31,11 +41,12 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: ["babel-loader", "awesome-typescript-loader"],
+                exclude: /node_modules/,
             },
             {
                 test: /\.css$/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    prod ? MiniCssExtractPlugin.loader : "style-loader",
                     {
                         loader: "css-loader",
                         options: {
@@ -51,7 +62,7 @@ module.exports = {
             {
                 test: /\.module\.css$/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    prod ? MiniCssExtractPlugin.loader : "style-loader",
                     {
                         loader: "css-loader",
                         options: {
@@ -96,4 +107,16 @@ module.exports = {
             new OptimizeCSSAssetsPlugin({})
         ],
     },
+    devServer: {
+		proxy: {
+			[`!${env.PLUGIN_PATH}/dist/**`]: {
+				target: env.STUDIP_URL,
+				secure: false,
+			},
+		},
+
+		hot: true,
+		inline: true,
+		disableHostCheck: true,
+	},
 };
