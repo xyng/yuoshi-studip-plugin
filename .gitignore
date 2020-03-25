@@ -254,3 +254,5 @@ fabric.properties
 
 # ignore builds
 dist
+
+.webpack.env
