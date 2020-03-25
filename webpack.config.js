@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 const TerserJSPlugin = require('terser-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
 
 const dotenv = require("dotenv")
 
@@ -17,7 +18,10 @@ module.exports = {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
         alias: {
             "react-dom": prod ? "react-dom" : "@hot-loader/react-dom"
-        }
+        },
+        plugins: [
+            new TsConfigPathsPlugin(),
+        ]
     },
     context: path.resolve(__dirname, "./app"),
     mode: prod ? "production" : "development",
@@ -99,7 +103,7 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: 'css/[name].[hash].css',
             chunkFilename: 'css/[id].[hash].css',
-        })
+        }),
     ],
     devtool: prod ? "source-map" : "cheap-module-source-map",
     watch: !prod,
