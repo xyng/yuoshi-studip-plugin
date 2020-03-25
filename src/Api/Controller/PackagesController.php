@@ -88,7 +88,9 @@ class PackagesController extends JsonApiController
         $data = $request->getParsedBody();
 
         $validator = new Validator($data);
-        $validator->rule('required', 'title');
+        $validator
+            ->rule('required', 'title')
+            ->rule('required', 'slug');
 
         if (!$validator->validate()) {
             throw new ValidationException($validator);
@@ -96,6 +98,7 @@ class PackagesController extends JsonApiController
 
         $package = Packages::build([
             'title' => $data['title'],
+            'slug' => $data['slug'],
             'course_id' => $course_id,
         ]);
 

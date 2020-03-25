@@ -23,6 +23,7 @@ class Packages extends SchemaProvider
     public function getAttributes($resource)
     {
         return [
+            'slug' => $resource->slug,
             'title' => $resource->title,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),

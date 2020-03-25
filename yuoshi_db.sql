@@ -21,10 +21,12 @@
 CREATE TABLE `yuoshi_packages` (
   `id` varchar(32) NOT NULL,
   `course_id` varchar(32) NOT NULL,
+  `slug` varchar(64) NOT NULL,
   `title` varchar(255) NOT NULL,
   `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
   `chdate` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `yuoshi_task_attributes` (
