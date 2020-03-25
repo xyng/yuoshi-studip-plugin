@@ -27,4 +27,7 @@ class Packages extends BaseModel {
 
         parent::configure($config);
     }
+
+    // TODO: check in db if this package is playable by user.
+    public $playable = true;
 }

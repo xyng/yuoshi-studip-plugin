@@ -25,6 +25,7 @@ class Packages extends SchemaProvider
         return [
             'slug' => $resource->slug,
             'title' => $resource->title,
+            'playable' => $resource->playable,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
