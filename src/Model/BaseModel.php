@@ -61,7 +61,9 @@ class BaseModel extends SimpleORMap {
             }
 
             if ($value instanceof DateTimeImmutable) {
-                $value = $value->setTimezone(new \DateTimeZone(self::DB_TZ));
+                $value = $value
+                    ->setTimezone(new \DateTimeZone(self::DB_TZ))
+                    ->format('Y-m-d H:i:s');
             }
         }
 
@@ -71,9 +73,19 @@ class BaseModel extends SimpleORMap {
     public function store()
     {
         foreach ($this->dateFields as $field) {
-            if ($val = $this->getValue($field)) {
-                /** @var DateTimeImmutable $val */
+            $val = ($this->content[$field] ?? null);
 
+            // always update chdate when dirty model is persisted
+            if ($field === 'chdate' && $this->isDirty()) {
+                $val = new DateTimeImmutable();
+            }
+
+            // make sure the dates are always defined
+            if (!$val) {
+                $val = new DateTimeImmutable();
+            }
+
+            if ($val instanceof DateTimeImmutable) {
                 $this->content[$field] = $val
                     ->setTimezone(new \DateTimeZone(self::DB_TZ))
                     ->format('Y-m-d H:i:s');
