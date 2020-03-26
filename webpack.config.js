@@ -1,3 +1,5 @@
+const { EnvironmentPlugin } = require("webpack");
+
 const path = require("path")
 const { CheckerPlugin } = require("awesome-typescript-loader")
 const WebpackAssetsManifest = require("webpack-assets-manifest")
@@ -9,6 +11,8 @@ const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
 
 const dotenv = require("dotenv")
 
+// make sure NODE_ENV is always set.
+process.env.NODE_ENV = process.env.NODE_ENV || "development"
 const prod = process.env.NODE_ENV === "production"
 
 const { parsed: env } = dotenv.config({ path: path.resolve(__dirname, "./.webpack.env") })
@@ -104,6 +108,10 @@ module.exports = {
             filename: 'css/[name].[hash].css',
             chunkFilename: 'css/[id].[hash].css',
         }),
+        new EnvironmentPlugin([
+            'NODE_ENV',
+            'PLUGIN_URL_PATH'
+        ]),
     ],
     devtool: prod ? "source-map" : "cheap-module-source-map",
     watch: !prod,
