@@ -89,11 +89,7 @@ export const CurrentPackageContextProvider: React.FC<{
 
             // update item in list if we've got it from there
             if (currentPackageFromList) {
-                return updatePackage(
-                    newData.getApiId() as string,
-                    newData,
-                    reload
-                )
+                return updatePackage(newData, reload)
             }
 
             // update or own fetched package

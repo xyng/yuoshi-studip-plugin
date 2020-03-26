@@ -1,31 +1,24 @@
-import React from "react"
-import { Link, RouteComponentProps } from "@reach/router"
-import { PluralResponse } from "coloquent"
-import useSWR from "swr"
+import React, { Suspense } from "react"
+import { Link, RouteComponentProps, Router } from "@reach/router"
 
-import Task from "../../models/Task"
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
-
-const fetchTasksForPackage = async (packageId: string): Promise<Task[]> => {
-    const packageItem = (await Task.where(
-        "package",
-        packageId
-    ).get()) as PluralResponse
-
-    return packageItem.getData() as Task[]
-}
+import {
+    TasksContextProvider,
+    useTasksContext,
+} from "../../contexts/TasksContext"
 
 const Tasks: React.FC<RouteComponentProps> = () => {
-    const { currentPackage } = useCurrentPackageContext()
-
-    const { data: tasks, error } = useSWR(
-        () => [currentPackage.getApiId(), `package/tasks`],
-        fetchTasksForPackage
+    return (
+        <TasksContextProvider>
+            <Router>
+                <TasksIndex path="/" />
+            </Router>
+        </TasksContextProvider>
     )
+}
 
-    if (error) {
-        return <div>Ein Fehler ist aufgetreten.</div>
-    }
+const TasksIndex: React.FC<RouteComponentProps> = () => {
+    const { currentPackage } = useCurrentPackageContext()
 
     return (
         <>
@@ -42,28 +35,39 @@ const Tasks: React.FC<RouteComponentProps> = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {!tasks && (
-                        <tr>
-                            <td colSpan={10000}>
-                                Lade Aufgaben. Bitte warten.
-                            </td>
-                        </tr>
-                    )}
-                    {tasks &&
-                        tasks.map((task) => {
-                            return (
-                                <tr key={`task-${task.getApiId()}`}>
-                                    <td>{task.getTitle()}</td>
-                                    <td>{task.getType()}</td>
-                                    <td>
-                                        {task.getModified().toLocaleString()}
-                                    </td>
-                                    <td>Bearbeiten &rarr;</td>
-                                </tr>
-                            )
-                        })}
+                    <Suspense
+                        fallback={
+                            <tr>
+                                <td colSpan={10000}>
+                                    Lade Aufgaben. Bitte warten.
+                                </td>
+                            </tr>
+                        }
+                    >
+                        <RenderTaskTableContent />
+                    </Suspense>
                 </tbody>
             </table>
+        </>
+    )
+}
+
+const RenderTaskTableContent: React.FC = () => {
+    const { tasks } = useTasksContext()
+
+    return (
+        <>
+            {tasks &&
+                tasks.map((task) => {
+                    return (
+                        <tr key={`task-${task.getApiId()}`}>
+                            <td>{task.getTitle()}</td>
+                            <td>{task.getType()}</td>
+                            <td>{task.getModified().toLocaleString()}</td>
+                            <td>Bearbeiten &rarr;</td>
+                        </tr>
+                    )
+                })}
         </>
     )
 }

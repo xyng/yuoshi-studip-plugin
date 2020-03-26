@@ -28,7 +28,7 @@ const PackageSubRoute: React.FC<RouteComponentProps<{
         <CurrentPackageContextProvider currentPackage={packageId}>
             <Router>
                 <EditPackage path="edit" />
-                <Tasks path="tasks" />
+                <Tasks path="tasks/*" />
             </Router>
         </CurrentPackageContextProvider>
     )

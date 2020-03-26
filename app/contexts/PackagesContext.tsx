@@ -3,13 +3,13 @@ import useSWR from "swr/esm/use-swr"
 import { PluralResponse } from "coloquent"
 
 import Package from "../models/Package"
+import updateModelList from "../helpers/updateModelList"
 
 import { useCourseContext } from "./CourseContext"
 
 interface PackagesContextInterface {
     packages: Package[]
     updatePackage: (
-        id: string,
         updatedPackage: Package,
         reload?: boolean
     ) => void | Promise<void>
@@ -46,27 +46,8 @@ export const PackagesContextProvider: React.FC = ({ children }) => {
     )
 
     const updatePackage = useCallback(
-        async (
-            id: string,
-            updatedPackage: Package,
-            reload: boolean = false
-        ) => {
-            await mutate((current) => {
-                const index = current.findIndex(
-                    (elem) => elem.getApiId() === id
-                )
-
-                if (index === -1) {
-                    // no match no update
-                    return current
-                }
-
-                return [
-                    ...current.slice(0, index),
-                    updatedPackage,
-                    ...current.slice(index + 1),
-                ]
-            }, reload)
+        async (updatedPackage: Package, reload: boolean = false) => {
+            await mutate(updateModelList(updatedPackage), reload)
         },
         [mutate]
     )
