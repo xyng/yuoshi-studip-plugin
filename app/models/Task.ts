@@ -1,8 +1,9 @@
 import { AppModelWithDate } from "./AppModel"
+import Package from "./Package"
 
 type Attributes = [
     "title",
-    "type",
+    "kind",
     "sequence",
     "description",
     "credits",
@@ -12,7 +13,7 @@ type Attributes = [
 export default class Task extends AppModelWithDate<Attributes> {
     protected readonly accessible: Attributes = [
         "title",
-        "type",
+        "kind",
         "sequence",
         "description",
         "credits",
@@ -20,6 +21,17 @@ export default class Task extends AppModelWithDate<Attributes> {
         "image",
     ]
     protected jsonApiType: string = "tasks"
+
+    public static readonly taskTypes = {
+        card: "Karteikarte",
+        cloze: "Lückentext",
+        drag: "Drag n' Drop",
+        memory: "Memory",
+        multi: "Multiple-Choice",
+        survey: "Umfrage",
+        tag: "Text markieren",
+        training: "Quiz",
+    }
 
     public getTitle(): string {
         return this.getAttribute("title")
@@ -75,5 +87,9 @@ export default class Task extends AppModelWithDate<Attributes> {
 
     public setImage(image: string | undefined): void {
         return this.setAttribute("image", image)
+    }
+
+    public setPackage(pckg: Package) {
+        return this.setRelation("package", pckg)
     }
 }

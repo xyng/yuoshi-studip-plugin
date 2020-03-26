@@ -9,12 +9,14 @@ import {
 } from "../../contexts/PackagesContext"
 
 import EditPackage from "./EditPackage"
+import CreatePackage from "./CreatePackage"
 
 const Packages: React.FC<RouteComponentProps> = () => {
     return (
         <PackagesContextProvider>
             <Router basepath="/packages">
                 <PackagesIndex path="/" />
+                <CreatePackage path="create" />
                 <PackageSubRoute path=":packageId/*" />
             </Router>
         </PackagesContextProvider>
@@ -38,6 +40,7 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
             <Link to="/">Zurück</Link>
+            <Link to="create">Neues Paket</Link>
             <table className="default">
                 <caption>Pakete</caption>
                 <thead>

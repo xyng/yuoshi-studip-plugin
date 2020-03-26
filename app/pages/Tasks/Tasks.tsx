@@ -8,12 +8,14 @@ import {
 } from "../../contexts/TasksContext"
 import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
+import CreateTask from "../Task/CreateTask"
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (
         <TasksContextProvider>
             <Router>
                 <TasksIndex path="/" />
+                <CreateTask path="create" />
                 <TaskSubRoute path=":taskId/*" />
             </Router>
         </TasksContextProvider>
@@ -38,6 +40,7 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
             <Link to="/packages">Zurück</Link>
+            <Link to="create">Neue Aufgabe</Link>
             <h1>Paket: {currentPackage.getTitle()}</h1>
             <table className="default">
                 <caption>Aufgaben</caption>

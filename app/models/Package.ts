@@ -1,4 +1,5 @@
 import { AppModelWithDate } from "./AppModel"
+import Course from "./Course"
 
 type Attributes = ["title", "slug"]
 export default class Package extends AppModelWithDate<Attributes> {
@@ -19,5 +20,9 @@ export default class Package extends AppModelWithDate<Attributes> {
 
     setSlug(slug: string) {
         return this.setAttribute("slug", slug)
+    }
+
+    setCourse(course: Course) {
+        return this.setRelation("course", course)
     }
 }
