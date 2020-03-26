@@ -6,14 +6,29 @@ import {
     TasksContextProvider,
     useTasksContext,
 } from "../../contexts/TasksContext"
+import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
+import EditTask from "../Task/EditTask"
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (
         <TasksContextProvider>
             <Router>
                 <TasksIndex path="/" />
+                <TaskSubRoute path=":taskId/*" />
             </Router>
         </TasksContextProvider>
+    )
+}
+
+const TaskSubRoute: React.FC<RouteComponentProps<{
+    taskId: string
+}>> = ({ taskId }) => {
+    return (
+        <CurrentTaskContextProvider taskId={taskId}>
+            <Router>
+                <EditTask path="edit" />
+            </Router>
+        </CurrentTaskContextProvider>
     )
 }
 
@@ -30,6 +45,7 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
                     <tr>
                         <th>Titel</th>
                         <th>Typ</th>
+                        <th>Punkte</th>
                         <th>Letzte Aktualisierung</th>
                         <th>Aktionen</th>
                     </tr>
@@ -63,8 +79,13 @@ const RenderTaskTableContent: React.FC = () => {
                         <tr key={`task-${task.getApiId()}`}>
                             <td>{task.getTitle()}</td>
                             <td>{task.getType()}</td>
+                            <td>{task.getCredits()}</td>
                             <td>{task.getModified().toLocaleString()}</td>
-                            <td>Bearbeiten &rarr;</td>
+                            <td>
+                                <Link to={`${task.getApiId()}/edit`}>
+                                    Metadaten Bearbeiten &rarr;
+                                </Link>
+                            </td>
                         </tr>
                     )
                 })}

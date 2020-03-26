@@ -10,6 +10,7 @@ import { useCurrentPackageContext } from "./CurrentPackageContext"
 interface TasksContextInterface {
     tasks: Task[]
     updateTask: (updated: Task, reload?: boolean) => Promise<void>
+    reloadTasks: () => Promise<boolean>
 }
 const TasksContext = createContext<TasksContextInterface | null>(null)
 
@@ -34,7 +35,7 @@ const fetchTasksForPackage = async (packageId: string): Promise<Task[]> => {
 
 export const TasksContextProvider: React.FC = ({ children }) => {
     const { currentPackage } = useCurrentPackageContext()
-    const { data, mutate } = useSWR(
+    const { data, mutate, revalidate } = useSWR(
         () => [currentPackage.getApiId(), "package/tasks"],
         fetchTasksForPackage,
         { suspense: true }
@@ -50,6 +51,7 @@ export const TasksContextProvider: React.FC = ({ children }) => {
     const ctx = {
         tasks: data as Task[],
         updateTask,
+        reloadTasks: revalidate,
     }
 
     return <TasksContext.Provider value={ctx}>{children}</TasksContext.Provider>

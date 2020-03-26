@@ -3,7 +3,11 @@ import { ToManyRelation } from "coloquent/dist/relation/ToManyRelation"
 import { AppModel } from "./AppModel"
 import Package from "./Package"
 
-export default class Course extends AppModel {
+// we only use this model to load data - we won't patch stuff here
+// therefore, the Attribute type can be empty.
+type Attributes = []
+export default class Course extends AppModel<Attributes> {
+    protected readonly accessible: Attributes = []
     protected jsonApiType: string = "courses"
 
     getTitle(): string {

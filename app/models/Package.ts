@@ -1,6 +1,8 @@
 import { AppModelWithDate } from "./AppModel"
 
-export default class Package extends AppModelWithDate {
+type Attributes = ["title", "slug"]
+export default class Package extends AppModelWithDate<Attributes> {
+    protected readonly accessible: Attributes = ["title", "slug"]
     protected jsonApiType: string = "packages"
 
     getTitle(): string {

@@ -1,26 +1,24 @@
-import React, { FormEventHandler, useCallback } from "react"
+import React from "react"
 import { RouteComponentProps, Link } from "@reach/router"
 
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
+import useHandleFormSubmit from "../../helpers/useHandleFormSubmit"
+import Package from "../../models/Package"
 
 const EditPackage: React.FC<RouteComponentProps> = () => {
     const { currentPackage, updateCurrentPackage } = useCurrentPackageContext()
 
-    const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-        async (event) => {
-            event.preventDefault()
+    const onSubmit = useHandleFormSubmit(["title", "slug"], async (values) => {
+        currentPackage.patch(values)
 
-            const { elements } = event.currentTarget
-            const title = elements.namedItem("title") as HTMLInputElement
-            const slug = elements.namedItem("slug") as HTMLInputElement
+        const updated = (await currentPackage.save()).getModel()
+        if (!updated) {
+            // TODO: handle error
+            return
+        }
 
-            await updateCurrentPackage({
-                title: title.value,
-                slug: slug.value,
-            })
-        },
-        [updateCurrentPackage]
-    )
+        await updateCurrentPackage(updated as Package)
+    })
 
     return (
         <>
