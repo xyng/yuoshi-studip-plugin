@@ -9,7 +9,10 @@ use SimpleORMap;
  * @package Xyng\Yuoshi\Model
  *
  * @property string $course_id
+ * @property Course $course
  * @property Tasks[] $tasks
+ *
+ * @method static Packages find(string $id)
  */
 class Packages extends BaseModel {
     protected static function configure($config = []) {

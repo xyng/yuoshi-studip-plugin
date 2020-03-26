@@ -19,16 +19,27 @@ use Xyng\Yuoshi\Model\Tasks;
 class TasksController extends JsonApiController
 {
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['sequence'];
+    protected $allowedFilteringParameters = ['sequence', 'package'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sequence = $request->getQueryParams()['sequence'] ?? 0;
+        $package_id = $args['id'] ?? null;
+        $package_ids = $package_id ? [$package_id] : [];
 
-        ['id' => $id] = $args;
-        $where = [
-            'package_id' => $id,
-            'sequence' => $sequence
-        ];
+        $filters = $this->getQueryParameters()->getFilteringParameters();
+        if (!$package_ids) {
+            $package_ids = explode(',', $filters['package'] ?? '');
+        }
+        $sequence = $filters['sequence'] ?? null;
+
+        if ($sequence) {
+            $where['sequence'] = $sequence;
+        }
+
+        if (!$package_ids) {
+            throw new \InvalidArgumentException("Cannot select Tasks without package filter.");
+        }
+
+        $where['package_id IN'] = $package_ids;
 
         $tasks = Tasks::findWhere($where);
 
