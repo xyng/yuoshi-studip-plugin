@@ -1,5 +1,7 @@
 <?php
+namespace Xyng\Yuoshi\Api\Authority;
 
+use User;
 use Xyng\Yuoshi\Model\Packages;
 
 class PackageAuthority

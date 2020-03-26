@@ -12,6 +12,7 @@ use SimpleORMap;
  * @property Packages $package
  */
 class Tasks extends BaseModel {
+    public static $types = ['card', 'cloze', 'drag', 'memory', 'multi', 'survey', 'tag', 'training'];
     protected static function configure($config = []) {
         $config['db_table'] = 'yuoshi_tasks';
 

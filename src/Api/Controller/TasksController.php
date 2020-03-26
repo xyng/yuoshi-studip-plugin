@@ -7,11 +7,11 @@ use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\Errors\UnprocessableEntityException;
 use JsonApi\JsonApiController;
-use JsonApi\Routes\any;
 use JsonApi\Routes\Courses\Authority as CourseAuthority;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Valitron\Validator;
+use Xyng\Yuoshi\Api\Authority\PackageAuthority;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
@@ -78,42 +78,36 @@ EOD;
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        ['id' => $package_id] = $args;
-        /** @var Packages|null $task */
-        $task = Packages::find($package_id);
+        $validated = $this->validate($request, true);
+        $data = new JsonApiDataHelper($validated);
 
-        if ($task == null) {
+        $package_id = $data->getRelation('package')['data']['id'] ?? null;
+
+        /** @var Packages|null $package */
+        $package = Packages::find($package_id);
+
+        if ($package == null) {
             throw new RecordNotFoundException();
         }
 
-        if (!\PackageAuthority::canEditPackage($this->getUser($request), $task)) {
+        if (!PackageAuthority::canEditPackage($this->getUser($request), $package)) {
             throw new AuthorizationFailedException();
         }
 
-        $data = $request->getParsedBody();
-
-        $validator = new Validator($data);
-        $validator
-            ->rule('required', 'title')
-            ->rule('required', 'kind')
-            ->rule('required', 'credits')
-            ->rule('required', 'sequence')
-            ->rule('required', 'is_training')
-            ->rule('boolean', 'is_training')
-            ->rule('integer', 'sequence')
-            ->rule('integer', 'credits')
-            // TODO: add all possible Task-Types
-            ->rule('in', 'kind', ['multi'])
-        ;
-
-        if (!$validator->validate()) {
-            throw new ValidationException($validator);
-        }
-
-        $task = Tasks::build([
-            'title' => $data['title'],
-            'course_id' => $package_id,
-        ]);
+        $task = Tasks::build(
+            $data->getAttributes([
+                'title',
+                'kind',
+                'description',
+                'credits',
+            ])
+            +
+            [
+                'sequence' => 0,
+                'is_training' => $data->getAttribute('kind') == 'training',
+                'package_id' => $package_id,
+            ]
+        );
 
         if (!$task->store()) {
             throw new InternalServerError("could not persist entity");
@@ -164,8 +158,23 @@ EOD;
     /**
      * @inheritDoc
      */
-    protected function buildResourceValidationRules(Validator $validator, $data): Validator
+    protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
     {
+        if ($new) {
+            $validator
+                ->rule('required', 'data.relationships.package.data.id')
+                ->rule('required', 'data.attributes.title')
+                ->rule('required', 'data.attributes.kind')
+                ->rule('required', 'data.attributes.credits');
+        }
+
+        $validator
+            ->rule('integer', 'data.attributes.sequence')
+            ->rule('integer', 'data.attributes.credits')
+            ->rule('integer', 'data.attributes.sequence')
+            ->rule('boolean', 'data.attributes.is_training')
+            ->rule('in', 'data.attributes.kind', Tasks::$types);
+
         return $validator;
     }
 }

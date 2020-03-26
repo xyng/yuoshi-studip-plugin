@@ -21,10 +21,12 @@ trait ValidationTrait
     {
         $validator = $this->buildResourceValidationRules(new Validator($json), $data);
 
-        $errors = $validator->errors();
-        if (!$errors) {
+
+        if ($validator->validate()) {
             return null;
         }
+
+        $errors = $validator->errors();
 
         // return first error message
         return array_shift(array_shift($errors));

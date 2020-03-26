@@ -76,14 +76,10 @@ class PackagesController extends JsonApiController
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
-        $attributes = $data->getAttributes(['title', 'slug', 'course_id']);
-
-        if (!$attributes['course_id']) {
-            throw new RecordNotFoundException();
-        }
+        $attributes = $data->getAttributes(['title', 'slug']);
 
         /** @var Course|null $course */
-        $course = Course::find($attributes['course_id']);
+        $course = Course::find($data->getRelation('course')['data']['id'] ?? null);
 
         if ($course == null) {
             throw new RecordNotFoundException();
@@ -94,6 +90,7 @@ class PackagesController extends JsonApiController
         }
 
         $package = Packages::build($attributes);
+        $package->course_id = $course->id;
 
         if (!$package->store()) {
             throw new InternalServerError("could not save package");
@@ -152,7 +149,7 @@ class PackagesController extends JsonApiController
 
         if ($new) {
             $validator
-                ->rule('required', 'data.attributes.course_id');
+                ->rule('required', 'data.relationships.course.data.id');
         }
 
         return $validator;
