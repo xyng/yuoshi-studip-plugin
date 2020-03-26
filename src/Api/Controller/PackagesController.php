@@ -7,12 +7,12 @@ use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
 use JsonApi\Routes\Courses\Authority as CourseAuthority;
-use JsonApi\Routes\ValidationTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Valitron\Validator;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
+use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Model\Packages;
 
 class PackagesController extends JsonApiController
@@ -140,12 +140,12 @@ class PackagesController extends JsonApiController
         return $this->getContentResponse($package);
     }
 
+
     /**
      * @inheritDoc
      */
-    protected function validateResourceDocument($json, $new = false)
+    protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
     {
-        $validator = new Validator($json);
         $validator
             ->rule('required', 'data.attributes.title')
             ->rule('required', 'data.attributes.slug');
@@ -155,12 +155,6 @@ class PackagesController extends JsonApiController
                 ->rule('required', 'data.attributes.course_id');
         }
 
-        $errors = $validator->errors();
-        if (!$errors) {
-            return null;
-        }
-
-        // return first error message
-        return array_shift(array_shift($errors));
+        return $validator;
     }
 }

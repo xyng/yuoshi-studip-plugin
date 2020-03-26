@@ -9,10 +9,16 @@ use SimpleORMap;
  *
  * @property string $title
  * @property string $kind
+ * @property Packages $package
  */
 class Tasks extends BaseModel {
     protected static function configure($config = []) {
         $config['db_table'] = 'yuoshi_tasks';
+
+        $config['belongs_to']['package'] = [
+            'class_name' => Packages::class,
+            'foreign_key' => 'package_id'
+        ];
 
         $config['has_many']['contents'] = [
             'on_store' => true,

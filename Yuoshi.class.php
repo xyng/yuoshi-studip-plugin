@@ -99,7 +99,9 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->post('/packages/{id}/tasks', TasksController::class . ':create');
 
         $app->get('/tasks', TasksController::class . ':index');
+        $app->patch('/tasks/{id}', TasksController::class . ':update');
         $app->get('/tasks/{id}/contents', TaskContentsController::class . ':index');
+
         $app->post('/tasks/solutions', TaskSolutionsController::class . ':create');
 
         $app->get('/contents/{id}/quests', TaskContentQuestsController::class . ':index');

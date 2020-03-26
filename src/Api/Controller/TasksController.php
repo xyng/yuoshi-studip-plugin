@@ -1,23 +1,27 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
-
 use Course;
 use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\Errors\UnprocessableEntityException;
 use JsonApi\JsonApiController;
+use JsonApi\Routes\any;
 use JsonApi\Routes\Courses\Authority as CourseAuthority;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Valitron\Validator;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
+use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
+use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Model\Packages;
 use Xyng\Yuoshi\Model\Tasks;
 
 class TasksController extends JsonApiController
 {
+    use ValidationTrait;
+
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['sequence', 'package'];
 
@@ -116,5 +120,52 @@ EOD;
         }
 
         return $this->getContentResponse($task);
+    }
+
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['id'] ?? null;
+
+        if ($task_id === null) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = Tasks::find($task_id);
+
+        if (!$task) {
+            throw new RecordNotFoundException();
+        }
+
+        /** @var Course $course */
+        $course = $task->package->course;
+
+        if (!CourseAuthority::canEditCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
+            throw new AuthorizationFailedException();
+        }
+
+        $validated = $this->validate($request);
+
+        $data = new JsonApiDataHelper($validated);
+        $attrs = $data->getAttributes(['title', 'kind', 'description', 'sequence', 'is_training', 'credits']);
+
+        foreach ($attrs as $key => $value) {
+            $task->{$key} = $value ?? $task->{$key};
+        }
+
+        // TODO: handle image
+
+        if ($task->isDirty() && !$task->store()) {
+            throw new InternalServerError("could not update package");
+        }
+
+        return $this->getContentResponse($task);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildResourceValidationRules(Validator $validator, $data): Validator
+    {
+        return $validator;
     }
 }
