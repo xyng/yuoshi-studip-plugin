@@ -38,7 +38,7 @@ export const CourseContextProvider: React.FC = ({ children }) => {
     }, [])
 
     const { data: course } = useSWR(
-        () => (courseId ? [courseId, "course"] : null),
+        courseId ? [courseId, "course"] : null,
         fetchCourse,
         { suspense: true }
     )

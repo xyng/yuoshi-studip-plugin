@@ -54,11 +54,13 @@ export const CurrentPackageContextProvider: React.FC<{
         return packages.find((elem) => elem.getApiId() === currentPackage)
     }, [currentPackage, packages])
 
-    const { data: currentPackageFetched, mutate } = useSWR(
-        () =>
-            !currentPackageFromList && currentPackage
-                ? [currentPackage, "package"]
-                : null,
+    const {
+        data: currentPackageFetched,
+        mutate,
+    } = useSWR(
+        !currentPackageFromList && currentPackage
+            ? [currentPackage, "package"]
+            : null,
         fetchPackage,
         { suspense: true }
     )
