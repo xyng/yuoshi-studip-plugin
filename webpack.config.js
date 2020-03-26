@@ -45,12 +45,12 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                use: ["babel-loader", "source-map-loader"],
+                use: ["babel-loader", "source-map-loader", "eslint-loader"],
                 exclude: /node_modules/,
             },
             {
                 test: /\.tsx?$/,
-                use: ["babel-loader", "awesome-typescript-loader"],
+                use: ["babel-loader", "awesome-typescript-loader", "eslint-loader"],
                 exclude: /node_modules/,
             },
             {

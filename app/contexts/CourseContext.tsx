@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useMemo } from "react"
-import Course from "../models/Course";
-import useSWR from "swr";
-import { parse as qsParse } from "query-string";
+import useSWR from "swr"
+import { parse as qsParse } from "query-string"
+
+import Course from "../models/Course"
 
 interface CourseContextInterface {
     course: Course
@@ -37,7 +38,7 @@ export const CourseContextProvider: React.FC = ({ children }) => {
     }, [])
 
     const { data: course } = useSWR(
-        () => courseId ? [courseId, 'course'] : null,
+        () => (courseId ? [courseId, "course"] : null),
         fetchCourse,
         { suspense: true }
     )
@@ -47,7 +48,7 @@ export const CourseContextProvider: React.FC = ({ children }) => {
         course: course as Course,
     }
 
-    return <CourseContext.Provider value={ctx}>
-        {children}
-    </CourseContext.Provider>
+    return (
+        <CourseContext.Provider value={ctx}>{children}</CourseContext.Provider>
+    )
 }

@@ -1,9 +1,10 @@
-import { AppModel } from "./AppModel";
-import { ToManyRelation } from "coloquent/dist/relation/ToManyRelation";
-import Package from "./Package";
+import { ToManyRelation } from "coloquent/dist/relation/ToManyRelation"
+
+import { AppModel } from "./AppModel"
+import Package from "./Package"
 
 export default class Course extends AppModel {
-    protected jsonApiType: string = "courses";
+    protected jsonApiType: string = "courses"
 
     getTitle(): string {
         return this.getAttribute("title")

@@ -99,8 +99,6 @@ class BaseModel extends SimpleORMap {
         $sql = '';
         $params = [];
 
-        $no_right_side = ['is null', 'is not null'];
-
         $numItems = count($conditions);
         foreach ($conditions as $field => $condition) {
             $lastItem = --$numItems == 0;

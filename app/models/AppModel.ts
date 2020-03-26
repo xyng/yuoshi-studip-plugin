@@ -1,4 +1,4 @@
-import { Model } from "coloquent";
+import { Model } from "coloquent"
 
 export abstract class AppModel extends Model {
     getJsonApiBaseUrl(): string {
@@ -13,10 +13,10 @@ export abstract class AppModel extends Model {
 
 export abstract class AppModelWithDate extends AppModel {
     getCreated(): Date {
-        return this.getAttributeAsDate('mkdate');
+        return this.getAttributeAsDate("mkdate")
     }
 
     getModified(): Date {
-        return this.getAttributeAsDate('chdate');
+        return this.getAttributeAsDate("chdate")
     }
 }
