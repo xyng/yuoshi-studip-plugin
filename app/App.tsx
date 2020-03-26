@@ -16,18 +16,16 @@ const history = createHistory(source)
 
 const App: React.FC = () => {
     return (
-        <div>
-            <React.Suspense fallback={<Loading />}>
-                <CourseContextProvider>
-                    <LocationProvider history={history}>
-                        <Router>
-                            <Start path="/" />
-                            <Packages path="packages/*" />
-                        </Router>
-                    </LocationProvider>
-                </CourseContextProvider>
-            </React.Suspense>
-        </div>
+        <React.Suspense fallback={<Loading />}>
+            <CourseContextProvider>
+                <LocationProvider history={history}>
+                    <Router>
+                        <Start path="/" />
+                        <Packages path="packages/*" />
+                    </Router>
+                </LocationProvider>
+            </CourseContextProvider>
+        </React.Suspense>
     )
 }
 
