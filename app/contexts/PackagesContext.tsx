@@ -56,7 +56,7 @@ export const PackagesContextProvider: React.FC = ({ children }) => {
                     (elem) => elem.getApiId() === id
                 )
 
-                if (!index) {
+                if (index === -1) {
                     // no match no update
                     return current
                 }
