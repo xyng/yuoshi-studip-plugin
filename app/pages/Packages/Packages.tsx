@@ -1,4 +1,4 @@
-import React, { Suspense } from "react"
+import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
 import { CurrentPackageContextProvider } from "../../contexts/CurrentPackageContext"
@@ -69,7 +69,25 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
 }
 
 const RenderPackageTableData: React.FC = () => {
-    const { packages } = usePackagesContext()
+    const { packages, reloadPackages } = usePackagesContext()
+
+    const onRemove = useCallback(
+        (id?: string) => async () => {
+            if (!id) {
+                return
+            }
+
+            const entity = packages.find((p) => p.getApiId() === id)
+
+            if (!entity) {
+                return
+            }
+
+            await entity.delete()
+            await reloadPackages()
+        },
+        [packages]
+    )
 
     return (
         <>
@@ -83,9 +101,18 @@ const RenderPackageTableData: React.FC = () => {
                         </td>
                         <td>{packageItem.getModified().toLocaleString()}</td>
                         <td>
-                            <Link to={`${packageItem.getApiId()}/edit`}>
-                                Bearbeiten &rarr;
+                            <Link
+                                className="button"
+                                to={`${packageItem.getApiId()}/edit`}
+                            >
+                                Bearbeiten
                             </Link>
+                            <button
+                                className="button"
+                                onClick={onRemove(packageItem.getApiId())}
+                            >
+                                Löschen
+                            </button>
                         </td>
                     </tr>
                 )

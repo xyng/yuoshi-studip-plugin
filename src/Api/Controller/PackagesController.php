@@ -113,6 +113,21 @@ class PackagesController extends JsonApiController
         return $this->getContentResponse($package);
     }
 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $package_id = $args['package_id'] ?? null;
+
+        if (!$package_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if (!$package->delete()) {
+            throw new InternalServerError("could not delete entity");
+        }
+
+        return $response->withStatus(204);
+    }
 
     /**
      * @inheritDoc
