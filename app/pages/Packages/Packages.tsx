@@ -86,7 +86,7 @@ const RenderPackageTableData: React.FC = () => {
             await entity.delete()
             await reloadPackages()
         },
-        [packages]
+        [packages, reloadPackages]
     )
 
     return (

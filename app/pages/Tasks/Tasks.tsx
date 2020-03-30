@@ -91,7 +91,7 @@ const RenderTaskTableContent: React.FC = () => {
             await entity.delete()
             await reloadTasks()
         },
-        [tasks]
+        [tasks, reloadTasks]
     )
 
     return (
