@@ -1,9 +1,8 @@
 import { Model } from "coloquent"
 
-import { ObjectWithKeysOf } from "../helpers/types"
-
-export abstract class AppModel<T extends string[]> extends Model {
-    protected abstract readonly accessible: T
+export abstract class AppModel<T extends {}> extends Model {
+    protected abstract readonly accessible: Array<keyof T>
+    protected abstract jsonApiType: string
 
     getJsonApiBaseUrl(): string {
         const url = new URL(window.location.href)
@@ -14,22 +13,20 @@ export abstract class AppModel<T extends string[]> extends Model {
         return url.href
     }
 
-    public patch(values: Partial<ObjectWithKeysOf<T>>) {
-        for (const key of this.accessible) {
-            // the following would emit an ts error but should work.
-            // @ts-ignore
-            const value = values[key] as string
-
-            if (value === undefined) {
+    public patch(values: Partial<T>) {
+        for (const key in values) {
+            if (!values.hasOwnProperty(key) || !this.accessible.includes(key)) {
                 continue
             }
+
+            const value = values[key]
 
             this.setAttribute(key as string, value)
         }
     }
 }
 
-export abstract class AppModelWithDate<T extends string[]> extends AppModel<T> {
+export abstract class AppModelWithDate<T extends {}> extends AppModel<T> {
     getCreated(): Date {
         return this.getAttributeAsDate("mkdate")
     }

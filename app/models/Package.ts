@@ -1,9 +1,15 @@
+import { ToManyRelation } from "coloquent"
+
 import { AppModelWithDate } from "./AppModel"
 import Course from "./Course"
+import Task from "./Task"
 
-type Attributes = ["title", "slug"]
+type Attributes = {
+    title: string
+    slug: string
+}
 export default class Package extends AppModelWithDate<Attributes> {
-    protected readonly accessible: Attributes = ["title", "slug"]
+    protected readonly accessible: Array<keyof Attributes> = ["title", "slug"]
     protected jsonApiType: string = "packages"
 
     getTitle(): string {
@@ -24,5 +30,13 @@ export default class Package extends AppModelWithDate<Attributes> {
 
     setCourse(course: Course) {
         return this.setRelation("course", course)
+    }
+
+    tasks(): ToManyRelation {
+        return this.hasMany(Task)
+    }
+
+    getTasks(): Task[] {
+        return this.getRelation("tasks")
     }
 }

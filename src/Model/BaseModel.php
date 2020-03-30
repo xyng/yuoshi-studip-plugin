@@ -3,7 +3,9 @@ namespace Xyng\Yuoshi\Model;
 
 use DateTime;
 use DateTimeImmutable;
+use DBManager;
 use SimpleORMap;
+use Xyng\Yuoshi\Helper\DBHelper;
 
 /**
  * Class BaseModel
@@ -92,7 +94,19 @@ class BaseModel extends SimpleORMap {
             }
         }
 
-        return parent::store();
+        $ret = parent::store();
+
+        if (!$ret) {
+            $error_code = DBManager::get()->errorCode();
+            if (!$error_code || $error_code == '00000') {
+                // catch false-positives (empty result for insert - caused by saving an unmodified entity)
+                return true;
+            }
+
+            return $ret;
+        }
+
+        return $ret;
     }
 
     private static function traverseConditions(array $conditions) {
@@ -155,27 +169,24 @@ class BaseModel extends SimpleORMap {
                 $sql .= " AND\n";
             }
 
+            $fieldName = $split[0];
+
             if (strtolower($comp) == 'is null' || strtolower($comp) == 'is not null') {
-                $sql .= sprintf("%s %s", $split[0], $comp);
+                $sql .= sprintf("%s %s", $fieldName, $comp);
             } else {
+                $placeholder_key = preg_replace('/[^\w]/', '_', $fieldName);
                 if (
                     strtolower($comp) == 'in'
                     || strtolower($comp) == 'not in'
                 ) {
-                    $placeholders = '(' . join(",", array_fill(0, count($condition), '?')) . ')';
+                    ['placeholder' => $placeholder, 'values' => $values] = DBHelper::arrayToPlaceholderAndValue($condition, $placeholder_key);
+                    $params += $values;
                 } else {
-                    $placeholders = '?';
+                    $placeholder = ':' . $placeholder_key;
+                    $params[$placeholder_key] = $condition;
                 }
 
-                $sql .= sprintf("%s %s %s", $split[0], $comp, $placeholders);
-
-                if (is_array($condition)) {
-                    foreach ($condition as $value) {
-                        $params[] = $value;
-                    }
-                } else {
-                    $params[] = $condition;
-                }
+                $sql .= sprintf("%s %s %s", $fieldName, $comp, $placeholder);
             }
         }
 
@@ -186,5 +197,48 @@ class BaseModel extends SimpleORMap {
         ['sql' => $sql, 'params' => $params] = static::traverseConditions($conditions);
 
         return static::findBySQL($sql, $params);
+    }
+
+    public static function findOneWhere(array $conditions) {
+        ['sql' => $sql, 'params' => $params] = static::traverseConditions($conditions);
+
+        return static::findOneBySQL($sql, $params);
+    }
+
+    protected static function queryToSql(array $query) {
+        $sql = '';
+        $params = [];
+
+        $join_conditions = [];
+        if ($joins = $query['joins'] ?? []) {
+            foreach ($joins as $key => $join) {
+                $sql .= "\n" . $join['sql'];
+                $params += $join['params'] ?? [];
+
+                $join_conditions += $join['conditions'] ?? [];
+            }
+        }
+
+        $conditions = $query['conditions'] ?? [];
+        if ($join_conditions || $conditions) {
+            $sql .= "\nWHERE\n";
+            ['sql' => $cond_sql, 'params' => $cond_params] = static::traverseConditions($join_conditions + $conditions);
+            $sql .= $cond_sql;
+            $params += $cond_params;
+        }
+
+        return ['sql' => $sql, 'params' => $params];
+    }
+
+    public static function findWithQuery(array $query) {
+        ['sql' => $sql, 'params' => $params] = static::queryToSql($query);
+
+        return static::findBySQL($sql, $params);
+    }
+
+    public static function findOneWithQuery(array $query) {
+        ['sql' => $sql, 'params' => $params] = static::queryToSql($query);
+
+        return static::findOneBySQL($sql, $params);
     }
 }

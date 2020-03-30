@@ -1,11 +1,13 @@
 import React, { FormEventHandler } from "react"
+import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
 
 import Task from "../../models/Task"
+import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 const TaskForm: React.FC<{
     defaultValues?: Partial<{
         title: string
-        kind: string
+        kind: TaskTypeName
         description: string
         credits: number
     }>

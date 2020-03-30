@@ -30,6 +30,10 @@ class JsonApiDataHelper {
         return $this->data['relationships'][$relation] ?? null;
     }
 
+    public function getRelationId(string $relation): ?string {
+        return $this->data['relationships'][$relation]['data']['id'] ?? null;
+    }
+
     public function getRelations(array $keys = []): array {
         if (!$keys) {
             return $this->data['relationships'] ?? [];

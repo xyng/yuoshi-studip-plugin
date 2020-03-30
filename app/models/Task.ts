@@ -1,17 +1,22 @@
+import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
+import { ToManyRelation, ToOneRelation } from "coloquent"
+
 import { AppModelWithDate } from "./AppModel"
 import Package from "./Package"
+import Content from "./Content"
+import TaskTypeName = NSTaskAdapter.TaskTypeName
 
-type Attributes = [
-    "title",
-    "kind",
-    "sequence",
-    "description",
-    "credits",
-    "is_training",
-    "image"
-]
+type Attributes = {
+    title: string
+    kind: TaskTypeName
+    sequence: number
+    description: string
+    credits: string
+    is_training: string
+    image: string
+}
 export default class Task extends AppModelWithDate<Attributes> {
-    protected readonly accessible: Attributes = [
+    protected readonly accessible: Array<keyof Attributes> = [
         "title",
         "kind",
         "sequence",
@@ -22,22 +27,24 @@ export default class Task extends AppModelWithDate<Attributes> {
     ]
     protected jsonApiType: string = "tasks"
 
-    public static readonly taskTypes = {
-        card: "Karteikarte",
-        cloze: "Lückentext",
-        drag: "Drag n' Drop",
-        memory: "Memory",
-        multi: "Multiple-Choice",
-        survey: "Umfrage",
-        tag: "Text markieren",
-        training: "Quiz",
+    public static readonly taskTypes: {
+        [key in TaskTypeName]: string
+    } = {
+        [TaskTypeName.CARD]: "Karteikarte",
+        [TaskTypeName.CLOZE]: "Lückentext",
+        [TaskTypeName.DRAG]: "Drag n' Drop",
+        [TaskTypeName.MEMORY]: "Memory",
+        [TaskTypeName.MULTI]: "Multiple-Choice",
+        [TaskTypeName.SURVEY]: "Umfrage",
+        [TaskTypeName.TAG]: "Text markieren",
+        [TaskTypeName.TRAINING]: "Quiz",
     }
 
     public getTitle(): string {
         return this.getAttribute("title")
     }
 
-    public getType(): string {
+    public getType(): TaskTypeName {
         return this.getAttribute("kind")
     }
 
@@ -65,7 +72,7 @@ export default class Task extends AppModelWithDate<Attributes> {
         return this.setAttribute("title", title)
     }
 
-    public setType(type: string): void {
+    public setType(type: TaskTypeName): void {
         return this.setAttribute("kind", type)
     }
 
@@ -91,5 +98,21 @@ export default class Task extends AppModelWithDate<Attributes> {
 
     public setPackage(pckg: Package) {
         return this.setRelation("package", pckg)
+    }
+
+    public package(): ToOneRelation {
+        return this.hasOne(Package)
+    }
+
+    public contents(): ToManyRelation {
+        return this.hasMany(Content)
+    }
+
+    public getContents(): Content[] {
+        return this.getRelation("contents")
+    }
+
+    public setContents(contents: Content[]): void {
+        return this.setRelation("contents", contents)
     }
 }

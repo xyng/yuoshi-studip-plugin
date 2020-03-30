@@ -9,6 +9,7 @@ import {
 import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
 import CreateTask from "../Task/CreateTask"
+import EditTaskContent from "../Task/EditTaskContent/EditTaskContent"
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (
@@ -28,7 +29,8 @@ const TaskSubRoute: React.FC<RouteComponentProps<{
     return (
         <CurrentTaskContextProvider taskId={taskId}>
             <Router>
-                <EditTask path="edit" />
+                <EditTaskContent path="edit" />
+                <EditTask path="meta" />
             </Router>
         </CurrentTaskContextProvider>
     )
@@ -80,12 +82,16 @@ const RenderTaskTableContent: React.FC = () => {
                 tasks.map((task) => {
                     return (
                         <tr key={`task-${task.getApiId()}`}>
-                            <td>{task.getTitle()}</td>
+                            <td>
+                                <Link to={`${task.getApiId()}/edit`}>
+                                    {task.getTitle()}
+                                </Link>
+                            </td>
                             <td>{task.getType()}</td>
                             <td>{task.getCredits()}</td>
                             <td>{task.getModified().toLocaleString()}</td>
                             <td>
-                                <Link to={`${task.getApiId()}/edit`}>
+                                <Link to={`${task.getApiId()}/meta`}>
                                     Metadaten Bearbeiten &rarr;
                                 </Link>
                             </td>

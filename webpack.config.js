@@ -45,7 +45,7 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                use: ["babel-loader", "source-map-loader", "eslint-loader"],
+                use: ["babel-loader", "eslint-loader"],
                 exclude: /node_modules/,
             },
             {
@@ -113,7 +113,7 @@ module.exports = {
             'PLUGIN_URL_PATH'
         ]),
     ],
-    devtool: prod ? "source-map" : "cheap-module-source-map",
+    devtool: "source-map",
     watch: !prod,
     optimization: {
         minimizer: [

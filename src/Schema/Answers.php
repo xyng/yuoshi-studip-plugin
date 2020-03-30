@@ -25,6 +25,7 @@ class Answers extends SchemaProvider
         return [
             'content' => $resource->content,
             'is_correct' => $resource->is_correct,
+            'sort' => $resource->sort ? (int) $resource->sort : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

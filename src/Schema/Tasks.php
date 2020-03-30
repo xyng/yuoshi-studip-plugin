@@ -39,9 +39,14 @@ class Tasks extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
+        $contents = null;
+        if ($includeRelationships['contents'] ?? null) {
+            $contents = $resource->contents;
+        }
+
         return [
             'contents' => [
-                self::DATA => $resource->contents,
+                self::DATA => $contents,
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'contents')

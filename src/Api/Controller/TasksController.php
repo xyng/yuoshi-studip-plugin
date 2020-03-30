@@ -8,13 +8,16 @@ use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\Errors\UnprocessableEntityException;
 use JsonApi\JsonApiController;
 use JsonApi\Routes\Courses\Authority as CourseAuthority;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Valitron\Validator;
 use Xyng\Yuoshi\Api\Authority\PackageAuthority;
+use Xyng\Yuoshi\Api\Authority\TaskAuthority;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\Packages;
 use Xyng\Yuoshi\Model\Tasks;
 
@@ -24,6 +27,11 @@ class TasksController extends JsonApiController
 
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['sequence', 'package'];
+    protected $allowedIncludePaths = [
+        'contents',
+        'contents.quests',
+        'contents.quests.answers'
+    ];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $package_id = $args['id'] ?? null;
@@ -35,6 +43,7 @@ class TasksController extends JsonApiController
         }
         $sequence = $filters['sequence'] ?? null;
 
+        $where = [];
         if ($sequence) {
             $where['sequence'] = $sequence;
         }
@@ -43,9 +52,7 @@ class TasksController extends JsonApiController
             throw new \InvalidArgumentException("Cannot select Tasks without package filter.");
         }
 
-        $where['package_id IN'] = $package_ids;
-
-        $tasks = Tasks::findWhere($where);
+        $tasks = TaskAuthority::findFiltered($package_ids, $this->getUser($request), [], $where);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -77,21 +84,37 @@ EOD;
         return $this->getContentResponse($task);
     }
 
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request));
+
+        if (!$task) {
+            throw new RecordNotFoundException();
+        }
+
+        return $this->getContentResponse($task);
+    }
+
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
 
         $package_id = $data->getRelation('package')['data']['id'] ?? null;
 
-        /** @var Packages|null $package */
-        $package = Packages::find($package_id);
-
-        if ($package == null) {
+        if (!$package_id) {
             throw new RecordNotFoundException();
         }
 
-        if (!PackageAuthority::canEditPackage($this->getUser($request), $package)) {
-            throw new AuthorizationFailedException();
+        /** @var Packages|null $package */
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if ($package == null) {
+            throw new RecordNotFoundException();
         }
 
         $task = Tasks::build(
@@ -123,17 +146,10 @@ EOD;
             throw new RecordNotFoundException();
         }
 
-        $task = Tasks::find($task_id);
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
         if (!$task) {
             throw new RecordNotFoundException();
-        }
-
-        /** @var Course $course */
-        $course = $task->package->course;
-
-        if (!CourseAuthority::canEditCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
-            throw new AuthorizationFailedException();
         }
 
         $validated = $this->validate($request);
@@ -154,6 +170,21 @@ EOD;
         return $this->getContentResponse($task);
     }
 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['task_id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if (!$task->delete()) {
+            throw new InternalServerError("could not delete entity");
+        }
+
+        return $response->withStatus(204);
+    }
 
     /**
      * @inheritDoc

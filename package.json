@@ -7,8 +7,8 @@
     "start": "webpack-dev-server",
     "build": "NODE_ENV=production webpack",
     "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx,json,md}\"",
-    "lint-fix": "eslint --fix \"app/**/*.{js,jsx,ts,tsx,json,md}\"",
-    "lint": "eslint \"app/**/*.{js,jsx,ts,tsx,json,md}\""
+    "lint-fix": "eslint --fix \"app/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "eslint \"app/**/*.{js,jsx,ts,tsx}\""
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "@types/react-dom": "^16.9.5",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
+    "@xyng/yuoshi-backend-adapter": "^0.0.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.1.0",
     "coloquent": "^2.2.0",
@@ -38,7 +39,7 @@
     "css-loader": "^3.4.2",
     "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-prsettier": "^6.10.1",
     "eslint-config-react-app": "^5.2.1",
     "eslint-loader": "^3.0.3",
     "eslint-plugin-flowtype": "^4.7.0",
@@ -82,6 +83,7 @@
     }
   },
   "lint-staged": {
-    "app/**/*.{js,jsx,ts,tsx,json,md}": "eslint --fix"
+    "app/**/*.{js,jsx,ts,tsx}": "eslint --fix",
+    "app/**/*.{json,md}": "prettier --write"
   }
 }

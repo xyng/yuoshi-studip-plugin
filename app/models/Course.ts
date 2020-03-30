@@ -1,4 +1,4 @@
-import { ToManyRelation } from "coloquent/dist/relation/ToManyRelation"
+import { ToManyRelation } from "coloquent"
 
 import { AppModel } from "./AppModel"
 import Package from "./Package"

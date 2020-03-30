@@ -5,6 +5,7 @@ use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Xyng\Yuoshi\Api\Authority\TaskAuthority;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\TaskContents;
 use Xyng\Yuoshi\Model\Tasks;
@@ -25,7 +26,19 @@ class TaskSolutionsController extends JsonApiController
         }
 
         $task_id = $data['attributes']['task_id'];
-        $task = Tasks::find($task_id);
+        $task = Tasks::findWithQuery([
+            'joins' => [
+                [
+                    'sql' => TaskAuthority::filterByUsersPackages(),
+                    'params' => [
+                        'user_id' => $this->getUser($request)->id
+                    ]
+                ]
+            ],
+            'conditions' => [
+                'yuoshi_tasks.id' => $task_id,
+            ]
+        ]);
 
         if (!$task) {
             throw new RecordNotFoundException();

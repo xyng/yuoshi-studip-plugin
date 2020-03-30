@@ -11,30 +11,12 @@ export default function useGetModelFromListOrFetch<T extends Model>(
     updateList: (entity: T, reload: boolean) => void | Promise<void>,
     reloadList: () => Promise<any>
 ) {
-    const entityFromList = useMemo(() => {
-        if (!entityId) {
-            return
-        }
-
-        return list.find((elem) => elem.getApiId() === entityId)
-    }, [entityId, list])
-
-    const keyFetcher = useCallback(() => {
-        if (entityFromList) {
-            return null
-        }
-
-        if (fallbackFetcherKey instanceof Function) {
-            return fallbackFetcherKey()
-        }
-
-        return fallbackFetcherKey
-    }, [fallbackFetcherKey, entityFromList])
+    const entityFromList = undefined
 
     const { data: entityFetched, mutate } = useSWR(
-        keyFetcher,
+        fallbackFetcherKey,
         fallbackFetcher,
-        { suspense: true }
+        { suspense: true, revalidateOnFocus: false }
     )
 
     const entityData = useMemo(() => {

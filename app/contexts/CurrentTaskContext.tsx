@@ -24,7 +24,9 @@ export const useCurrentTaskContext = () => {
 }
 
 const fetchTask = async (taskId: string) => {
-    const task = (await Task.find(taskId)).getData() as Task | null
+    const task = (
+        await Task.with("contents.quests.answers").find(taskId)
+    ).getData() as Task | null
 
     if (!task) {
         throw new Error("Task not found")

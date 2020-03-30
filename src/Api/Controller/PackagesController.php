@@ -11,8 +11,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Valitron\Validator;
+use Xyng\Yuoshi\Api\Authority\PackageAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\Packages;
 
 class PackagesController extends JsonApiController
@@ -32,27 +34,7 @@ class PackagesController extends JsonApiController
             $course_ids = explode(',', $filters['course'] ?? '');
         }
 
-        foreach ($course_ids as $course_id) {
-            /** @var Course|null $course */
-            $course = Course::find($course_id);
-
-            if ($course == null) {
-                throw new RecordNotFoundException();
-            }
-
-            if (!CourseAuthority::canShowCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
-                throw new AuthorizationFailedException();
-            }
-        }
-
-        if ($course_ids) {
-            $packages = Packages::findWhere([
-                'course_id IN' => $course_ids,
-                'course_id IS NOT NULL'
-            ]);
-        } else {
-            $packages = [];
-        }
+        $packages = PackageAuthority::findFiltered($course_ids, $this->getUser($request));
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -106,16 +88,10 @@ class PackagesController extends JsonApiController
             throw new RecordNotFoundException();
         }
 
-        $package = Packages::find($package_id);
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
         if (!$package) {
             throw new RecordNotFoundException();
-        }
-
-        $course = $package->course;
-
-        if (!CourseAuthority::canEditCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
-            throw new AuthorizationFailedException();
         }
 
         $validated = $this->validate($request);

@@ -13,7 +13,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         parent::__construct();
 
         // Enable this when changing tables.
-        // SimpleORMap::expireTableScheme();
+        SimpleORMap::expireTableScheme();
 
         require_once 'vendor/autoload.php';
     }
@@ -99,14 +99,35 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
 
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
+        $app->get('/tasks/{id}', TasksController::class . ':show');
         $app->patch('/tasks/{id}', TasksController::class . ':update');
+        $app->delete('/tasks/{task_id}', TasksController::class . ':delete');
         $app->get('/tasks/{id}/contents', TaskContentsController::class . ':index');
+        $app->get('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':show');
+        $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
 
         $app->post('/tasks/solutions', TaskSolutionsController::class . ':create');
 
+        $app->get('/contents', TaskContentsController::class . ':index');
+        $app->post('/contents', TaskContentsController::class . ':create');
+        $app->patch('/contents/{content_id}', TaskContentsController::class . ':update');
+        $app->delete('/contents/{content_id}', TaskContentsController::class . ':delete');
         $app->get('/contents/{id}/quests', TaskContentQuestsController::class . ':index');
+        $app->get('/contents/{content_id}/quests/{quest_id}', TaskContentQuestsController::class . ':show');
+        $app->patch('/contents/{content_id}/quests/{quest_id}', TaskContentQuestsController::class . ':update');
 
+        $app->get('/quests', TaskContentQuestsController::class . ':index');
+        $app->post('/quests', TaskContentQuestsController::class . ':create');
+        $app->patch('/quests/{quest_id}', TaskContentQuestsController::class . ':update');
+        $app->delete('/quests/{quest_id}', TaskContentQuestsController::class . ':delete');
         $app->get('/quests/{id}/answers', TaskContentQuestAnswersController::class . ':index');
+        $app->get('/quests/{quest_id}/answers/{answer_id}', TaskContentQuestAnswersController::class . ':show');
+        $app->patch('/quests/{quest_id}/answers/{answer_id}', TaskContentQuestAnswersController::class . ':update');
+
+        $app->get('/answers', TaskContentQuestAnswersController::class . ':index');
+        $app->post('/answers', TaskContentQuestAnswersController::class . ':create');
+        $app->patch('/answers/{answer_id}', TaskContentQuestAnswersController::class . ':update');
+        $app->delete('/answers/{answer_id}', TaskContentQuestAnswersController::class . ':delete');
     }
 
     /**
