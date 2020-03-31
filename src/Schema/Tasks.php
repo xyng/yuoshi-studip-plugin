@@ -31,7 +31,6 @@ class Tasks extends SchemaProvider
             'description' => $resource->description,
             'credits' => (int) $resource->credits,
             'is_training' => (bool) $resource->is_training,
-            'attributes' => $resource->attributes,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
