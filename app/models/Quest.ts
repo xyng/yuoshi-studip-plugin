@@ -10,7 +10,6 @@ type Attributes = {
     image?: string
     prePhrase?: string
     question: string
-    content?: string
     multiple: boolean
     sort?: number
     require_order: boolean
@@ -21,7 +20,6 @@ export default class Quest extends AppModelWithDate<Attributes> {
         "image",
         "prePhrase",
         "question",
-        "content",
         "multiple",
         "sort",
         "require_order",
@@ -42,10 +40,6 @@ export default class Quest extends AppModelWithDate<Attributes> {
 
     public getQuestion(): string {
         return this.getAttribute("question")
-    }
-
-    public getContent(): string | undefined {
-        return this.getAttribute("content")
     }
 
     public getMultiple(): boolean {
@@ -76,11 +70,11 @@ export default class Quest extends AppModelWithDate<Attributes> {
         return this.hasOne(Content)
     }
 
-    getContentRelation(): Content {
+    getContent(): Content {
         return this.getRelation("content")
     }
 
-    setContentRelation(content: Content) {
+    setContent(content: Content) {
         return this.setRelation("content", content)
     }
 }
