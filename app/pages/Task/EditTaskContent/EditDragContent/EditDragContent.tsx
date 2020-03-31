@@ -5,26 +5,22 @@ import React, {
     useState,
 } from "react"
 import {
+    Creatable,
     ensureSequenceForKey,
-    Identifiable,
     IdentifiableSortable,
     removeEntityAndSort,
     SetterFn,
     updateEntityAndSort,
 } from "helpers/listHelpers"
 
-import { uniqueId } from "../../../helpers/uniqueId"
-import Content from "../../../models/Content"
-import Quest from "../../../models/Quest"
-import Answer from "../../../models/Answer"
-import Task from "../../../models/Task"
+import { uniqueId } from "../../../../helpers/uniqueId"
+import Content from "../../../../models/Content"
+import Quest from "../../../../models/Quest"
+import Answer from "../../../../models/Answer"
+import Task from "../../../../models/Task"
+import { EditTaskContentView } from "../EditTaskContent"
 
 import Styles from "./EditDragContent.module.css"
-import { EditTaskContentView } from "./EditTaskContent"
-
-interface Creatable extends Identifiable {
-    isNew?: boolean
-}
 
 interface Statement extends IdentifiableSortable, Creatable {
     content: string

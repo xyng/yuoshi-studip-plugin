@@ -2,6 +2,10 @@ export interface Identifiable {
     id: string
 }
 
+export interface Creatable extends Identifiable {
+    isNew?: boolean
+}
+
 export interface IdentifiableSortable extends Identifiable {
     sort?: number
 }

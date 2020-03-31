@@ -5,7 +5,8 @@ import { useCurrentTaskContext } from "contexts/CurrentTaskContext"
 
 import Task from "../../../models/Task"
 
-import EditDragContent from "./EditDragContent"
+import EditCardContent from "./EditCardContent/EditCardContent"
+import EditDragContent from "./EditDragContent/EditDragContent"
 
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
@@ -20,6 +21,8 @@ const EditTaskContent: React.FC<RouteComponentProps> = () => {
     switch (task.getType()) {
         case TaskTypeName.DRAG:
             return <EditDragContent task={task} updateTask={updateTask} />
+        case TaskTypeName.CARD:
+            return <EditCardContent task={task} updateTask={updateTask} />
         default:
             return null
     }
