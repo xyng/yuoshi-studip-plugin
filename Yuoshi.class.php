@@ -13,7 +13,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         parent::__construct();
 
         // Enable this when changing tables.
-        SimpleORMap::expireTableScheme();
+        // SimpleORMap::expireTableScheme();
 
         require_once 'vendor/autoload.php';
     }
