@@ -127,6 +127,10 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->post('/answers', TaskContentQuestAnswersController::class . ':create');
         $app->patch('/answers/{answer_id}', TaskContentQuestAnswersController::class . ':update');
         $app->delete('/answers/{answer_id}', TaskContentQuestAnswersController::class . ':delete');
+
+        $app->get('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':show');
+        $app->post('/yuoshi_images', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':create');
+        $app->post('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':update');
     }
 
     /**
