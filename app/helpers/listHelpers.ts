@@ -6,9 +6,11 @@ export interface Creatable extends Identifiable {
     isNew?: boolean
 }
 
-export interface IdentifiableSortable extends Identifiable {
+export interface Sortable {
     sort?: number
 }
+
+export interface IdentifiableSortable extends Identifiable, Sortable {}
 
 export type SetterFn<T> = T | ((arg: any) => T)
 
