@@ -10,6 +10,7 @@ use SimpleORMap;
  * @property string $title
  * @property string $kind
  * @property Packages $package
+ * @property TaskContents $contents
  */
 class Tasks extends BaseModel {
     public static $types = ['card', 'cloze', 'drag', 'memory', 'multi', 'survey', 'tag', 'training'];
@@ -24,12 +25,6 @@ class Tasks extends BaseModel {
         $config['has_many']['contents'] = [
             'on_store' => true,
             'class_name' => TaskContents::class,
-            'assoc_foreign_key' => 'task_id'
-        ];
-
-        $config['has_many']['attributes'] = [
-            'on_store' => true,
-            'class_name' => TaskAttributes::class,
             'assoc_foreign_key' => 'task_id'
         ];
 

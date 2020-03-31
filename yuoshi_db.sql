@@ -29,42 +29,6 @@ CREATE TABLE `yuoshi_packages` (
   UNIQUE KEY `slug` (`slug`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE `yuoshi_task_attributes` (
-  `id` varchar(32) NOT NULL,
-  `task_id` varchar(32) NOT NULL,
-  `item` varchar(255) NOT NULL,
-  `value` text NOT NULL,
-  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
-  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `task_id` (`task_id`),
-  CONSTRAINT `yuoshi_task_attributes_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `yuoshi_tasks` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-CREATE TABLE `yuoshi_task_content_images` (
-  `id` varchar(32) NOT NULL,
-  `content_id` varchar(32) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `meta` text NOT NULL,
-  `path` varchar(255) NOT NULL,
-  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
-  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `content_id` (`content_id`),
-  CONSTRAINT `yuoshi_task_content_images_ibfk_1` FOREIGN KEY (`content_id`) REFERENCES `yuoshi_task_contents` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-CREATE TABLE `yuoshi_task_content_keywords` (
-  `id` varchar(32) NOT NULL,
-  `content_id` varchar(32) NOT NULL,
-  `keyword` varchar(255) NOT NULL,
-  `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
-  `chdate` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `content_id` (`content_id`),
-  CONSTRAINT `yuoshi_task_content_keywords_ibfk_1` FOREIGN KEY (`content_id`) REFERENCES `yuoshi_task_contents` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 CREATE TABLE `yuoshi_task_content_quest_answers` (
   `id` varchar(32) NOT NULL,
   `content` text NOT NULL,
