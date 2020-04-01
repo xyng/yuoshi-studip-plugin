@@ -6,7 +6,7 @@ import {
     useState,
 } from "react"
 
-import { QuizContent, useEditTaskContext } from "../useEditTaskContent"
+import { useEditTaskContext } from "../useEditTaskContent"
 
 const useGlobalContent = (
     editTaskContext: ReturnType<typeof useEditTaskContext>
