@@ -8,7 +8,9 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
         task,
         contents,
         createContent,
+        removeContent,
         createAnswer,
+        removeAnswer,
         onContentInputChange,
         onAnswerInputChange,
         onSave,
@@ -85,6 +87,13 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
                             </label>
                         </div>
 
+                        <button
+                            className="button"
+                            onClick={removeContent(content.id)}
+                        >
+                            Inhalt Entfernen
+                        </button>
+
                         {/* content always has at least one quest (probably exactly one */}
                         <button
                             className="button"
@@ -111,6 +120,17 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
                                                     )}
                                                 />
                                             </label>
+
+                                            <button
+                                                className="button"
+                                                onClick={removeAnswer(
+                                                    content.id,
+                                                    quest.id,
+                                                    answer.id
+                                                )}
+                                            >
+                                                Tag Entfernen
+                                            </button>
                                         </div>
                                     )
                                 })
