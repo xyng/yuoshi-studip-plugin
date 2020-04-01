@@ -9,8 +9,9 @@ use SimpleORMap;
  *
  * @property string $title
  * @property string $kind
+ * @property number $credits
  * @property Packages $package
- * @property TaskContents $contents
+ * @property \SimpleORMapCollection|TaskContents[] $contents
  */
 class Tasks extends BaseModel {
     public static $types = ['card', 'cloze', 'drag', 'memory', 'multi', 'survey', 'tag', 'training'];

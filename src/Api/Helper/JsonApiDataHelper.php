@@ -30,6 +30,25 @@ class JsonApiDataHelper {
         return $this->data['relationships'][$relation] ?? null;
     }
 
+    /**
+     * @param string $relation
+     * @return static[]
+     */
+    public function getHasManyMapped(string $relation) {
+        return array_map(function ($relation) {
+            return new static($relation);
+        }, $this->getRelation($relation) ?: []);
+    }
+
+    /**
+     * @param string $relation
+     * @return static|null
+     */
+    public function getHasOneMapped(string $relation) {
+        $rel = $this->getRelation($relation);
+        return $rel ? new static($rel) : null;
+    }
+
     public function getRelationId(string $relation): ?string {
         return $this->data['relationships'][$relation]['data']['id'] ?? null;
     }

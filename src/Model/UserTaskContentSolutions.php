@@ -10,6 +10,10 @@ use JSONArrayObject;
  * @property string $solution_id
  * @property string $content_id
  * @property JSONArrayObject $value
+ *
+ * @property TaskContents $content
+ * @property UserTaskSolutions $task_solution
+ * @property \SimpleORMapCollection|UserTaskContentQuestSolutions[] $quest_solutions
  */
 class UserTaskContentSolutions extends BaseModel {
     protected static function configure($config = []) {
@@ -24,6 +28,11 @@ class UserTaskContentSolutions extends BaseModel {
         $config['belongs_to']['content'] = [
             'class_name' => TaskContents::class,
             'foreign_key' => 'content_id'
+        ];
+
+        $config['belongs_to']['task_solution'] = [
+            'class_name' => UserTaskSolutions::class,
+            'foreign_key' => 'solution_id'
         ];
 
         $config['serialized_fields']['value'] = JSONArrayObject::class;

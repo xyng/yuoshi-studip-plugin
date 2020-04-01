@@ -8,7 +8,7 @@ use eTask\Task;
  * @package Xyng\Yuoshi\Model
  *
  * @property \SimpleORMap|Task $task
- * @property \SimpleCollection|TaskContentQuests[] $quests
+ * @property \SimpleORMapCollection|TaskContentQuests[] $quests
  */
 class TaskContents extends BaseModel {
     protected static function configure($config = []) {

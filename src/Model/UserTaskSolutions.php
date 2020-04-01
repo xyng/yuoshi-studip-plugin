@@ -7,6 +7,11 @@ namespace Xyng\Yuoshi\Model;
  *
  * @property string $task_id
  * @property string $user_id
+ * @property number|null $points
+ * @property boolean $is_correct
+ *
+ * @property Tasks $task
+ * @property \SimpleORMapCollection|UserTaskContentSolutions[] $content_solutions
  */
 class UserTaskSolutions extends BaseModel {
     protected static function configure($config = []) {
@@ -25,6 +30,12 @@ class UserTaskSolutions extends BaseModel {
         $config['belongs_to']['user'] = [
             'class_name' => \User::class,
             'foreign_key' => 'user_id'
+        ];
+
+        $config['additional_fields']['is_correct'] = [
+            'get' => function (UserTaskSolutions $solution) {
+                return $solution->points && $solution->points === $solution->task->credits;
+            }
         ];
 
         parent::configure($config);

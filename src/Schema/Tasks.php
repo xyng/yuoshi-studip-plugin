@@ -24,7 +24,7 @@ class Tasks extends SchemaProvider
     {
         /** @var \Xyng\Yuoshi\Model\Tasks $resource */
         return [
-            'sequence' => (int) $resource->sequence,
+            'sort' => (int) $resource->sort,
             'title' => $resource->title,
             'image' => $resource->image,
             'kind' => $resource->kind,

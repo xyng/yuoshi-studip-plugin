@@ -72,7 +72,7 @@ class TasksController extends JsonApiController
                 Solutions.id IS NULL
                 AND `yuoshi_tasks`.`package_id` = :package_id
             )
-            ORDER BY `yuoshi_tasks`.`sequence`
+            ORDER BY `yuoshi_tasks`.`sort` ASC
 EOD;
 
         ['id' => $package_id] = $args;

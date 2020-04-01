@@ -75,7 +75,7 @@ CREATE TABLE `yuoshi_task_contents` (
 CREATE TABLE `yuoshi_tasks` (
   `id` varchar(32) NOT NULL,
   `package_id` varchar(32) NOT NULL,
-  `sequence` int(4) NOT NULL,
+  `sort` int(4) NOT NULL,
   `is_training` tinyint(1) NOT NULL DEFAULT 0,
   `image` varchar(255) DEFAULT NULL,
   `kind` varchar(32) NOT NULL,

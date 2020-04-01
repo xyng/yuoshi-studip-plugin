@@ -8,6 +8,12 @@ namespace Xyng\Yuoshi\Model;
  * @property string $content_solution_id
  * @property string $quest_id
  * @property string $answer_id
+ * @property string $custom
+ * @property number|null $sort
+ *
+ * @property UserTaskContentSolutions $content_solution
+ * @property TaskContentQuests $quest
+ * @property TaskContentQuestAnswers|null $answer
  */
 class UserTaskContentQuestSolutions extends BaseModel {
     protected static function configure($config = []) {
