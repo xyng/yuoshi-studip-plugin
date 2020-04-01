@@ -190,7 +190,7 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
                                     </label>
                                     <label>
                                         <input
-                                            checked={!!category.requireOrder}
+                                            checked={category.requireOrder}
                                             onChange={onQuestInputChange(
                                                 content.id,
                                                 category.id,
