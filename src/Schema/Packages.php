@@ -26,6 +26,7 @@ class Packages extends SchemaProvider
             'slug' => $resource->slug,
             'title' => $resource->title,
             'playable' => $resource->playable,
+            'progress' => $resource->isAdditionalField('progress') ? (float) $resource->progress : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

@@ -14,7 +14,9 @@ use Valitron\Validator;
 use Xyng\Yuoshi\Api\Authority\PackageAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Helper\QueryField;
 use Xyng\Yuoshi\Model\Packages;
 
 class PackagesController extends JsonApiController
@@ -27,14 +29,56 @@ class PackagesController extends JsonApiController
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $course_id = $args['id'] ?? null;
 
-        $course_ids = $course_id ? [$course_id] : [];
-
-        if (!$course_ids) {
+        if (!$course_id) {
             $filters = $this->getQueryParameters()->getFilteringParameters();
-            $course_ids = explode(',', $filters['course'] ?? '');
+            $course_id = $filters['course'] ?? null;
         }
 
-        $packages = PackageAuthority::findFiltered($course_ids, $this->getUser($request));
+        $solvedTaskCount = 'count(distinct concat(`yuoshi_user_task_solutions`.`task_id`, `yuoshi_user_task_solutions`.`user_id`))';
+
+        $studentJoinConditions = [];
+
+        $user = $this->getUser($request);
+        if (!PermissionHelper::getPerm()->have_studip_perm('dozent', $course_id, $user->id)) {
+            $studentJoinConditions['Students.user_id'] = $user->id;
+        }
+
+        $packages = Packages::findWithQuery(
+            [
+                'joins' => [
+                    [
+                        'sql' => PackageAuthority::getFilter(),
+                        'params' => [
+                            'user_id' => $user->id,
+                        ]
+                    ],
+                    [
+                        'sql' => 'left join yuoshi_tasks on (yuoshi_packages.id = yuoshi_tasks.package_id)'
+                    ],
+                    [
+                        'type' => 'left',
+                        'table' => 'seminar_user',
+                        'alias' => 'Students',
+                        'on' => [
+                            'Students.Seminar_id' => new QueryField('yuoshi_packages.course_id'),
+                            'Students.status IN' => PermissionHelper::getSlaves('autor'),
+                        ] + $studentJoinConditions,
+                    ],
+                    [
+                        'sql' => 'left join yuoshi_user_task_solutions on (yuoshi_tasks.id = yuoshi_user_task_solutions.task_id and yuoshi_user_task_solutions.user_id = Students.user_id)'
+                    ]
+                ],
+                'conditions' => [
+                    'yuoshi_packages.course_id' => $course_id,
+                ],
+                'group' => [
+                    'yuoshi_packages.id'
+                ]
+            ],
+            [
+                'progress' => '(' . $solvedTaskCount . '* 100) / count(`yuoshi_tasks`.`id`)',
+            ]
+        );
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 

@@ -11,6 +11,7 @@ type Attributes = {
 export default class Package extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = ["title", "slug"]
     protected jsonApiType: string = "packages"
+    readOnlyAttributes = ["progress"]
 
     getTitle(): string {
         return this.getAttribute("title")
@@ -18,6 +19,10 @@ export default class Package extends AppModelWithDate<Attributes> {
 
     getSlug(): string {
         return this.getAttribute("slug")
+    }
+
+    public getProgress(): number | undefined {
+        return this.getAttribute("progress")
     }
 
     setTitle(title: string) {

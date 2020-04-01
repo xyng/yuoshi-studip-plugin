@@ -7,6 +7,7 @@ import {
     PackagesContextProvider,
     usePackagesContext,
 } from "../../contexts/PackagesContext"
+import Progress from "../../components/Progress/Progress"
 
 import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
@@ -46,6 +47,7 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Kursfortschritt</th>
                         <th>Letzte Aktualisierung</th>
                         <th>Aktionen</th>
                     </tr>
@@ -98,6 +100,12 @@ const RenderPackageTableData: React.FC = () => {
                             <Link to={`${packageItem.getApiId()}/tasks`}>
                                 {packageItem.getTitle()}
                             </Link>
+                        </td>
+                        <td>
+                            <Progress
+                                value={packageItem.getProgress() || 0}
+                                max={100}
+                            />
                         </td>
                         <td>{packageItem.getModified().toLocaleString()}</td>
                         <td>

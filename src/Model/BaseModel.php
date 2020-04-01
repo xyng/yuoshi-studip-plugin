@@ -4,6 +4,7 @@ namespace Xyng\Yuoshi\Model;
 use DateTime;
 use DateTimeImmutable;
 use DBManager;
+use PDO;
 use SimpleORMap;
 use Xyng\Yuoshi\Helper\DBHelper;
 
@@ -109,27 +110,94 @@ class BaseModel extends SimpleORMap {
         return $ret;
     }
 
-    public static function findWhere(array $conditions) {
+    public static function findWhere(array $conditions, array $fields = []) {
         ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
 
-        return static::findBySQL($sql, $params);
+        return static::findBySQL($sql, $params, $fields);
     }
 
-    public static function findOneWhere(array $conditions) {
+    public static function findOneWhere(array $conditions, array $fields = []) {
         ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
 
-        return static::findOneBySQL($sql, $params);
+        return static::findOneBySQL($sql, $params, $fields);
     }
 
-    public static function findWithQuery(array $query) {
+    public static function findWithQuery(array $query, array $fields = []) {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
 
-        return static::findBySQL($sql, $params);
+        return static::findBySQL($sql, $params, $fields);
     }
 
-    public static function findOneWithQuery(array $query) {
+    public static function findOneWithQuery(array $query, array $fields = []) {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
 
-        return static::findOneBySQL($sql, $params);
+        return static::findOneBySQL($sql, $params, $fields);
+    }
+
+    /**
+     * returns array of instances of given class filtered by given sql
+     * @param string $sql sql clause to use on the right side of WHERE
+     * @param array $params bind params for sql clause
+     * @param array $fields additional fields to select
+     * @return array array of "self" objects
+     */
+    public static function findBySQL($sql, $params = [], $fields = [])
+    {
+        $db_table = static::config('db_table');
+        $class = get_called_class();
+        $record = new static();
+
+        $has_join = mb_stripos($sql, 'JOIN ');
+        if ($has_join === false || $has_join > 10) {
+            $sql = 'WHERE ' . $sql;
+        }
+
+        $fieldsString = '';
+        foreach ($fields as $alias => $sel) {
+            $record->addSelectedField($alias);
+            $fieldsString .= sprintf(",\n%s as `%s`", $sel, $alias);
+        }
+
+        $sql = "SELECT `" . $db_table . "`.*" . $fieldsString . "\nFROM `" . $db_table . "` " . $sql;
+        $ret = array();
+        $stmt = DBManager::get()->prepare($sql);
+        $stmt->execute($params);
+        $stmt->setFetchMode(PDO::FETCH_INTO , $record);
+        $record->setNew(false);
+        while ($record = $stmt->fetch()) {
+            $record->applyCallbacks('after_initialize');
+            $ret[] = clone $record;
+        }
+        return $ret;
+    }
+
+    /**
+     * returns one instance of given class filtered by given sql
+     * only first row of query is used
+     * @param string $where sql clause to use on the right side of WHERE
+     * @param array $params parameters for query
+     * @param array $fields additional fields to select
+     * @return SimpleORMap|NULL
+     */
+    public static function findOneBySQL($where, $params = [], $fields = [])
+    {
+        if (mb_stripos($where, 'LIMIT') === false) {
+            $where .= " LIMIT 1";
+        }
+        $found = static::findBySQL($where, $params, $fields);
+        return isset($found[0]) ? $found[0] : null;
+    }
+
+    protected function addSelectedField(string $alias)
+    {
+        $this->known_slots[] = $alias;
+
+        $this->additional_fields[$alias]['set'] = function (BaseModel $model, $field, $value) {
+            $model->_setAdditionalValue($field, $value);
+        };
+
+        $this->additional_fields[$alias]['get'] = function (BaseModel $model, $field) {
+            return $model->_getAdditionalValue($field);
+        };
     }
 }

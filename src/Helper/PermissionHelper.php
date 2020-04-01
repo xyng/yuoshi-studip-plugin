@@ -7,7 +7,7 @@ use Seminar_Perm;
 class PermissionHelper
 {
     public static function getSlaves(string $perm, bool $includeSelf = true) {
-        $perms = Seminar_Perm::get()->permissions;
+        $perms = static::getPerm()->permissions;
         $score = $perms[$perm] ?? null;
 
         if (!$score) {
@@ -24,7 +24,7 @@ class PermissionHelper
     }
 
     public static function getMasters(string $perm, bool $includeSelf = true) {
-        $perms = Seminar_Perm::get()->permissions;
+        $perms = static::getPerm()->permissions;
         $score = $perms[$perm] ?? null;
 
         if (!$score) {
@@ -38,5 +38,9 @@ class PermissionHelper
                 return $val > $score;
             }
         }));
+    }
+
+    public static function getPerm(): Seminar_Perm {
+        return $GLOBALS['perm'];
     }
 }

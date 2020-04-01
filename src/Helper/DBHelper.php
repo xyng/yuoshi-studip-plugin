@@ -10,6 +10,11 @@ class DBHelper {
         $placeholders = [];
         $values = [];
         foreach ($arr as $key => $value) {
+            if ($value instanceof QueryExpression) {
+                $placeholders[] = $value->getExpr();
+                continue;
+            }
+
             $placeholder = $prefix . "_" . $key;
             $placeholders[] = ':' . $placeholder;
 
@@ -96,6 +101,8 @@ class DBHelper {
                 ) {
                     ['placeholder' => $placeholder, 'values' => $values] = DBHelper::arrayToPlaceholderAndValue($condition, $placeholder_key);
                     $params += $values;
+                } else if ($condition instanceof QueryExpression) {
+                    $placeholder = $condition->getExpr();
                 } else {
                     $placeholder = ':' . $placeholder_key;
                     $params[$placeholder_key] = $condition;
@@ -115,10 +122,37 @@ class DBHelper {
         $join_conditions = [];
         if ($joins = $query['joins'] ?? []) {
             foreach ($joins as $key => $join) {
-                $sql .= "\n" . $join['sql'];
-                $params += $join['params'] ?? [];
+                if ($join['sql']) {
+                    $sql .= "\n" . $join['sql'];
+                    $params += $join['params'] ?? [];
 
-                $join_conditions += $join['conditions'] ?? [];
+                    $join_conditions += $join['conditions'] ?? [];
+
+                    continue;
+                }
+
+                $type = $join['type'] ?? 'INNER JOIN';
+                $table = $join['table'] ?? null;
+                $alias = $join['alias'] ?? $table;
+                $on = $join['on'] ?? [];
+
+                if (!$table) {
+                    throw new \InvalidArgumentException('join must either include element `sql` or elements `type` `table` and `on`');
+                }
+
+                if (!$alias) {
+                    throw new \InvalidArgumentException('element `alias` of join must be either left out or a string');
+                }
+
+                if (!in_array(strtolower($type), ['inner', 'left'])) {
+                    throw new \InvalidArgumentException('element `type` of join must be one of (`inner`, `left`)');
+                }
+
+                ['sql' => $join_cond_sql, 'params' => $join_cond_params] = static::traverseConditions($on);
+                $join_sql = sprintf("%s JOIN %s %s on (\n%s\n)", strtoupper($type), $table, $alias, $join_cond_sql);
+
+                $sql .= "\n" . $join_sql;
+                $params += $join_cond_params;
             }
         }
 
@@ -128,6 +162,11 @@ class DBHelper {
             ['sql' => $cond_sql, 'params' => $cond_params] = static::traverseConditions($join_conditions + $conditions);
             $sql .= $cond_sql;
             $params += $cond_params;
+        }
+
+        $groups = $query['group'] ?? [];
+        if ($groups) {
+            $sql .= "\nGROUP BY\n" . join(",\n", $groups);
         }
 
         return ['sql' => $sql, 'params' => $params];
