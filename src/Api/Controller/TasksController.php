@@ -26,7 +26,7 @@ class TasksController extends JsonApiController
     use ValidationTrait;
 
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['sequence', 'package'];
+    protected $allowedFilteringParameters = ['sort', 'package'];
     protected $allowedIncludePaths = [
         'contents',
         'contents.quests',
@@ -41,11 +41,11 @@ class TasksController extends JsonApiController
         if (!$package_ids) {
             $package_ids = explode(',', $filters['package'] ?? '');
         }
-        $sequence = $filters['sequence'] ?? null;
+        $sort = $filters['sort'] ?? null;
 
         $where = [];
-        if ($sequence) {
-            $where['sequence'] = $sequence;
+        if ($sort) {
+            $where['sort'] = $sort;
         }
 
         if (!$package_ids) {
@@ -126,7 +126,7 @@ EOD;
             ])
             +
             [
-                'sequence' => 0,
+                'sort' => 0,
                 'is_training' => $data->getAttribute('kind') == 'training',
                 'package_id' => $package_id,
             ]
@@ -155,7 +155,7 @@ EOD;
         $validated = $this->validate($request);
 
         $data = new JsonApiDataHelper($validated);
-        $attrs = $data->getAttributes(['title', 'kind', 'description', 'sequence', 'is_training', 'credits']);
+        $attrs = $data->getAttributes(['title', 'kind', 'description', 'sort', 'is_training', 'credits']);
 
         foreach ($attrs as $key => $value) {
             $task->{$key} = $value ?? $task->{$key};
@@ -200,9 +200,8 @@ EOD;
         }
 
         $validator
-            ->rule('integer', 'data.attributes.sequence')
+            ->rule('integer', 'data.attributes.sort')
             ->rule('integer', 'data.attributes.credits')
-            ->rule('integer', 'data.attributes.sequence')
             ->rule('boolean', 'data.attributes.is_training')
             ->rule('in', 'data.attributes.kind', Tasks::$types);
 
