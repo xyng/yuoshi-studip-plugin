@@ -117,7 +117,7 @@ class TaskSolutionsController extends JsonApiController
                     }
                 }
 
-                array_merge($questSolutionsToSave, $questSolutions);
+                $questSolutionsToSave = array_merge($questSolutionsToSave, $questSolutions);
             }
 
             if (!$contentSolution) {
@@ -125,6 +125,8 @@ class TaskSolutionsController extends JsonApiController
             }
 
             $contentSolution['quest_solutions'] = $questSolutionsToSave;
+
+            $solutionsToSave[] = $contentSolution;
         }
 
         if (!$total_questions) {
