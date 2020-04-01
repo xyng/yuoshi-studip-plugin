@@ -30,7 +30,6 @@ class Contents extends SchemaProvider
             'intro' => $resource->intro,
             'outro' => $resource->outro,
             'content' => $resource->content,
-            'images' => $resource->images->toArray(),
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -43,11 +42,6 @@ class Contents extends SchemaProvider
             $quests = $resource->quests;
         }
 
-        $images = null;
-        if ($includeRelationships['images'] ?? null) {
-            $images = $resource->images;
-        }
-
         return [
             'quests' => [
                 self::DATA => $quests,
@@ -56,13 +50,6 @@ class Contents extends SchemaProvider
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
                 ],
             ],
-            'images' => [
-                self::DATA => $images,
-                self::SHOW_SELF => true,
-                self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'images')
-                ],
-            ]
         ];
     }
 }
