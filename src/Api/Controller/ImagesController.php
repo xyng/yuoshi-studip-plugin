@@ -20,6 +20,7 @@ use Xyng\Yuoshi\Api\Authority\TaskContentAuthority;
 use Xyng\Yuoshi\Api\Authority\TaskContentQuestAnswerAuthority;
 use Xyng\Yuoshi\Api\Authority\TaskContentQuestAuthority;
 use Xyng\Yuoshi\Helper\DBHelper;
+use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\TaskContents;
@@ -55,9 +56,10 @@ class ImagesController extends NonJsonApiController {
 
     /**
      * @param ServerRequestInterface $request
+     * @param string $perm
      * @return SimpleORMap|TaskContentQuestAnswers|TaskContentQuests|TaskContents
      */
-    protected function findEntity(ServerRequestInterface $request) {
+    protected function findEntity(ServerRequestInterface $request, string $perm) {
         $body = $request->getParsedBody();
 
         $type = $body['type'] ?? null;
@@ -69,15 +71,17 @@ class ImagesController extends NonJsonApiController {
 
         $user = $this->getUser($request);
 
+        $req_perms = PermissionHelper::getMasters($perm);
+
         switch ($type) {
             case "content":
-                $entity = TaskContentAuthority::findOneFiltered($id, $user);
+                $entity = TaskContentAuthority::findOneFiltered($id, $user, $req_perms);
                 break;
             case "quest":
-                $entity = TaskContentQuestAuthority::findOneFiltered($id, $user);
+                $entity = TaskContentQuestAuthority::findOneFiltered($id, $user, $req_perms);
                 break;
             case "answer":
-                $entity = TaskContentQuestAnswerAuthority::findOneFiltered($id, $user);
+                $entity = TaskContentQuestAnswerAuthority::findOneFiltered($id, $user, $req_perms);
                 break;
             default:
                 throw new \InvalidArgumentException("unknown entity type");
@@ -98,7 +102,7 @@ class ImagesController extends NonJsonApiController {
             throw new UnprocessableEntityException();
         }
 
-        $entity = $this->findEntity($request);
+        $entity = $this->findEntity($request, 'dozent');
 
         /** @var Folder|null $dbFolder */
         $dbFolder = \Folder::findOneBySQL(
@@ -160,7 +164,7 @@ class ImagesController extends NonJsonApiController {
             throw new RecordNotFoundException();
         }
 
-        $fileRef = $this->findFileRef($image_id, $request);
+        $fileRef = $this->findFileRef($image_id, $request, 'dozent');
 
         /** @var File $file */
         $file = $fileRef->file;
@@ -178,10 +182,15 @@ class ImagesController extends NonJsonApiController {
      * Find FileRef by ID, scoped by TaskContent, TaskContentQuest or TaskContentQuestAnswer
      *
      * @param string $id ID of file
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface $request Server request
+     * @param string|null $perm (optional) required user permissions in TaskContent
      * @return FileRef|null
      */
-    protected function findFileRef(string $id, ServerRequestInterface $request) {
+    protected function findFileRef(string $id, ServerRequestInterface $request, string $perm = null) {
+        $conditions = $perm ? [
+            'seminar_user.status IN' => PermissionHelper::getMasters($perm)
+        ] : [];
+
         // filter file-ref of image by related content,
         // or content that belongs to related quest,
         // or content that belongs to a quest that belongs to a related answer
@@ -217,7 +226,8 @@ class ImagesController extends NonJsonApiController {
                     'sql' => TaskContentAuthority::getFilter(),
                     'params' => [
                         'user_id' => $this->getUser($request)->id
-                    ]
+                    ],
+                    'conditions' => $conditions,
                 ],
             ]
         ]);
