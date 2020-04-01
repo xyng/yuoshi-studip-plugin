@@ -30,4 +30,22 @@ class Answers extends SchemaProvider
             'chdate' => $resource->chdate->format('c'),
         ];
     }
+
+    public function getRelationships($resource, $isPrimary, array $includeRelationships)
+    {
+        $quest = null;
+        if ($includeRelationships['quest'] ?? null) {
+            $quest = $resource->quest;
+        }
+
+        return [
+            'quest' => [
+                self::DATA => $quest,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quest')
+                ],
+            ]
+        ];
+    }
 }

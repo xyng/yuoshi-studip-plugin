@@ -43,6 +43,11 @@ class TaskSolutions extends SchemaProvider {
             $content_solutions = $resource->content_solutions;
         }
 
+        $user = null;
+        if ($includeRelationships['user'] ?? null) {
+            $user = $resource->user;
+        }
+
         return [
             'task' => [
                 self::DATA => $task,
@@ -56,6 +61,13 @@ class TaskSolutions extends SchemaProvider {
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'content_solutions')
+                ],
+            ],
+            'user' => [
+                self::DATA => $user,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'user')
                 ],
             ],
         ];

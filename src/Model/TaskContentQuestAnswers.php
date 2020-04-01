@@ -9,6 +9,8 @@ namespace Xyng\Yuoshi\Model;
  * @property string content
  * @property boolean is_correct
  * @property int|null sort
+ *
+ * @property TaskContentQuests $quest
  */
 class TaskContentQuestAnswers extends BaseModel {
     protected static function configure($config = []) {

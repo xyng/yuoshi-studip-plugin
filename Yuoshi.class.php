@@ -4,7 +4,9 @@ use JsonApi\Contracts\JsonApiPlugin;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestsController;
+use Xyng\Yuoshi\Api\Controller\TaskContentQuestSolutionsController;
 use Xyng\Yuoshi\Api\Controller\TaskContentsController;
+use Xyng\Yuoshi\Api\Controller\TaskContentSolutionsController;
 use Xyng\Yuoshi\Api\Controller\TasksController;
 use Xyng\Yuoshi\Api\Controller\TaskSolutionsController;
 
@@ -104,8 +106,18 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/tasks/{id}/contents', TaskContentsController::class . ':index');
         $app->get('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':show');
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
+        $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
 
-        $app->post('/tasks/solutions', TaskSolutionsController::class . ':create');
+        $app->get('/task_solutions', TaskSolutionsController::class . ':index');
+        $app->post('/task_solutions', TaskSolutionsController::class . ':create');
+        $app->get('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':show');
+        $app->patch('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':update');
+        $app->get('/task_solutions/{task_solution_id}/content_solutions', TaskContentSolutionsController::class . ':index');
+
+        $app->get('/content_solutions/{content_solution_id}', TaskContentSolutionsController::class . ':show');
+        $app->get('/content_solutions/{content_solution_id}/quest_solutions', TaskContentQuestSolutionsController::class . ':index');
+
+        $app->get('/quest_solutions/{quest_solution_id}', TaskContentQuestSolutionsController::class . ':show');
 
         $app->get('/contents', TaskContentsController::class . ':index');
         $app->post('/contents', TaskContentsController::class . ':create');

@@ -1,6 +1,8 @@
 <?php
 namespace Xyng\Yuoshi\Model;
 
+use User;
+
 /**
  * Class UserTaskSolutions
  * @package Xyng\Yuoshi\Model
@@ -11,6 +13,7 @@ namespace Xyng\Yuoshi\Model;
  * @property boolean $is_correct
  *
  * @property Tasks $task
+ * @property User $user
  * @property \SimpleORMapCollection|UserTaskContentSolutions[] $content_solutions
  */
 class UserTaskSolutions extends BaseModel {
@@ -28,7 +31,7 @@ class UserTaskSolutions extends BaseModel {
             'foreign_key' => 'task_id'
         ];
         $config['belongs_to']['user'] = [
-            'class_name' => \User::class,
+            'class_name' => User::class,
             'foreign_key' => 'user_id'
         ];
 
