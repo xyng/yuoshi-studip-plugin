@@ -23,7 +23,7 @@ class TaskContentAuthority implements AuthorityInterface {
     static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return TaskContents::findWithQuery(
-            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_task.id', $ids, $user, $perms, $conditions)
+            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_tasks.id', $ids, $user, $perms, $conditions)
         );
     }
 
