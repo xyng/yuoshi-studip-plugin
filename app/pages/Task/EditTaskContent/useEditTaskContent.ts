@@ -16,12 +16,12 @@ import Quest from "../../../models/Quest"
 import Answer from "../../../models/Answer"
 import { useCurrentTaskContext } from "../../../contexts/CurrentTaskContext"
 
-interface QuizAnswer extends Creatable, Sortable {
+export interface QuizAnswer extends Creatable, Sortable {
     content: string
     is_correct: boolean
 }
 
-interface QuizQuest extends Creatable, Sortable {
+export interface QuizQuest extends Creatable, Sortable {
     name: string
     question: string
     multiple: boolean
@@ -30,7 +30,7 @@ interface QuizQuest extends Creatable, Sortable {
     answers: QuizAnswer[]
 }
 
-interface QuizContent extends Creatable {
+export interface QuizContent extends Creatable {
     title: string
     content: string
     intro?: string

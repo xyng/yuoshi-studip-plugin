@@ -2,11 +2,11 @@ import React, {
     ChangeEventHandler,
     useCallback,
     useEffect,
-    useMemo,
     useState,
 } from "react"
 
 import { EditTaskContentView } from "../EditTaskContent"
+import useGlobalContent from "../hooks/useGlobalContent"
 
 import Styles from "./EditDragContent.module.css"
 
@@ -15,7 +15,6 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         task,
         contents,
         setContents,
-        createContent,
         createQuest,
         removeQuest,
         createAnswer,
@@ -30,10 +29,15 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         onAnswerDown,
     } = editTaskContext
 
-    const [requireOrder, setRequireOrder] = useState<boolean>()
+    const {
+        firstContent,
+        contentTitle,
+        contentText,
+        changeContentText,
+        changeContentTitle,
+    } = useGlobalContent(editTaskContext)
 
-    const [contentTitle, setContentTitle] = useState("")
-    const [contentText, setContentText] = useState("")
+    const [requireOrder, setRequireOrder] = useState<boolean>()
 
     useEffect(() => {
         if (requireOrder === undefined) {
@@ -54,49 +58,6 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
             })
         })
     }, [requireOrder, setContents])
-
-    useEffect(() => {
-        if (!contents.length) {
-            createContent()()
-            return
-        }
-
-        const [content] = contents
-        setContentTitle(content.title)
-        setContentText(content.content)
-    }, [contents, createContent])
-
-    const firstContent = useMemo(() => {
-        if (!contents.length) {
-            return
-        }
-
-        return contents[0]
-    }, [contents])
-
-    useEffect(() => {
-        setContents((contents) =>
-            contents.map((content) => {
-                return {
-                    ...content,
-                    title: contentTitle,
-                    text: contentText,
-                }
-            })
-        )
-    }, [contentTitle, contentText, setContents])
-
-    const changeContentTitle = useCallback<
-        ChangeEventHandler<HTMLInputElement>
-    >((event) => {
-        setContentTitle(event.currentTarget.value)
-    }, [])
-
-    const changeContentText = useCallback<
-        ChangeEventHandler<HTMLTextAreaElement>
-    >((event) => {
-        setContentText(event.currentTarget.value)
-    }, [])
 
     const updateRequireOrder = useCallback<
         ChangeEventHandler<HTMLInputElement>

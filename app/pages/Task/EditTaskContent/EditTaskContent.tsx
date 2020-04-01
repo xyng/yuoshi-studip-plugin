@@ -7,6 +7,7 @@ import EditQuizContent from "./EditQuizContent/EditQuizContent"
 import EditDragContent from "./EditDragContent/EditDragContent"
 import EditCardContent from "./EditCardContent/EditCardContent"
 import { useEditTaskContext } from "./useEditTaskContent"
+import EditMemoryContent from "./EditMemoryContent/EditMemoryContent"
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 export type EditTaskContentView<T = {}> = React.FC<
@@ -27,7 +28,11 @@ const RenderTaskViews: React.FC = () => {
         case TaskTypeName.CARD:
             return <EditCardContent editTaskContext={editTaskContext} />
         case TaskTypeName.MULTI:
+        case TaskTypeName.SURVEY:
+        case TaskTypeName.TRAINING:
             return <EditQuizContent editTaskContext={editTaskContext} />
+        case TaskTypeName.MEMORY:
+            return <EditMemoryContent editTaskContext={editTaskContext} />
         default:
             return null
     }
