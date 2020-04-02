@@ -59,10 +59,10 @@ export function ensureSequenceForKey<T>(
     return ret
 }
 
-export function updateEntity<T extends Identifiable>(
+export function updateEntity<T extends Identifiable, TKey extends keyof T>(
     id: string,
-    key: keyof T,
-    value: SetterFn<T[keyof T]>
+    key: TKey,
+    value: SetterFn<T[TKey]>
 ) {
     return (entities: T[]): T[] => {
         const index = entities.findIndex((entity) => entity.id === id)

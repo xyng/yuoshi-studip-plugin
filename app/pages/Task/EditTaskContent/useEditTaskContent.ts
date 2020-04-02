@@ -396,10 +396,10 @@ export const useEditTaskContext = (
     )
 
     const updateContent = useCallback(
-        (
+        <TKey extends keyof QuizContent>(
             id: string,
-            key: keyof QuizContent,
-            value: SetterFn<QuizContent[keyof QuizContent]>
+            key: TKey,
+            value: SetterFn<QuizContent[TKey]>
         ) => {
             if (isSaving) {
                 return
@@ -411,11 +411,11 @@ export const useEditTaskContext = (
     )
 
     const updateQuest = useCallback(
-        (
+        <TKey extends keyof QuizQuest>(
             content_id: string,
             quest_id: string,
-            key: keyof QuizQuest,
-            value: SetterFn<QuizQuest[keyof QuizQuest]>
+            key: TKey,
+            value: SetterFn<QuizQuest[TKey]>
         ) => {
             updateContent(
                 content_id,
@@ -427,12 +427,12 @@ export const useEditTaskContext = (
     )
 
     const updateAnswer = useCallback(
-        (
+        <TKey extends keyof QuizAnswer>(
             content_id: string,
             quest_id: string,
             answer_id: string,
-            key: keyof QuizAnswer,
-            value: SetterFn<QuizAnswer[keyof QuizAnswer]>
+            key: TKey,
+            value: SetterFn<QuizAnswer[TKey]>
         ) => {
             updateQuest(
                 content_id,
