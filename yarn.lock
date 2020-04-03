@@ -875,6 +875,11 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
+"@types/ejson@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@types/ejson/-/ejson-2.1.2.tgz#a0cba260d5006310dc877905463d83d5f3cdf112"
+  integrity sha1-oMuiYNUAYxDch3kFRj2D1fPN8RI=
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -1156,11 +1161,12 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@xyng/yuoshi-backend-adapter@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@xyng/yuoshi-backend-adapter/-/yuoshi-backend-adapter-0.0.1.tgz#5af7f34c9183a799ae830d53360ddc486b994103"
-  integrity sha512-EZ0YFp8tYQeITpvfbQGnNqD0mXn2pEElLE6lTH/5uIIZ0uv3yZujrAT+lJWgrVKVcsz8WXnR4erSaeYuQyiiOg==
+"@xyng/yuoshi-backend-adapter@^0.0.2-alpha.0":
+  version "0.0.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@xyng/yuoshi-backend-adapter/-/yuoshi-backend-adapter-0.0.2-alpha.0.tgz#a42ebecf3f9b7cd6b790d547f8a56473317acdee"
+  integrity sha512-6muuRIqO+1Ao6MOH4MnAMPl3fcpiV6Ps/0wOEbR6304q0rJS0/5DzE6Cy80xAIP/uw6QO9GAfAXIM6NxJQvRsw==
   dependencies:
+    "@types/ejson" "^2.1.2"
     oauth-1.0a "^2.2.6"
     qs "^6.9.1"
 
