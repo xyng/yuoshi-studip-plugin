@@ -189,6 +189,11 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $dispatcher->dispatch($unconsumedPath);
     }
 
+    public static function onEnable($pluginId) {
+        // enable nobody role by default
+        \RolePersistence::assignPluginRoles($pluginId, array(7));
+    }
+
     private function loadAssets($keys = []) {
         // get webpack manifest
         $path = __DIR__ . DIRECTORY_SEPARATOR . 'dist' . DIRECTORY_SEPARATOR . 'manifest.json';
