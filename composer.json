@@ -14,7 +14,8 @@
     },
     "require": {
         "php": ">= 7.2",
-        "vlucas/valitron": "^1.4"
+        "vlucas/valitron": "^1.4",
+        "cakephp/utility": "^3.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.3"
