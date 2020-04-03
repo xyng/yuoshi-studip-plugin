@@ -23,9 +23,9 @@ class TaskContentQuestSolutions extends SchemaProvider {
     {
         /** @var \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions $resource */
         return [
-            'is_correct' => $resource->is_correct,
-            'score' => $resource->score,
-            'sent_solution' => $resource->sent_solution,
+            'is_correct' => (bool) $resource->is_correct,
+            'score' => (double) $resource->score,
+            'sent_solution' => (bool) $resource->sent_solution,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

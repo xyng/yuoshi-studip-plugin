@@ -1,9 +1,12 @@
 <?php
 namespace Xyng\Yuoshi\Api\Authority;
 
+use JsonApi\Errors\RecordNotFoundException;
 use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
+use Xyng\Yuoshi\Model\UserTaskContentSolutions;
 use Xyng\Yuoshi\Model\UserTaskSolutions;
 
 class TaskSolutionAuthority implements AuthorityInterface {
@@ -39,5 +42,33 @@ class TaskSolutionAuthority implements AuthorityInterface {
         return UserTaskSolutions::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_solutions.id', $id, $user, $perms, $conditions)
         );
+    }
+
+    static function checkAndMarkDone(UserTaskSolutions $solution) {
+        $task = $solution->task;
+
+        $contents = $task->contents;
+        $doneContents = 0;
+        $totalContents = $contents->count();
+
+        $contentSolutions = $solution->content_solutions;
+
+        foreach ($contents as $content) {
+            /** @var UserTaskContentSolutions|null $contentSolution */
+            $contentSolution = $contentSolutions->findOneBy('content_id', $content->id);
+
+            if (!$contentSolution) {
+                continue;
+            }
+
+            if (TaskContentSolutionAuthority::isContentSolutionDone($contentSolution)) {
+                $doneContents += 1;
+            }
+        }
+
+        if ($totalContents === $doneContents) {
+            $solution->finished = new \DateTimeImmutable();
+            $solution->store();
+        }
     }
 }

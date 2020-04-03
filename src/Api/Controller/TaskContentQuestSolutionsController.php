@@ -224,7 +224,9 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             throw new InternalServerError("could not store entity");
         }
 
-        return $questSolution;
+        TaskSolutionAuthority::checkAndMarkDone($questSolution->content_solution->task_solution);
+
+        return $this->getContentResponse($questSolution);
     }
 
     public function requestSampleSolution(ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -242,6 +244,8 @@ class TaskContentQuestSolutionsController extends JsonApiController {
         $questSolution->sent_solution = true;
         $questSolution->store();
 
+        TaskSolutionAuthority::checkAndMarkDone($questSolution->content_solution->task_solution);
+
         $answers = $questSolution->quest->answers;
         $answers->uasort(function (TaskContentQuestAnswers $a, TaskContentQuestAnswers $b) {
             return $a->sort - $b->sort;
@@ -249,14 +253,14 @@ class TaskContentQuestSolutionsController extends JsonApiController {
 
         $sampleSolution = [
             'quest_id' => $questSolution->quest_id,
-            'answers' => $answers->map(function (TaskContentQuestAnswers $answer) {
+            'answers' => array_values($answers->map(function (TaskContentQuestAnswers $answer) {
                 return [
                     'id' => $answer->id,
-                    'sort' => $answer->sort,
-                    'is_correct' => $answer->is_correct,
+                    'sort' => (int) $answer->sort,
+                    'is_correct' => (bool) $answer->is_correct,
                     'content' => $answer->content,
                 ];
-            }),
+            })),
         ];
 
         $body = $response->getBody();

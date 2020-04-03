@@ -47,6 +47,16 @@ class TaskContentSolutions extends SchemaProvider {
             $quest_solutions = $resource->quest_solutions;
         }
 
+        $current_quest = null;
+        if ($includeRelationships['current_quest'] ?? null) {
+            $current_quest = $resource->current_quest;
+        }
+
+        $done_quests = null;
+        if ($includeRelationships['done_quests'] ?? null) {
+            $done_quests = $resource->done_quests;
+        }
+
         return [
             'task_solution' => [
                 self::DATA => $task_solution,
@@ -67,6 +77,20 @@ class TaskContentSolutions extends SchemaProvider {
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quest_solutions')
+                ],
+            ],
+            'current_quest' => [
+                self::DATA => $current_quest,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::SELF => $this->getRelationshipSelfLink($resource, 'current_quest')
+                ],
+            ],
+            'done_quests' => [
+                self::DATA => $done_quests,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::SELF => $this->getRelationshipSelfLink($resource, 'done_quests')
                 ],
             ],
         ];

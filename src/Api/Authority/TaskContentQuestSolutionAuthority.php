@@ -1,9 +1,11 @@
 <?php
 namespace Xyng\Yuoshi\Api\Authority;
 
+use SimpleCollection;
 use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
 
 class TaskContentQuestSolutionAuthority implements AuthorityInterface {
@@ -35,5 +37,24 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
         return UserTaskContentQuestSolutions::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_content_quest_solutions.id', $id, $user, $perms, $conditions)
         );
+    }
+
+    /**
+     * @param UserTaskContentQuestSolutions[] $questSolutions
+     * @return bool
+     */
+    static function areQuestSolutionsDone($questSolutions) {
+        // max 3 solution attempts per run
+        if (count($questSolutions) > 2) {
+            return true;
+        }
+
+        foreach ($questSolutions as $questSolution) {
+            if ($questSolution->is_correct || $questSolution->sent_solution) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

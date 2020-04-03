@@ -122,6 +122,8 @@ class TaskContentSolutionsController extends JsonApiController {
             throw new InternalServerError('could not persist entity');
         }
 
+        TaskSolutionAuthority::checkAndMarkDone($content_solution->task_solution);
+
         return $this->getContentResponse($content_solution);
     }
 

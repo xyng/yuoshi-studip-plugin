@@ -4,10 +4,12 @@
 namespace Xyng\Yuoshi\Api\Authority;
 
 
+use SimpleCollection;
 use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Model\TaskContentQuests;
+use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
 
 class TaskContentQuestAuthority implements AuthorityInterface {
     public static function filterByUsersContents(): string {
