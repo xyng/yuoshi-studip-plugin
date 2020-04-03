@@ -7,11 +7,13 @@ use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use User;
 use Valitron\Validator;
 use Xyng\Yuoshi\Api\Authority\TaskAuthority;
 use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\Tasks;
@@ -31,8 +33,9 @@ class TaskSolutionsController extends JsonApiController
         'content_solutions.content',
         'content_solutions.quest_solutions',
         'content_solutions.quest_solutions.quest',
-        'content_solutions.quest_solutions.answer',
-        'content_solutions.quest_solutions.answer.quest',
+        'content_solutions.quest_solutions.answers',
+        'content_solutions.quest_solutions.answers.answer',
+        'content_solutions.quest_solutions.answers.answer.quest',
     ];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -119,54 +122,6 @@ class TaskSolutionsController extends JsonApiController
             // only check first submitted solution (there shouldn't be more than one anyway)
             $contentSolution = Hash::extract($content_solutions, "{n}[content_id=$content->id]")[0] ?? [];
 
-            $questSolutionsToSave = [];
-            foreach ($content->quests as $quest) {
-                $total_questions += 1;
-
-                $questSolutions = Hash::extract($contentSolution, "quest_solutions.{n}[quest_id=$quest->id]");
-
-                if (!$quest->multiple) {
-                    // this quest only accepts one answer. we will take the first one.
-                    $questSolutions = array_slice($questSolutions,0, 1);
-                }
-
-                /** @var \SimpleORMapCollection|TaskContentQuestAnswers[] $correct_answers */
-                $correct_answers = $quest->answers->filter(function (TaskContentQuestAnswers $answer) {
-                    return $answer->is_correct;
-                });
-
-                $correct_answer_count = $correct_answers->count();
-
-                foreach ($correct_answers as $answer) {
-                    /** @var UserTaskContentQuestSolutions $solution */
-                    $solution = Hash::extract($questSolutions, "{n}[answer_id=$answer->id]")[0] ?? null;
-
-                    if (!$solution) {
-                        continue;
-                    }
-
-                    // give partial points for every correct answer
-                    $answerScore = (1 / $correct_answer_count);
-
-                    // first part of points for selecting the correct answer for the correct question (e.g. drag-task)
-                    $score += $answerScore * (1 - $sort_weight);
-
-                    // second part of points for correct sorting of answer (always added when ordering is not required)
-                    if (!$quest->require_order || $solution->sort === $answer->sort) {
-                        // this division is save - if correct_answer_count was 0 this loop would not happen
-                        $score += $answerScore * $sort_weight;
-                    }
-                }
-
-                $questSolutionsToSave = array_merge($questSolutionsToSave, $questSolutions);
-            }
-
-            if (!$contentSolution) {
-                continue;
-            }
-
-            $contentSolution['quest_solutions'] = $questSolutionsToSave;
-
             $solutionsToSave[] = $contentSolution;
         }
 
@@ -205,6 +160,59 @@ class TaskSolutionsController extends JsonApiController
         return $solution;
     }
 
+    /**
+     * Fetches currently active solution for given task_id or creates a new one
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param $args
+     * @return \JsonApi\JsonApiIntegration\Response
+     */
+    public function getCurrentSolution(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['task_id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser($request);
+
+        /** @var Tasks|null $task */
+        $task = TaskAuthority::findOneFiltered($task_id, $user);
+
+        if (!$task) {
+            throw new RecordNotFoundException();
+        }
+
+        $solution = UserTaskSolutions::findOneWithQuery(
+            AuthorityHelper::getFilterQuery(
+                TaskSolutionAuthority::getFilter(),
+                'yuoshi_tasks.id',
+                $task_id,
+                $user,
+                [],
+                [
+                    'yuoshi_user_task_solutions.finished is null',
+                    'yuoshi_user_task_solutions.user_id' => $user->id,
+                ]
+            )
+        );
+
+        if (!$solution) {
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+            ]);
+
+            if (!$solution->store()) {
+                throw new InternalServerError("could not persist entity");
+            }
+        }
+
+        return $this->getContentResponse($solution);
+    }
+
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $solution = $this->getSolution($request, $response, $args);
 
@@ -215,7 +223,7 @@ class TaskSolutionsController extends JsonApiController
             $cond['yuoshi_user_task_solutions.user_id'] = $this->getUser($request)->id;
         }
 
-        return $this->getContentResponse($solution, PermissionHelper::getMasters('autor'), $cond);
+        return $this->getContentResponse($solution);
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -243,8 +251,6 @@ class TaskSolutionsController extends JsonApiController
                 ->rule('required', 'data.relationships.task.data.id')
                 ->rule('required', 'data.relationships.content_solutions.*.data.relationships.content.data.id')
                 ->rule('numeric', 'data.relationships.content_solutions.*.data.relationships.content_quest_solutions.*.data.attributes.sort')
-                ->rule('required', 'data.relationships.content_solutions.*.data.relationships.content_quest_solutions.*.data.relationships.answer.data.id')
-                ->rule('required', 'data.relationships.content_solutions.*.data.relationships.content_quest_solutions.*.data.relationships.quest.data.id')
             ;
         } else {
             $validator

@@ -27,7 +27,7 @@ const fetchTaskSolution = async (taskId: string) => {
     const task = (
         await TaskSolution.with("user")
             .with("content_solutions.quest_solutions.quest")
-            .with("content_solutions.quest_solutions.answer.quest")
+            .with("content_solutions.quest_solutions.answers.answer.quest")
             .with("content_solutions.content")
             .find(taskId)
     ).getData() as TaskSolution | null

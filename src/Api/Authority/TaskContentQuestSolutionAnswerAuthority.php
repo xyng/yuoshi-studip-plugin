@@ -4,23 +4,23 @@ namespace Xyng\Yuoshi\Api\Authority;
 use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
-use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
+use Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers;
 
-class TaskContentQuestSolutionAuthority implements AuthorityInterface {
+class TaskContentQuestSolutionAnswerAuthority implements AuthorityInterface {
     static function getFilter(): string
     {
-        $tasksJoin = TaskContentSolutionAuthority::getFilter();
-        return "INNER JOIN yuoshi_user_task_content_solutions on (yuoshi_user_task_content_quest_solutions.content_solution_id = yuoshi_user_task_content_solutions.id) " . $tasksJoin;
+        $tasksJoin = TaskContentQuestSolutionAuthority::getFilter();
+        return "INNER JOIN yuoshi_user_task_content_quest_solutions on (yuoshi_user_task_content_quest_solution_answers.quest_solution_id = yuoshi_user_task_content_quest_solutions.id) " . $tasksJoin;
     }
 
     /**
      * @inheritDoc
      *
-     * @return UserTaskContentQuestSolutions[]
+     * @return UserTaskContentQuestSolutionAnswers[]
      */
     static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
-        return UserTaskContentQuestSolutions::findWithQuery(
+        return UserTaskContentQuestSolutionAnswers::findWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_content_solutions.id', $ids, $user, $perms, $conditions)
         );
     }
@@ -28,11 +28,11 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
     /**
      * @inheritDoc
      *
-     * @return UserTaskContentQuestSolutions|null
+     * @return UserTaskContentQuestSolutionAnswers|null
      */
     static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
     {
-        return UserTaskContentQuestSolutions::findOneWithQuery(
+        return UserTaskContentQuestSolutionAnswers::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_content_quest_solutions.id', $id, $user, $perms, $conditions)
         );
     }

@@ -17,6 +17,12 @@ export default class TaskSolution extends AppModelWithDate<Attributes> {
         return this.getAttribute("points")
     }
 
+    getFinished(): Date | undefined {
+        return this.getAttribute("finished")
+            ? this.getAttributeAsDate("finished")
+            : undefined
+    }
+
     user(): ToOneRelation {
         return this.hasOne(User)
     }

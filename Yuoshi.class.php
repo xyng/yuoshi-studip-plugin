@@ -107,6 +107,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':show');
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
         $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
+        $app->get('/tasks/{task_id}/current_task_solution', TaskSolutionsController::class . ':getCurrentSolution');
 
         $app->get('/task_solutions', TaskSolutionsController::class . ':index');
         $app->post('/task_solutions', TaskSolutionsController::class . ':create');
@@ -115,9 +116,12 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/task_solutions/{task_solution_id}/content_solutions', TaskContentSolutionsController::class . ':index');
 
         $app->get('/content_solutions/{content_solution_id}', TaskContentSolutionsController::class . ':show');
+        $app->post('/content_solutions', TaskContentSolutionsController::class . ':create');
         $app->get('/content_solutions/{content_solution_id}/quest_solutions', TaskContentQuestSolutionsController::class . ':index');
 
+        $app->post('/quest_solutions', TaskContentQuestSolutionsController::class . ':create');
         $app->get('/quest_solutions/{quest_solution_id}', TaskContentQuestSolutionsController::class . ':show');
+        $app->get('/quest_solutions/{quest_solution_id}/sample_solution', TaskContentQuestSolutionsController::class . ':requestSampleSolution');
 
         $app->get('/contents', TaskContentsController::class . ':index');
         $app->post('/contents', TaskContentsController::class . ':create');
@@ -167,6 +171,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
             \Xyng\Yuoshi\Model\UserTaskSolutions::class => \Xyng\Yuoshi\Schema\TaskSolutions::class,
             \Xyng\Yuoshi\Model\UserTaskContentSolutions::class => \Xyng\Yuoshi\Schema\TaskContentSolutions::class,
             \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions::class => \Xyng\Yuoshi\Schema\TaskContentQuestSolutions::class,
+            \Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers::class => \Xyng\Yuoshi\Schema\TaskContentQuestSolutionAnswers::class,
         ];
     }
 

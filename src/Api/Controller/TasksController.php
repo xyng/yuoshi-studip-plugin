@@ -11,15 +11,21 @@ use JsonApi\Routes\Courses\Authority as CourseAuthority;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use User;
 use Valitron\Validator;
 use Xyng\Yuoshi\Api\Authority\PackageAuthority;
 use Xyng\Yuoshi\Api\Authority\TaskAuthority;
+use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\DBHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Helper\QueryField;
 use Xyng\Yuoshi\Model\Packages;
 use Xyng\Yuoshi\Model\Tasks;
+use Xyng\Yuoshi\Model\UserTaskSolutions;
 
 class TasksController extends JsonApiController
 {
@@ -63,23 +69,50 @@ class TasksController extends JsonApiController
     }
 
     public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sql = <<<'EOD'
-            LEFT JOIN yuoshi_user_task_solutions Solutions ON (
-                Solutions.task_id = yuoshi_tasks.id AND
-                Solutions.user_id = :user_id
-            )
-            WHERE (
-                Solutions.id IS NULL
-                AND `yuoshi_tasks`.`package_id` = :package_id
-            )
-            ORDER BY `yuoshi_tasks`.`sort` ASC
-EOD;
+        /** @var User $user */
+        $user = $this->getUser($request);
 
         ['id' => $package_id] = $args;
-        $task = Tasks::findOneBySQL(trim($sql), [
-            'user_id' => $this->getUser($request)->id,
-            'package_id' => $package_id,
+
+        /** @var Tasks $task */
+        $task = Tasks::findOneWithQuery([
+            'joins' => [
+                [
+                    'type' => 'left',
+                    'table' => 'yuoshi_user_task_solutions',
+                    'alias' => 'Solutions',
+                    'on' => [
+                        'Solutions.task_id' => new QueryField('yuoshi_tasks.id'),
+                        'Solutions.user_id' => $user->id,
+                        'Solutions.finished IS NOT NULL'
+                    ],
+                ]
+            ],
+            'conditions' => [
+                'Solutions.id IS NULL',
+                'yuoshi_tasks.package_id' => $package_id,
+            ],
+            'order' => [
+                '`yuoshi_tasks`.`sort` ASC'
+            ]
         ]);
+
+        // check if there is a solution for this task
+        $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
+            'yuoshi_user_task_solutions.finished is null',
+            'yuoshi_user_task_solutions.user_id' => $user->id,
+        ]);
+        if (!$solution) {
+            // create new task solution so we can track answer time
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+            ]);
+
+            if (!$solution->store()) {
+                throw new InternalServerError('could not persist entity');
+            }
+        }
 
         return $this->getContentResponse($task);
     }

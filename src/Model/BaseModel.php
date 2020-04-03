@@ -84,7 +84,7 @@ class BaseModel extends SimpleORMap {
             }
 
             // make sure the dates are always defined
-            if (!$val) {
+            if (($field === 'chdate' || $field === 'mkdate') && !$val) {
                 $val = new DateTimeImmutable();
             }
 
@@ -132,6 +132,12 @@ class BaseModel extends SimpleORMap {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
 
         return static::findOneBySQL($sql, $params, $fields);
+    }
+
+    public static function countWithQuery(array $query) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
+
+        return static::countBySQL($sql, $params);
     }
 
     /**

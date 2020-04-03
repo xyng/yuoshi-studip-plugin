@@ -7,6 +7,8 @@ use eTask\Task;
  * Class TaskContents
  * @package Xyng\Yuoshi\Model
  *
+ * @property string $task_id
+ *
  * @property \SimpleORMap|Task $task
  * @property \SimpleORMapCollection|TaskContentQuests[] $quests
  */

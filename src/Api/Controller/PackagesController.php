@@ -53,7 +53,11 @@ class PackagesController extends JsonApiController
                         ]
                     ],
                     [
-                        'sql' => 'left join yuoshi_tasks on (yuoshi_packages.id = yuoshi_tasks.package_id)'
+                        'type' => 'left',
+                        'table' => 'yuoshi_tasks',
+                        'on' => [
+                            'yuoshi_packages.id' => new QueryField('yuoshi_tasks.package_id')
+                        ]
                     ],
                     [
                         'type' => 'left',
@@ -65,7 +69,13 @@ class PackagesController extends JsonApiController
                         ] + $studentJoinConditions,
                     ],
                     [
-                        'sql' => 'left join yuoshi_user_task_solutions on (yuoshi_tasks.id = yuoshi_user_task_solutions.task_id and yuoshi_user_task_solutions.user_id = Students.user_id)'
+                        'type' => 'left',
+                        'table' => 'yuoshi_user_task_solutions',
+                        'on' => [
+                            'yuoshi_tasks.id' => new QueryField('yuoshi_user_task_solutions.task_id'),
+                            'Students.user_id' => new QueryField('yuoshi_user_task_solutions.user_id'),
+                            'yuoshi_user_task_solutions.finished is not null',
+                        ]
                     ]
                 ],
                 'conditions' => [

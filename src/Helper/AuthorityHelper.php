@@ -29,6 +29,11 @@ class AuthorityHelper {
             )
             : [$filterField => $ids];
 
+        // fallback for simpler syntax
+        if (!isset($conditions['joins']) && !isset($conditions['conditions'])) {
+            $conditions['conditions'] = $conditions;
+        }
+
         return [
             'joins' => [
                 [

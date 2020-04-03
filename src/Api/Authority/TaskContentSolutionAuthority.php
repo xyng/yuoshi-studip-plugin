@@ -7,14 +7,10 @@ use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Model\UserTaskContentSolutions;
 
 class TaskContentSolutionAuthority implements AuthorityInterface {
-    public static function filterByUsersTasks(): string {
-        $tasksJoin = TaskAuthority::filterByUsersPackages();
-        return "INNER JOIN yuoshi_tasks on (yuoshi_user_task_content_solutions.task_id = yuoshi_user_task_solutions.id) " . $tasksJoin;
-    }
-
     static function getFilter(): string
     {
-        return static::filterByUsersTasks();
+        $tasksJoin = TaskSolutionAuthority::getFilter();
+        return "INNER JOIN yuoshi_user_task_solutions on (yuoshi_user_task_content_solutions.solution_id = yuoshi_user_task_solutions.id) " . $tasksJoin;
     }
 
     /**

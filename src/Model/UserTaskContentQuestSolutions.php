@@ -7,13 +7,13 @@ namespace Xyng\Yuoshi\Model;
  *
  * @property string $content_solution_id
  * @property string $quest_id
- * @property string $answer_id
- * @property string $custom
- * @property number|null $sort
+ * @property boolean is_correct
+ * @property number $score
+ * @property boolean $sent_solution
  *
  * @property UserTaskContentSolutions $content_solution
  * @property TaskContentQuests $quest
- * @property TaskContentQuestAnswers|null $answer
+ * @property \SimpleORMapCollection|UserTaskContentQuestSolutionAnswers[] $answers
  */
 class UserTaskContentQuestSolutions extends BaseModel {
     protected static function configure($config = []) {
@@ -27,9 +27,10 @@ class UserTaskContentQuestSolutions extends BaseModel {
             'class_name' => TaskContentQuests::class,
             'foreign_key' => 'quest_id'
         ];
-        $config['belongs_to']['answer'] = [
-            'class_name' => TaskContentQuestAnswers::class,
-            'foreign_key' => 'answer_id'
+        $config['has_many']['answers'] = [
+            'on_store' => true,
+            'class_name' => UserTaskContentQuestSolutionAnswers::class,
+            'assoc_foreign_key' => 'quest_solution_id'
         ];
 
         parent::configure($config);

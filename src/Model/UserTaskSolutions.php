@@ -11,12 +11,15 @@ use User;
  * @property string $user_id
  * @property number|null $points
  * @property boolean $is_correct
+ * @property \DateTimeImmutable $finished
  *
  * @property Tasks $task
  * @property User $user
  * @property \SimpleORMapCollection|UserTaskContentSolutions[] $content_solutions
  */
 class UserTaskSolutions extends BaseModel {
+    protected $dateFields = ['mkdate', 'chdate', 'finished'];
+
     protected static function configure($config = []) {
         $config['db_table'] = 'yuoshi_user_task_solutions';
 

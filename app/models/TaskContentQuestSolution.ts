@@ -1,9 +1,10 @@
 import { ToOneRelation } from "coloquent/dist/relation/ToOneRelation"
+import { ToManyRelation } from "coloquent/dist/relation/ToManyRelation"
 
 import { AppModelWithDate } from "./AppModel"
 import TaskContentSolution from "./TaskContentSolution"
 import Quest from "./Quest"
-import Answer from "./Answer"
+import TaskContentQuestSolutionAnswer from "./TaskContentQuestSolutionAnswer"
 
 type Attributes = {}
 export default class TaskContentQuestSolution extends AppModelWithDate<
@@ -12,12 +13,24 @@ export default class TaskContentQuestSolution extends AppModelWithDate<
     protected readonly accessible: Array<keyof Attributes> = []
     protected jsonApiType: string = "quest_solutions"
 
-    getSort(): number | undefined {
-        return this.getAttribute("sort")
+    getIsCorrect(): boolean {
+        return this.getAttribute("is_correct")
     }
 
-    getCustom(): string | undefined {
-        return this.getAttribute("custom")
+    getScore(): number {
+        return this.getAttribute("score")
+    }
+
+    getSentSolution(): boolean {
+        return this.getAttribute("sent_solution")
+    }
+
+    answers(): ToManyRelation {
+        return this.hasMany(TaskContentQuestSolutionAnswer)
+    }
+
+    getAnswers(): TaskContentQuestSolutionAnswer[] {
+        return this.getRelation("answers")
     }
 
     content_solution(): ToOneRelation {
@@ -34,13 +47,5 @@ export default class TaskContentQuestSolution extends AppModelWithDate<
 
     getQuest(): Quest {
         return this.getRelation("quest")
-    }
-
-    answer(): ToOneRelation {
-        return this.hasOne(Answer)
-    }
-
-    getAnswer(): Answer {
-        return this.getRelation("answer")
     }
 }

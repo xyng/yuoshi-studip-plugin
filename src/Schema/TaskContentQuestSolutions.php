@@ -23,8 +23,9 @@ class TaskContentQuestSolutions extends SchemaProvider {
     {
         /** @var \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions $resource */
         return [
-            'sort' => (int) $resource->sort,
-            'custom' => $resource->custom,
+            'is_correct' => $resource->is_correct,
+            'score' => $resource->score,
+            'sent_solution' => $resource->sent_solution,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -43,9 +44,9 @@ class TaskContentQuestSolutions extends SchemaProvider {
             $quest = $resource->quest;
         }
 
-        $answer = null;
-        if ($includeRelationships['answer'] ?? null) {
-            $answer = $resource->answer;
+        $answers = null;
+        if ($includeRelationships['answers'] ?? null) {
+            $answers = $resource->answers;
         }
 
         return [
@@ -56,18 +57,18 @@ class TaskContentQuestSolutions extends SchemaProvider {
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'content_solution')
                 ],
             ],
+            'answers' => [
+                self::DATA => $answers,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'answers')
+                ],
+            ],
             'quest' => [
                 self::DATA => $quest,
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quest')
-                ],
-            ],
-            'answer' => [
-                self::DATA => $answer,
-                self::SHOW_SELF => true,
-                self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'answer')
                 ],
             ],
         ];

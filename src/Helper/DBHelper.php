@@ -158,7 +158,11 @@ class DBHelper {
 
         $conditions = $query['conditions'] ?? [];
         if ($join_conditions || $conditions) {
-            $sql .= "\nWHERE\n";
+            // only add WHERE when previous sql is not empty
+            if (trim($sql)) {
+                $sql .= "\nWHERE\n";
+            }
+
             ['sql' => $cond_sql, 'params' => $cond_params] = static::traverseConditions($join_conditions + $conditions);
             $sql .= $cond_sql;
             $params += $cond_params;
@@ -167,6 +171,11 @@ class DBHelper {
         $groups = $query['group'] ?? [];
         if ($groups) {
             $sql .= "\nGROUP BY\n" . join(",\n", $groups);
+        }
+
+        $orders = $query['order'] ?? [];
+        if ($orders) {
+            $sql .= "\nORDER BY\n" . join(",\n", $orders);
         }
 
         return ['sql' => $sql, 'params' => $params];

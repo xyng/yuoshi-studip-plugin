@@ -17,7 +17,8 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                     <tr>
                         <th>Student</th>
                         <th>Punkte</th>
-                        <th>Gespeichert</th>
+                        <th>Start</th>
+                        <th>Ende</th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>
@@ -31,6 +32,7 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                         </tr>
                     )}
                     {taskSolutions.map((taskSolution) => {
+                        const finishedDate = taskSolution.getFinished()
                         return (
                             <tr key={`solution-${taskSolution.getApiId()}`}>
                                 <td>
@@ -42,6 +44,11 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                                 </td>
                                 <td>
                                     {taskSolution.getCreated().toLocaleString()}
+                                </td>
+                                <td>
+                                    {finishedDate
+                                        ? finishedDate.toLocaleString()
+                                        : "Noch nicht abgegeben."}
                                 </td>
                                 <td>
                                     <Link
