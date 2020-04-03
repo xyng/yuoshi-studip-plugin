@@ -7,6 +7,9 @@
             "email": "dmelchior@uos.de"
         }
     ],
+    "scripts": {
+        "zip": "zip -r yuoshi.zip controllers dist sql src vendor views Yuoshi.class.php plugin.manifest"
+    },
     "autoload": {
         "psr-4": {
             "Xyng\\Yuoshi\\": "src"

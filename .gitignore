@@ -254,5 +254,6 @@ fabric.properties
 
 # ignore builds
 dist
+yuoshi.zip
 
 .webpack.env
