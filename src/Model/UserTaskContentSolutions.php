@@ -67,9 +67,10 @@ class UserTaskContentSolutions extends BaseModel {
                 $quests = $content->quests;
 
                 foreach ($quests as $quest) {
+                    /** @var \SimpleCollection|UserTaskContentQuestSolutions[] $questSolutions */
                     $questSolutions = $questsSolutions->findBy('quest_id', $quest->id);
 
-                    if (!TaskContentQuestSolutionAuthority::areQuestSolutionsDone($questSolutions)) {
+                    if (TaskContentQuestSolutionAuthority::areQuestSolutionsDone($questSolutions) === false) {
                         return $quest;
                     }
                 }

@@ -49,6 +49,7 @@ class TaskSolutionAuthority implements AuthorityInterface {
 
         $contents = $task->contents;
         $doneContents = 0;
+        $totalScore = 0;
         $totalContents = $contents->count();
 
         $contentSolutions = $solution->content_solutions;
@@ -61,13 +62,16 @@ class TaskSolutionAuthority implements AuthorityInterface {
                 continue;
             }
 
-            if (TaskContentSolutionAuthority::isContentSolutionDone($contentSolution)) {
+            $score = TaskContentSolutionAuthority::isContentSolutionDone($contentSolution);
+            if ($score !== false) {
+                $totalScore += $score;
                 $doneContents += 1;
             }
         }
 
         if ($totalContents === $doneContents) {
             $solution->finished = new \DateTimeImmutable();
+            $solution->points = $task->credits * ($totalScore / max($totalContents, 1));
             $solution->store();
         }
     }

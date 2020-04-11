@@ -39,11 +39,17 @@ class TaskContentSolutionAuthority implements AuthorityInterface {
         );
     }
 
+    /**
+     * @param UserTaskContentSolutions $contentSolution
+     * @param TaskContents|null $content
+     * @return bool|int
+     */
     static function isContentSolutionDone(UserTaskContentSolutions $contentSolution, TaskContents $content = null) {
         $content = $content ?: $contentSolution->content;
 
         $quests = $content->quests;
         $doneQuests = 0;
+        $totalScore = 0;
         $totalQuests = $quests->count();
 
         $questsSolutions = $contentSolution->quest_solutions;
@@ -51,11 +57,17 @@ class TaskContentSolutionAuthority implements AuthorityInterface {
         foreach ($quests as $quest) {
             /** @var \SimpleCollection|UserTaskContentQuestSolutions[] $questSolutions */
             $questSolutions = $questsSolutions->findBy('quest_id', $quest->id);
-            if (TaskContentQuestSolutionAuthority::areQuestSolutionsDone($questSolutions, $quest)) {
+            $score = TaskContentQuestSolutionAuthority::areQuestSolutionsDone($questSolutions);
+            if ($score !== false) {
+                $totalScore += $score;
                 $doneQuests += 1;
             }
         }
 
-        return $doneQuests === $totalQuests;
+        if ($doneQuests === $totalQuests) {
+            return $totalScore / max($totalQuests, 1);
+        }
+
+        return false;
     }
 }

@@ -85,7 +85,7 @@ class UserTaskSolutions extends BaseModel {
                         $contentSolution->id = 'temp_' . $contentSolution->getNewId();
                     }
 
-                    if (!TaskContentSolutionAuthority::isContentSolutionDone($contentSolution, $content)) {
+                    if (TaskContentSolutionAuthority::isContentSolutionDone($contentSolution, $content) === false) {
                         return $contentSolution;
                     }
                 }
