@@ -201,7 +201,7 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             $answerScore = (1 / $correct_answer_count);
 
             // decrease points if answer is not in the correct spot
-            if ($quest->require_order && $solution->sort !== $correctAnswer->sort) {
+            if ($quest->require_order && $solution->sort != $correctAnswer->sort) {
                 $answerScore *= 1 - $sort_weight;
             } else {
                 $correct_user_answer_count += 1;

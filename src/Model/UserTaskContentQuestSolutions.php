@@ -8,7 +8,7 @@ namespace Xyng\Yuoshi\Model;
  * @property string $content_solution_id
  * @property string $quest_id
  * @property boolean is_correct
- * @property number $score
+ * @property int $score
  * @property boolean $sent_solution
  *
  * @property UserTaskContentSolutions $content_solution
