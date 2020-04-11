@@ -1,12 +1,16 @@
 <?php
 namespace Xyng\Yuoshi\Model;
 
+use eTask\Task;
+
 /**
  * Class TaskContents
  * @package Xyng\Yuoshi\Model
  *
- * @property \SimpleCollection|TaskContentKeywords[] $keywords
- * @property \SimpleCollection|TaskContentImages[] $images
+ * @property string $task_id
+ *
+ * @property \SimpleORMap|Task $task
+ * @property \SimpleORMapCollection|TaskContentQuests[] $quests
  */
 class TaskContents extends BaseModel {
     protected static function configure($config = []) {
@@ -15,12 +19,6 @@ class TaskContents extends BaseModel {
         $config['has_many']['quests'] = [
             'on_store' => true,
             'class_name' => TaskContentQuests::class,
-            'assoc_foreign_key' => 'content_id'
-        ];
-
-        $config['has_many']['images'] = [
-            'on_store' => true,
-            'class_name' => TaskContentImages::class,
             'assoc_foreign_key' => 'content_id'
         ];
 

@@ -1,0 +1,7 @@
+.preview {
+    height: 300px;
+    width: 400px;
+    max-width: 80%;
+
+    overflow: scroll;
+}

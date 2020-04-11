@@ -1,7 +1,6 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
-
 use Course;
 use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
@@ -9,28 +8,57 @@ use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\Errors\UnprocessableEntityException;
 use JsonApi\JsonApiController;
 use JsonApi\Routes\Courses\Authority as CourseAuthority;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use User;
 use Valitron\Validator;
+use Xyng\Yuoshi\Api\Authority\PackageAuthority;
+use Xyng\Yuoshi\Api\Authority\TaskAuthority;
+use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
+use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
+use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\DBHelper;
+use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Helper\QueryField;
 use Xyng\Yuoshi\Model\Packages;
 use Xyng\Yuoshi\Model\Tasks;
+use Xyng\Yuoshi\Model\UserTaskSolutions;
 
 class TasksController extends JsonApiController
 {
+    use ValidationTrait;
+
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['sequence'];
+    protected $allowedFilteringParameters = ['sort', 'package'];
+    protected $allowedIncludePaths = [
+        'contents',
+        'contents.quests',
+        'contents.quests.answers'
+    ];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sequence = $request->getQueryParams()['sequence'] ?? 0;
+        $package_id = $args['id'] ?? null;
+        $package_ids = $package_id ? [$package_id] : [];
 
-        ['id' => $id] = $args;
-        $where = [
-            'package_id' => $id,
-            'sequence' => $sequence
-        ];
+        $filters = $this->getQueryParameters()->getFilteringParameters();
+        if (!$package_ids) {
+            $package_ids = explode(',', $filters['package'] ?? '');
+        }
+        $sort = $filters['sort'] ?? null;
 
-        $tasks = Tasks::findWhere($where);
+        $where = [];
+        if ($sort) {
+            $where['sort'] = $sort;
+        }
+
+        if (!$package_ids) {
+            throw new \InvalidArgumentException("Cannot select Tasks without package filter.");
+        }
+
+        $tasks = TaskAuthority::findFiltered($package_ids, $this->getUser($request), [], $where);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -41,69 +69,175 @@ class TasksController extends JsonApiController
     }
 
     public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sql = <<<'EOD'
-            LEFT JOIN yuoshi_user_task_solutions Solutions ON (
-                Solutions.task_id = yuoshi_tasks.id AND
-                Solutions.user_id = :user_id
-            )
-            WHERE (
-                Solutions.id IS NULL
-                AND `yuoshi_tasks`.`package_id` = :package_id
-            )
-            ORDER BY `yuoshi_tasks`.`sequence`
-EOD;
+        /** @var User $user */
+        $user = $this->getUser($request);
 
         ['id' => $package_id] = $args;
-        $task = Tasks::findOneBySQL(trim($sql), [
-            'user_id' => $this->getUser($request)->id,
-            'package_id' => $package_id,
+
+        /** @var Tasks $task */
+        $task = Tasks::findOneWithQuery([
+            'joins' => [
+                [
+                    'type' => 'left',
+                    'table' => 'yuoshi_user_task_solutions',
+                    'alias' => 'Solutions',
+                    'on' => [
+                        'Solutions.task_id' => new QueryField('yuoshi_tasks.id'),
+                        'Solutions.user_id' => $user->id,
+                        'Solutions.finished IS NOT NULL'
+                    ],
+                ]
+            ],
+            'conditions' => [
+                'Solutions.id IS NULL',
+                'yuoshi_tasks.package_id' => $package_id,
+            ],
+            'order' => [
+                '`yuoshi_tasks`.`sort` ASC'
+            ]
         ]);
+
+        // check if there is a solution for this task
+        $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
+            'yuoshi_user_task_solutions.finished is null',
+            'yuoshi_user_task_solutions.user_id' => $user->id,
+        ]);
+        if (!$solution) {
+            // create new task solution so we can track answer time
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+            ]);
+
+            if (!$solution->store()) {
+                throw new InternalServerError('could not persist entity');
+            }
+        }
+
+        return $this->getContentResponse($task);
+    }
+
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request));
+
+        if (!$task) {
+            throw new RecordNotFoundException();
+        }
 
         return $this->getContentResponse($task);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        ['id' => $package_id] = $args;
-        /** @var Packages|null $task */
-        $task = Packages::find($package_id);
+        $validated = $this->validate($request, true);
+        $data = new JsonApiDataHelper($validated);
 
-        if ($task == null) {
+        $package_id = $data->getRelation('package')['data']['id'] ?? null;
+
+        if (!$package_id) {
             throw new RecordNotFoundException();
         }
 
-        if (!\PackageAuthority::canEditPackage($this->getUser($request), $task)) {
-            throw new AuthorizationFailedException();
+        /** @var Packages|null $package */
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if ($package == null) {
+            throw new RecordNotFoundException();
         }
 
-        $data = $request->getParsedBody();
-
-        $validator = new Validator($data);
-        $validator
-            ->rule('required', 'title')
-            ->rule('required', 'kind')
-            ->rule('required', 'credits')
-            ->rule('required', 'sequence')
-            ->rule('required', 'is_training')
-            ->rule('boolean', 'is_training')
-            ->rule('integer', 'sequence')
-            ->rule('integer', 'credits')
-            // TODO: add all possible Task-Types
-            ->rule('in', 'kind', ['multi'])
-        ;
-
-        if (!$validator->validate()) {
-            throw new ValidationException($validator);
-        }
-
-        $task = Tasks::build([
-            'title' => $data['title'],
-            'course_id' => $package_id,
-        ]);
+        $task = Tasks::build(
+            $data->getAttributes([
+                'title',
+                'kind',
+                'description',
+                'credits',
+            ])
+            +
+            [
+                'sort' => 0,
+                'is_training' => $data->getAttribute('kind') == 'training',
+                'package_id' => $package_id,
+            ]
+        );
 
         if (!$task->store()) {
             throw new InternalServerError("could not persist entity");
         }
 
         return $this->getContentResponse($task);
+    }
+
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['id'] ?? null;
+
+        if ($task_id === null) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if (!$task) {
+            throw new RecordNotFoundException();
+        }
+
+        $validated = $this->validate($request);
+
+        $data = new JsonApiDataHelper($validated);
+        $attrs = $data->getAttributes(['title', 'kind', 'description', 'sort', 'is_training', 'credits']);
+
+        foreach ($attrs as $key => $value) {
+            $task->{$key} = $value ?? $task->{$key};
+        }
+
+        // TODO: handle image
+
+        if ($task->isDirty() && !$task->store()) {
+            throw new InternalServerError("could not update package");
+        }
+
+        return $this->getContentResponse($task);
+    }
+
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['task_id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $task = TaskAuthority::findOneFiltered($task_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if (!$task->delete()) {
+            throw new InternalServerError("could not delete entity");
+        }
+
+        return $response->withStatus(204);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
+    {
+        if ($new) {
+            $validator
+                ->rule('required', 'data.relationships.package.data.id')
+                ->rule('required', 'data.attributes.title')
+                ->rule('required', 'data.attributes.kind')
+                ->rule('required', 'data.attributes.credits');
+        }
+
+        $validator
+            ->rule('integer', 'data.attributes.sort')
+            ->rule('integer', 'data.attributes.credits')
+            ->rule('boolean', 'data.attributes.is_training')
+            ->rule('in', 'data.attributes.kind', Tasks::$types);
+
+        return $validator;
     }
 }

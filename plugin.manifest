@@ -4,3 +4,6 @@ origin=xyng
 version=0.0.1
 displayname=Yuoshi
 category=Lehr- und Lernorganisation
+studipMinVersion=4.0
+dbscheme=sql/yuoshi_initial_up.sql
+uninstalldbscheme=sql/yuoshi_initial_down.sql

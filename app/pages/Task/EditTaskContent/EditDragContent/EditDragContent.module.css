@@ -1,0 +1,23 @@
+.categories {
+    @apply flex;
+}
+
+.settingsHeader {
+    @apply flex;
+}
+
+.requireOrder {
+    @apply m-auto ml-0
+}
+
+.save {
+    @apply m-auto mr-0
+}
+
+.category {
+    @apply p-6;
+}
+
+.statement {
+
+}

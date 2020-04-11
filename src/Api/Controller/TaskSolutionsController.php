@@ -1,96 +1,183 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
+use Cake\Utility\Hash;
+use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Xyng\Yuoshi\Model\TaskContentQuests;
-use Xyng\Yuoshi\Model\TaskContents;
+use User;
+use Valitron\Validator;
+use Xyng\Yuoshi\Api\Authority\TaskAuthority;
+use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
+use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
+use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\Tasks;
+use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
 use Xyng\Yuoshi\Model\UserTaskSolutions;
 
 class TaskSolutionsController extends JsonApiController
 {
+    use ValidationTrait;
+
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['sequence'];
+    protected $allowedFilteringParameters = ['task'];
+    protected $allowedIncludePaths = [
+        'task',
+        'user',
+        'current_content_solution.current_quest',
+        'current_content_solution.done_quests',
+        'current_content_solution.content',
+        'done_content_solutions.done_quests',
+        'done_content_solutions.content',
+        'content_solutions',
+        'content_solutions.content',
+        'content_solutions.quest_solutions',
+        'content_solutions.quest_solutions.quest',
+        'content_solutions.quest_solutions.answers',
+        'content_solutions.quest_solutions.answers.answer',
+        'content_solutions.quest_solutions.answers.answer.quest',
+    ];
 
-    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $body = $request->getParsedBody();
-        $data = $body['data'] ?? null;
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['task_id'] ?? null;
 
-        if (!$data) {
-            // todo: better exceptions
-            throw new \InvalidArgumentException();
+        $filters = $this->getQueryParameters()->getFilteringParameters();
+        if (!$task_id) {
+            $task_id = $filters['task'] ?? null;
         }
 
-        $task_id = $data['attributes']['task_id'];
-        $task = Tasks::find($task_id);
+        if (!$task_id) {
+            throw new \InvalidArgumentException("Cannot select TaskSolutions without task filter.");
+        }
+
+        $cond = [];
+
+        // TODO: check for actual course permissions, not global ones
+        if (!PermissionHelper::getPerm()->have_perm('dozent')) {
+            $cond['yuoshi_user_task_solutions.user_id'] = $this->getUser($request)->id;
+        }
+
+        $solutions = TaskSolutionAuthority::findFiltered([$task_id], $this->getUser($request), PermissionHelper::getMasters('autor'), $cond);
+
+        list($offset, $limit) = $this->getOffsetAndLimit();
+
+        return $this->getPaginatedContentResponse(
+            array_slice($solutions, $offset, $limit),
+            count($solutions)
+        );
+    }
+
+    protected function getSolution(ServerRequestInterface $request, ResponseInterface $response, $args, array $perms = [], array $conds = []): UserTaskSolutions {
+        $task_solution_id = $args['task_solution_id'] ?? null;
+
+        if (!$task_solution_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $solution = TaskSolutionAuthority::findOneFiltered($task_solution_id, $this->getUser($request), $perms, $conds);
+
+        if (!$solution) {
+            throw new RecordNotFoundException();
+        }
+
+        return $solution;
+    }
+
+    /**
+     * Fetches currently active solution for given task_id or creates a new one
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param $args
+     * @return \JsonApi\JsonApiIntegration\Response
+     */
+    public function getCurrentSolution(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $task_id = $args['task_id'] ?? null;
+
+        if (!$task_id) {
+            throw new RecordNotFoundException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser($request);
+
+        /** @var Tasks|null $task */
+        $task = TaskAuthority::findOneFiltered($task_id, $user);
 
         if (!$task) {
             throw new RecordNotFoundException();
         }
 
-        $content_solutions = [];
-        $raw_content_solutions = $data['relationships']['content_solutions'] ?? [];
-        foreach ($raw_content_solutions as $content_solution) {
-            $content_solution_data = $content_solution['data'];
+        $solution = UserTaskSolutions::findOneWithQuery(
+            AuthorityHelper::getFilterQuery(
+                TaskSolutionAuthority::getFilter(),
+                'yuoshi_tasks.id',
+                $task_id,
+                $user,
+                [],
+                [
+                    'yuoshi_user_task_solutions.finished is null',
+                    'yuoshi_user_task_solutions.user_id' => $user->id,
+                ]
+            )
+        );
 
-            $content_id = $content_solution_data['attributes']['content_id'];
-            $content = TaskContents::findWhere([
-                'id' => $content_id,
-                'task_id' => $task_id,
+        if (!$solution) {
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
             ]);
 
-            if (!$content) {
-                throw new RecordNotFoundException();
+            if (!$solution->store()) {
+                throw new InternalServerError("could not persist entity");
             }
-
-            $quest_solutions = [];
-            $raw_quest_solutions = $content_solution_data['relationships']['content_quest_solutions'] ?? [];
-
-            foreach ($raw_quest_solutions as $quest_solution) {
-                $quest_solution_data = $quest_solution['data'];
-
-                $quest_id = $quest_solution_data['attributes']['quest_id'];
-                $quest = TaskContentQuests::findWhere([
-                    'id' => $quest_id,
-                    'content_id' => $content_id,
-                ]);
-
-                if (!$quest) {
-                    throw new RecordNotFoundException();
-                }
-
-                /*
-                    NOTE: the answer is not checked by intention.
-                    there are some task-types (like drag) that require the user
-                    to find the correct answer to a question.
-                    in order to persist wrong instances, there may be entries with
-                    non-matching quest_id and answer_id.
-                */
-
-                $quest_solutions[] = [
-                    'quest_id' => $quest_id,
-                    'answer_id' => $quest_solution_data['attributes']['answer_id'],
-                ];
-            }
-
-            $content_solutions[] = [
-                'content_id' => $content_id,
-                'value' => $content_solution_data['attributes']['value'] ?? null,
-                'quest_solutions' => $quest_solutions,
-            ];
         }
 
-        $result = UserTaskSolutions::import([
-            'task_id' => $task_id,
-            'user_id' => $this->getUser($request)->id,
-            'content_solutions' => $content_solutions,
-        ]);
+        return $this->getContentResponse($solution);
+    }
 
-        $result->store();
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $solution = $this->getSolution($request, $response, $args);
 
-        dd($result);
+        $cond = [];
+
+        // TODO: check for actual course permissions, not global ones
+        if (!PermissionHelper::getPerm()->have_perm('dozent')) {
+            $cond['yuoshi_user_task_solutions.user_id'] = $this->getUser($request)->id;
+        }
+
+        return $this->getContentResponse($solution);
+    }
+
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $solution = $this->getSolution($request, $response, $args, PermissionHelper::getMasters('dozent'));
+
+        $validated = $this->validate($request);
+        $data = new JsonApiDataHelper($validated);
+
+        $solution->points = $data->getAttribute('points');
+
+        if (!$solution->store()) {
+            throw new InternalServerError("could not persist entity");
+        }
+
+        return $this->getContentResponse($solution);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
+    {
+        $validator
+            ->rule('numeric', 'data.attributes.points')
+        ;
+
+        return $validator;
     }
 }

@@ -9,7 +9,10 @@ use SimpleORMap;
  * @package Xyng\Yuoshi\Model
  *
  * @property string $course_id
+ * @property Course $course
  * @property Tasks[] $tasks
+ *
+ * @method static Packages find(string $id)
  */
 class Packages extends BaseModel {
     protected static function configure($config = []) {
@@ -27,4 +30,7 @@ class Packages extends BaseModel {
 
         parent::configure($config);
     }
+
+    // TODO: check in db if this package is playable by user.
+    public $playable = true;
 }
