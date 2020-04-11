@@ -1,0 +1,15 @@
+.rateWrap {
+    @apply flex mb-8 items-end
+}
+
+.points {
+    @apply m-auto ml-0
+}
+
+.save {
+    @apply m-auto mb-0 mr-0;
+
+    :global .button {
+        @apply my-0;
+    }
+}

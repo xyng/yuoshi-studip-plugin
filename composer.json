@@ -7,13 +7,18 @@
             "email": "dmelchior@uos.de"
         }
     ],
+    "scripts": {
+        "zip": "zip -r yuoshi.zip controllers dist sql src vendor views Yuoshi.class.php plugin.manifest"
+    },
     "autoload": {
         "psr-4": {
             "Xyng\\Yuoshi\\": "src"
         }
     },
     "require": {
-        "php": ">= 7.2"
+        "php": ">= 7.2",
+        "vlucas/valitron": "^1.4",
+        "cakephp/utility": "^3.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.3"

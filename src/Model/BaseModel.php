@@ -3,7 +3,10 @@ namespace Xyng\Yuoshi\Model;
 
 use DateTime;
 use DateTimeImmutable;
+use DBManager;
+use PDO;
 use SimpleORMap;
+use Xyng\Yuoshi\Helper\DBHelper;
 
 /**
  * Class BaseModel
@@ -61,7 +64,9 @@ class BaseModel extends SimpleORMap {
             }
 
             if ($value instanceof DateTimeImmutable) {
-                $value = $value->setTimezone(new \DateTimeZone(self::DB_TZ));
+                $value = $value
+                    ->setTimezone(new \DateTimeZone(self::DB_TZ))
+                    ->format('Y-m-d H:i:s');
             }
         }
 
@@ -71,97 +76,134 @@ class BaseModel extends SimpleORMap {
     public function store()
     {
         foreach ($this->dateFields as $field) {
-            if ($val = $this->getValue($field)) {
-                /** @var DateTimeImmutable $val */
+            $val = ($this->content[$field] ?? null);
 
+            // always update chdate when dirty model is persisted
+            if ($field === 'chdate' && $this->isDirty()) {
+                $val = new DateTimeImmutable();
+            }
+
+            // make sure the dates are always defined
+            if (($field === 'chdate' || $field === 'mkdate') && !$val) {
+                $val = new DateTimeImmutable();
+            }
+
+            if ($val instanceof DateTimeImmutable) {
                 $this->content[$field] = $val
                     ->setTimezone(new \DateTimeZone(self::DB_TZ))
                     ->format('Y-m-d H:i:s');
             }
         }
 
-        return parent::store();
-    }
+        $ret = parent::store();
 
-    private static function traverseConditions(array $conditions) {
-        $sql = '';
-        $params = [];
-
-        $numItems = count($conditions);
-        foreach ($conditions as $field => $condition) {
-            $lastItem = --$numItems == 0;
-
-            if (is_numeric($field) || strtolower($field) == 'or' || strtolower($field) == 'and') {
-                $keyword = strtolower($field) == 'or' ? " OR " : " AND ";
-
-                if (!is_array($condition)) {
-                    throw new \InvalidArgumentException($keyword . '-key expects array as value.');
-                }
-
-                ['sql' => $subSql, 'params' => $subParams] = static::traverseConditions($condition);
-
-                $prepend = (bool) $sql;
-                if ($prepend) {
-                    $sql .= $keyword;
-                }
-
-                $indentedSql = preg_replace('/^/m', "\t", $subSql);
-                $sql .= "(\n" . $indentedSql . "\n)";
-
-                if (!$prepend && !$lastItem) {
-                    $sql .= $keyword;
-                }
-
-                $params = array_merge($params, $subParams);
-                continue;
+        if (!$ret) {
+            $error_code = DBManager::get()->errorCode();
+            if (!$error_code || $error_code == '00000') {
+                // catch false-positives (empty result for insert - caused by saving an unmodified entity)
+                return true;
             }
 
-            $field = trim($field);
-            $split = explode(" ", $field, 1);
-
-            $special_conditions = ['or', 'and'];
-            if (!($split[1] ?? false)) {
-                if (in_array(strtolower($condition), $special_conditions)) {
-                    $comp = "";
-                } else {
-                    $comp = "=";
-                }
-            } else {
-                $condition = $split[0];
-
-                $comp = trim($split[1] ?? '=');
-                $comp_whitelist = ['=', '>=', '<=', '>', '<', '!=', 'in', 'not in', 'is null', 'is not null'];
-                if (!in_array(strtolower($comp), $comp_whitelist)) {
-                    throw new \InvalidArgumentException('unknown sql comparison "' . htmlspecialchars($comp) . '"');
-                }
-            }
-
-            if ($sql) {
-                $sql .= " AND\n";
-            }
-
-            if (strtolower($comp) == 'is null' || strtolower($comp) == 'is not null') {
-                $sql .= sprintf("%s %s", $field, $comp);
-            } else {
-                $sql .= sprintf("%s %s ?", $field, $comp);
-
-                if (
-                    strtolower($comp) == 'in'
-                    || strtolower($comp) == 'not in'
-                ) {
-                    $condition = '(' . join(",", $condition) . ')';
-                }
-
-                $params[] = $condition;
-            }
+            return $ret;
         }
 
-        return ['sql' => $sql, 'params' => $params];
+        return $ret;
     }
 
-    public static function findWhere(array $conditions) {
-        ['sql' => $sql, 'params' => $params] = static::traverseConditions($conditions);
+    public static function findWhere(array $conditions, array $fields = []) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
 
-        return static::findBySQL($sql, $params);
+        return static::findBySQL($sql, $params, $fields);
+    }
+
+    public static function findOneWhere(array $conditions, array $fields = []) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
+
+        return static::findOneBySQL($sql, $params, $fields);
+    }
+
+    public static function findWithQuery(array $query, array $fields = []) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
+
+        return static::findBySQL($sql, $params, $fields);
+    }
+
+    public static function findOneWithQuery(array $query, array $fields = []) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
+
+        return static::findOneBySQL($sql, $params, $fields);
+    }
+
+    public static function countWithQuery(array $query) {
+        ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
+
+        return static::countBySQL($sql, $params);
+    }
+
+    /**
+     * returns array of instances of given class filtered by given sql
+     * @param string $sql sql clause to use on the right side of WHERE
+     * @param array $params bind params for sql clause
+     * @param array $fields additional fields to select
+     * @return array array of "self" objects
+     */
+    public static function findBySQL($sql, $params = [], $fields = [])
+    {
+        $db_table = static::config('db_table');
+        $class = get_called_class();
+        $record = new static();
+
+        $has_join = mb_stripos($sql, 'JOIN ');
+        if ($has_join === false || $has_join > 10) {
+            $sql = 'WHERE ' . $sql;
+        }
+
+        $fieldsString = '';
+        foreach ($fields as $alias => $sel) {
+            $record->addSelectedField($alias);
+            $fieldsString .= sprintf(",\n%s as `%s`", $sel, $alias);
+        }
+
+        $sql = "SELECT `" . $db_table . "`.*" . $fieldsString . "\nFROM `" . $db_table . "` " . $sql;
+        $ret = array();
+        $stmt = DBManager::get()->prepare($sql);
+        $stmt->execute($params);
+        $stmt->setFetchMode(PDO::FETCH_INTO , $record);
+        $record->setNew(false);
+        while ($record = $stmt->fetch()) {
+            $record->applyCallbacks('after_initialize');
+            $ret[] = clone $record;
+        }
+        return $ret;
+    }
+
+    /**
+     * returns one instance of given class filtered by given sql
+     * only first row of query is used
+     * @param string $where sql clause to use on the right side of WHERE
+     * @param array $params parameters for query
+     * @param array $fields additional fields to select
+     * @return SimpleORMap|NULL
+     */
+    public static function findOneBySQL($where, $params = [], $fields = [])
+    {
+        if (mb_stripos($where, 'LIMIT') === false) {
+            $where .= " LIMIT 1";
+        }
+        $found = static::findBySQL($where, $params, $fields);
+        return isset($found[0]) ? $found[0] : null;
+    }
+
+    protected function addSelectedField(string $alias)
+    {
+        $this->known_slots[] = $alias;
+
+        $this->additional_fields[$alias]['set'] = function (BaseModel $model, $field, $value) {
+            $model->_setAdditionalValue($field, $value);
+        };
+
+        $this->additional_fields[$alias]['get'] = function (BaseModel $model, $field) {
+            return $model->_getAdditionalValue($field);
+        };
     }
 }

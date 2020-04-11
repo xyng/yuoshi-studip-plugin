@@ -29,8 +29,7 @@ class Contents extends SchemaProvider
             'title' => $resource->title,
             'intro' => $resource->intro,
             'outro' => $resource->outro,
-            'keywords' => $resource->keywords->pluck("keyword"),
-            'images' => $resource->images->toArray(),
+            'content' => $resource->content,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -38,28 +37,19 @@ class Contents extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
+        $quests = null;
+        if ($includeRelationships['quests'] ?? null) {
+            $quests = $resource->quests;
+        }
+
         return [
             'quests' => [
-                self::DATA => $resource->quests,
+                self::DATA => $quests,
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
                 ],
             ],
-            'keywords' => [
-                self::DATA => $resource->keywords,
-                self::SHOW_SELF => true,
-                self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'keywords')
-                ],
-            ],
-            'images' => [
-                self::DATA => $resource->images,
-                self::SHOW_SELF => true,
-                self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'images')
-                ],
-            ]
         ];
     }
 }

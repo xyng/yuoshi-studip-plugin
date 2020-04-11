@@ -29,6 +29,8 @@ class Quests extends SchemaProvider
             'question' => $resource->question,
             'content' => $resource->content,
             'multiple' => (bool) $resource->multiple,
+            'require_order' => (bool) $resource->require_order,
+            'sort' => $resource->sort ? (int) $resource->sort : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -36,12 +38,17 @@ class Quests extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
+        $answers = null;
+        if ($includeRelationships['answers'] ?? null) {
+            $answers = $resource->answers;
+        }
+
         return [
             'answers' => [
-                self::DATA => $resource->answers,
+                self::DATA => $answers,
                 self::SHOW_SELF => true,
                 self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'answers')
                 ],
             ]
         ];

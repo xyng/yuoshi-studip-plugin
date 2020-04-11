@@ -1,2 +1,1 @@
-<?php
-echo "hallo";
+<div id="yuoshi-app"></div>

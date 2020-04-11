@@ -1,0 +1,26 @@
+.wrapper {
+    @apply flex items-center justify-center;
+}
+
+.outer {
+    @apply w-full h-3 bg-gray-400;
+}
+
+.inner {
+    @apply h-full;
+    @apply bg-blue-400;
+
+    width: 0;
+    max-width: 100%;
+
+    transform: translate3d(0, 0, 0);
+    transition: width 0.3s ease-in-out;
+}
+
+.outer, .inner {
+    @apply rounded-lg;
+}
+
+.text {
+    @apply inline-block m-auto mr-0 px-4;
+}

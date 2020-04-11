@@ -24,14 +24,13 @@ class Tasks extends SchemaProvider
     {
         /** @var \Xyng\Yuoshi\Model\Tasks $resource */
         return [
-            'sequence' => (int) $resource->sequence,
+            'sort' => (int) $resource->sort,
             'title' => $resource->title,
             'image' => $resource->image,
             'kind' => $resource->kind,
             'description' => $resource->description,
             'credits' => (int) $resource->credits,
             'is_training' => (bool) $resource->is_training,
-            'attributes' => $resource->attributes,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -39,9 +38,14 @@ class Tasks extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
+        $contents = null;
+        if ($includeRelationships['contents'] ?? null) {
+            $contents = $resource->contents;
+        }
+
         return [
             'contents' => [
-                self::DATA => $resource->contents,
+                self::DATA => $contents,
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'contents')
