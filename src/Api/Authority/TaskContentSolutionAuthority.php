@@ -42,7 +42,7 @@ class TaskContentSolutionAuthority implements AuthorityInterface {
     /**
      * @param UserTaskContentSolutions $contentSolution
      * @param TaskContents|null $content
-     * @return bool|int
+     * @return bool|double
      */
     static function isContentSolutionDone(UserTaskContentSolutions $contentSolution, TaskContents $content = null) {
         $content = $content ?: $contentSolution->content;

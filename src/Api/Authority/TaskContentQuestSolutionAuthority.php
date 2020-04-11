@@ -41,7 +41,7 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
 
     /**
      * @param UserTaskContentQuestSolutions[] $questSolutions
-     * @return int|bool
+     * @return double|bool
      */
     static function areQuestSolutionsDone($questSolutions) {
         // max 3 solution attempts per run
@@ -51,7 +51,7 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
 
         foreach ($questSolutions as $questSolution) {
             if ($questSolution->is_correct || $questSolution->sent_solution) {
-                return (int) $questSolution->score;
+                return (double) $questSolution->score;
             }
         }
 

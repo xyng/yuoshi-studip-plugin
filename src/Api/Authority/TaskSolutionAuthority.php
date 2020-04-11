@@ -71,7 +71,7 @@ class TaskSolutionAuthority implements AuthorityInterface {
 
         if ($totalContents === $doneContents) {
             $solution->finished = new \DateTimeImmutable();
-            $solution->points = $task->credits * ($totalScore / max($totalContents, 1));
+            $solution->points = (int) round((int) $task->credits * ($totalScore / max($totalContents, 1)));
             $solution->store();
         }
     }
