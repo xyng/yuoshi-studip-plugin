@@ -1,6 +1,7 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
+use HtmlSanitizer\Sanitizer;
 use JsonApi\Errors\ConflictException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
@@ -15,6 +16,7 @@ use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\HtmlSanitizerFactory;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContents;
 use Xyng\Yuoshi\Model\UserTaskContentSolutions;
@@ -112,10 +114,26 @@ class TaskContentSolutionsController extends JsonApiController {
             throw new ConflictException();
         }
 
+        $value = $data->getAttribute('value');
+
+        if ($value) {
+            if (!is_string($value)) {
+                $sanitizer = HtmlSanitizerFactory::create();
+
+                array_walk_recursive($value, function (&$val) use ($sanitizer) {
+                    $val = $sanitizer->sanitize($val);
+                });
+            } else {
+                $value = [
+                    'value' => $value
+                ];
+            }
+        }
+
         $content_solution = UserTaskContentSolutions::build([
             'solution_id' => $taskSolution->id,
             'content_id' => $data->getRelationId('content'),
-            'value' => $data->getAttribute('value'),
+            'value' => $value,
         ]);
 
         if (!$content_solution->store()) {
@@ -134,6 +152,9 @@ class TaskContentSolutionsController extends JsonApiController {
     {
         $validator
             ->rule('required', 'data.relationships.content.data.id')
+            ->rule(function ($field, $value) {
+                return !$value || is_string($value) || is_array($value);
+            }, 'data.attributes.value')
         ;
 
         return $validator;

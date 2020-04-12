@@ -21,6 +21,7 @@ use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\HtmlSanitizerFactory;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
@@ -165,14 +166,21 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             $rawUserAnswers = array_slice($rawUserAnswers,0, 1);
         }
 
+        $sanitizer = HtmlSanitizerFactory::create();
+
         /** @var UserTaskContentQuestSolutionAnswers[] $userAnswers */
-        $userAnswers = array_map(function ($rawUserAnswer) {
+        $userAnswers = array_map(function ($rawUserAnswer) use ($sanitizer) {
             $userAnswerData = new JsonApiDataHelper($rawUserAnswer);
+
+            $custom = $userAnswerData->getAttribute('custom');
+            if ($custom) {
+                $custom = $sanitizer->sanitize($custom);
+            }
 
             return UserTaskContentQuestSolutionAnswers::build([
                 'answer_id' => $userAnswerData->getRelationId('answer'),
                 'sort' => $userAnswerData->getAttribute('sort'),
-                'custom' => $userAnswerData->getAttribute('custom'),
+                'custom' => $custom,
             ]);
         }, $rawUserAnswers);
 
