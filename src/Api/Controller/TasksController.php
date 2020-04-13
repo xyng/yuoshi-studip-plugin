@@ -74,7 +74,7 @@ class TasksController extends JsonApiController
 
         ['id' => $package_id] = $args;
 
-        /** @var Tasks $task */
+        /** @var Tasks|null $task */
         $task = Tasks::findOneWithQuery([
             'joins' => [
                 [
@@ -97,20 +97,22 @@ class TasksController extends JsonApiController
             ]
         ]);
 
-        // check if there is a solution for this task
-        $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
-            'yuoshi_user_task_solutions.finished is null',
-            'yuoshi_user_task_solutions.user_id' => $user->id,
-        ]);
-        if (!$solution) {
-            // create new task solution so we can track answer time
-            $solution = UserTaskSolutions::build([
-                'task_id' => $task->id,
-                'user_id' => $user->id,
+        if ($task) {
+            // check if there is a solution for this task
+            $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
+                'yuoshi_user_task_solutions.finished is null',
+                'yuoshi_user_task_solutions.user_id' => $user->id,
             ]);
+            if (!$solution) {
+                // create new task solution so we can track answer time
+                $solution = UserTaskSolutions::build([
+                    'task_id' => $task->id,
+                    'user_id' => $user->id,
+                ]);
 
-            if (!$solution->store()) {
-                throw new InternalServerError('could not persist entity');
+                if (!$solution->store()) {
+                    throw new InternalServerError('could not persist entity');
+                }
             }
         }
 
