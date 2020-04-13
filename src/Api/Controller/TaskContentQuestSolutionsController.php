@@ -169,10 +169,10 @@ class TaskContentQuestSolutionsController extends JsonApiController {
         $sanitizer = HtmlSanitizerFactory::create();
 
         /** @var UserTaskContentQuestSolutionAnswers[] $userAnswers */
-        $userAnswers = array_map(function ($rawUserAnswer) use ($sanitizer) {
+        $userAnswers = array_map(function ($rawUserAnswer) use ($quest, $sanitizer) {
             $userAnswerData = new JsonApiDataHelper($rawUserAnswer);
 
-            $custom = $userAnswerData->getAttribute('custom');
+            $custom = $quest->custom_answer ? $userAnswerData->getAttribute('custom') : null;
             if ($custom) {
                 $custom = $sanitizer->sanitize($custom);
             }
@@ -218,11 +218,20 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             $score += $answerScore;
         }
 
+        $userSentCustomAnswer = false;
+        foreach ($userAnswers as $userAnswer) {
+            if ($userAnswer->custom) {
+                $userSentCustomAnswer = true;
+                break;
+            }
+        }
+
         $questSolution = UserTaskContentQuestSolutions::build([
             'content_solution_id' => $contentSolution->id,
             'quest_id' => $quest->id,
             'score' => $score,
-            'is_correct' => $correct_answer_count === $correct_user_answer_count,
+            'is_correct' => ($quest->custom_answer && $userSentCustomAnswer)
+                || $correct_answer_count === $correct_user_answer_count,
             'sent_solution' => false,
         ]);
 
