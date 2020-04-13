@@ -1166,10 +1166,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@xyng/yuoshi-backend-adapter@^0.0.2-alpha.0":
-  version "0.0.2-alpha.0"
-  resolved "https://registry.yarnpkg.com/@xyng/yuoshi-backend-adapter/-/yuoshi-backend-adapter-0.0.2-alpha.0.tgz#a42ebecf3f9b7cd6b790d547f8a56473317acdee"
-  integrity sha512-6muuRIqO+1Ao6MOH4MnAMPl3fcpiV6Ps/0wOEbR6304q0rJS0/5DzE6Cy80xAIP/uw6QO9GAfAXIM6NxJQvRsw==
+"@xyng/yuoshi-backend-adapter@^0.0.2-alpha.5":
+  version "0.0.2-alpha.5"
+  resolved "https://registry.yarnpkg.com/@xyng/yuoshi-backend-adapter/-/yuoshi-backend-adapter-0.0.2-alpha.5.tgz#08b9950192bd58b584fcd54a230e2e82ebc43cf7"
+  integrity sha512-41AZh4fS3KbuQkcZJWfbIe8b5Qn40ZO8sTVQ4it6+bWfkQSl1AChx2YDJGPzPWZhSBO2ikGWXQGMs/rxbJrMdQ==
   dependencies:
     "@types/ejson" "^2.1.2"
     oauth-1.0a "^2.2.6"

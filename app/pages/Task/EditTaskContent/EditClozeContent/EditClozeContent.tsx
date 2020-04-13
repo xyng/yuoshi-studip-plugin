@@ -1,35 +1,13 @@
 import React, { useMemo } from "react"
+import {
+    matchImage,
+    matchInput,
+    parseContentMultiple,
+} from "@xyng/yuoshi-backend-adapter"
 
 import { EditTaskContentView } from "../EditTaskContent"
 
 import Styles from "./EditClozeContent.module.css"
-
-type Part = {
-    inputId?: string
-    content: string
-}
-
-const contentToParts = (content: string): Part[] => {
-    const inputRegex = new RegExp(/W*##(\d)##W*/, "gm")
-    const inputRegexNoGrp = new RegExp(/W*##\d##W*/, "gm")
-    const matches = content.match(inputRegex)
-    const parts = content.split(inputRegexNoGrp)
-
-    if (!matches) {
-        return [
-            {
-                content: content,
-            },
-        ]
-    }
-
-    return matches.map((match, index) => {
-        return {
-            inputId: match,
-            content: parts[index],
-        }
-    })
-}
 
 const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
     const {
@@ -45,7 +23,10 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
         return contents.map((content) => {
             return {
                 ...content,
-                parts: contentToParts(content.content),
+                parts: parseContentMultiple(content.content, [
+                    matchImage,
+                    matchInput,
+                ]),
             }
         })
     }, [contents])
@@ -104,12 +85,15 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
                                         key={`content-${content.id}-part-${index}`}
                                     >
                                         {part.content}
-                                        {part.inputId && (
+                                        {part.name === "input" && part.id && (
                                             <input
                                                 className="reset"
                                                 type="text"
-                                                name={`content-${content.id}-input-${part.inputId}`}
+                                                name={`content-${content.id}-input-${part.id}`}
                                             />
+                                        )}
+                                        {part.name === "image" && part.id && (
+                                            <img alt={`${part.id}`} />
                                         )}
                                     </div>
                                 )
