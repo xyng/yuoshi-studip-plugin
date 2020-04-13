@@ -11,7 +11,7 @@ type Attributes = {
     kind: TaskTypeName
     sequence: number
     description: string
-    credits: string
+    credits: string | number
     is_training: string
     image: string
 }
