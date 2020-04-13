@@ -4,10 +4,13 @@ import React, {
     ReactElement,
     useCallback,
     useRef,
+    useState,
 } from "react"
 import { ObjectSchema, ValidationError } from "yup"
 import { Form } from "@unform/web"
 import { SubmitHandler, FormHandles } from "@unform/core"
+
+import Alert from "../Alert/Alert"
 
 function ValidatedForm<T extends object>(
     props: PropsWithChildren<
@@ -19,6 +22,7 @@ function ValidatedForm<T extends object>(
 ): ReactElement | null {
     const formRef = useRef<FormHandles>(null)
     const { children, validation, onSubmit, ...rest } = props
+    const [hasError, setHasError] = useState(false)
 
     const onValidateSubmit = useCallback(
         async (data, helpers) => {
@@ -29,6 +33,7 @@ function ValidatedForm<T extends object>(
 
             // reset validation
             form.setErrors({})
+            setHasError(false)
 
             try {
                 const validated = await validation.validate(data, {
@@ -49,6 +54,7 @@ function ValidatedForm<T extends object>(
                         e.inner.map((error) => [error.path, error.message])
                     )
                 )
+                setHasError(true)
             }
         },
         [validation, onSubmit]
@@ -56,6 +62,12 @@ function ValidatedForm<T extends object>(
 
     return (
         <Form {...rest} ref={formRef} onSubmit={onValidateSubmit}>
+            {hasError && (
+                <Alert label="Fehler." appearance="error">
+                    Dieses Formular ist nicht korrekt oder nicht vollständig
+                    ausgefüllt. Bitte überprüfen Sie Ihre Angaben.
+                </Alert>
+            )}
             {children}
         </Form>
     )

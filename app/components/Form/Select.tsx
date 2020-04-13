@@ -1,6 +1,8 @@
 import React, { HTMLProps, useEffect, useRef } from "react"
 import { useField } from "@unform/core"
 
+import Validation from "./Validation"
+
 const Select: React.FC<
     HTMLProps<HTMLSelectElement> & {
         label: string
@@ -29,7 +31,7 @@ const Select: React.FC<
                 defaultValue={defaultValue}
                 ref={inputRef}
             />
-            {error && <p>{error}</p>}
+            <Validation error={error} />
         </label>
     )
 }
