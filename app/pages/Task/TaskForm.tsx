@@ -8,12 +8,14 @@ import ValidatedForm from "../../components/Form/ValidatedForm"
 import Input from "../../components/Form/Input"
 import Select from "../../components/Form/Select"
 import TextArea from "../../components/Form/Textarea"
+import LoadingButton from "../../components/LoadingButton"
+
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 const TaskValidation = Yup.object().shape({
     title: Yup.string().required(),
     kind: Yup.string()
-        .oneOf(Object.keys(TaskTypeName))
+        .oneOf(Object.keys(Task.taskTypes))
         .required() as Yup.StringSchema<TaskTypeName>,
     description: Yup.string().required(),
     credits: Yup.number().required(),
@@ -23,12 +25,14 @@ type TaskFormData = Yup.InferType<typeof TaskValidation>
 export type TaskFormSubmitHandler = SubmitHandler<TaskFormData>
 
 const TaskForm: React.FC<{
+    saving?: boolean
     defaultValues?: Partial<TaskFormData>
     onSubmit: TaskFormSubmitHandler
-}> = ({ onSubmit, defaultValues }) => {
+}> = ({ onSubmit, defaultValues, saving }) => {
     return (
         <ValidatedForm
             validation={TaskValidation}
+            initialData={defaultValues}
             className="default"
             onSubmit={onSubmit}
         >
@@ -44,9 +48,9 @@ const TaskForm: React.FC<{
             </Select>
             <TextArea label="Beschreibung" name="description" />
             <Input label="Punkte" name="credits" type="number" />
-            <button className="button" type="submit">
+            <LoadingButton loading={!!saving} className="button" type="submit">
                 Speichern
-            </button>
+            </LoadingButton>
         </ValidatedForm>
     )
 }
