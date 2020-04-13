@@ -21,6 +21,7 @@ use Xyng\Yuoshi\Api\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
+use Xyng\Yuoshi\Helper\HtmlSanitizerFactory;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
@@ -165,14 +166,21 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             $rawUserAnswers = array_slice($rawUserAnswers,0, 1);
         }
 
+        $sanitizer = HtmlSanitizerFactory::create();
+
         /** @var UserTaskContentQuestSolutionAnswers[] $userAnswers */
-        $userAnswers = array_map(function ($rawUserAnswer) {
+        $userAnswers = array_map(function ($rawUserAnswer) use ($quest, $sanitizer) {
             $userAnswerData = new JsonApiDataHelper($rawUserAnswer);
+
+            $custom = $quest->custom_answer ? $userAnswerData->getAttribute('custom') : null;
+            if ($custom) {
+                $custom = $sanitizer->sanitize($custom);
+            }
 
             return UserTaskContentQuestSolutionAnswers::build([
                 'answer_id' => $userAnswerData->getRelationId('answer'),
                 'sort' => $userAnswerData->getAttribute('sort'),
-                'custom' => $userAnswerData->getAttribute('custom'),
+                'custom' => $custom,
             ]);
         }, $rawUserAnswers);
 
@@ -210,11 +218,20 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             $score += $answerScore;
         }
 
+        $userSentCustomAnswer = false;
+        foreach ($userAnswers as $userAnswer) {
+            if ($userAnswer->custom) {
+                $userSentCustomAnswer = true;
+                break;
+            }
+        }
+
         $questSolution = UserTaskContentQuestSolutions::build([
             'content_solution_id' => $contentSolution->id,
             'quest_id' => $quest->id,
             'score' => $score,
-            'is_correct' => $correct_answer_count === $correct_user_answer_count,
+            'is_correct' => ($quest->custom_answer && $userSentCustomAnswer)
+                || $correct_answer_count === $correct_user_answer_count,
             'sent_solution' => false,
         ]);
 
