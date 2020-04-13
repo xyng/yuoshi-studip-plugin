@@ -1,0 +1,30 @@
+.spinner {
+    @apply block w-full h-full bg-blue-800 rounded-full;
+
+    animation: scale 1.0s infinite ease-in-out;
+}
+
+.small {
+    @apply inline-block;
+    height: 1rem;
+    width: 1rem;
+}
+
+.centerWrap {
+    @apply flex w-full py-12 m-auto items-center justify-center;
+}
+
+.centerSpinner {
+    height: 40px;
+    width: 40px;
+}
+
+@keyframes scale {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1.0);
+        opacity: 0;
+    }
+}
