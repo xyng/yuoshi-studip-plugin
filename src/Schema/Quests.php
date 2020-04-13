@@ -30,6 +30,7 @@ class Quests extends SchemaProvider
             'content' => $resource->content,
             'multiple' => (bool) $resource->multiple,
             'require_order' => (bool) $resource->require_order,
+            'custom_answer' => (bool) $resource->custom_answer,
             'sort' => $resource->sort ? (int) $resource->sort : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
