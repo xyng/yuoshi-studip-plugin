@@ -3,12 +3,12 @@ import { hot } from "react-hot-loader/root"
 import { createHistory, LocationProvider, Router } from "@reach/router"
 import createHashSource from "hash-source"
 
-import Packages from "./pages/Packages/Packages"
 import { CourseContextProvider } from "./contexts/CourseContext"
 import Loading from "./components/Loading/Loading"
 import Start from "./pages/Start/Start"
 import Styles from "./App.module.css"
-import Progress from "./pages/Progress/Progress"
+const Packages = React.lazy(() => import("./pages/Packages/Packages"))
+const Progress = React.lazy(() => import("./pages/Progress/Progress"))
 
 // hash router helps prevent studip routing issues and preserved the course query string
 // memory source would be another option, but the state is harder to persist.

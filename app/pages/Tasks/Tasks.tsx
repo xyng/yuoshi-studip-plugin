@@ -9,7 +9,10 @@ import {
 import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
 import CreateTask from "../Task/CreateTask"
-import EditTaskContent from "../Task/EditTaskContent/EditTaskContent"
+
+const EditTaskContent = React.lazy(() =>
+    import("../Task/EditTaskContent/EditTaskContent")
+)
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (

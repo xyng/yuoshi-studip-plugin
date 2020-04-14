@@ -2,7 +2,6 @@ import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
 import { CurrentPackageContextProvider } from "../../contexts/CurrentPackageContext"
-import Tasks from "../Tasks/Tasks"
 import {
     PackagesContextProvider,
     usePackagesContext,
@@ -11,6 +10,8 @@ import Progress from "../../components/Progress/Progress"
 
 import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
+
+const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
 const Packages: React.FC<RouteComponentProps> = () => {
     return (
