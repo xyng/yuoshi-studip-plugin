@@ -111,12 +111,6 @@ const RenderTaskTableContent: React.FC = () => {
                             <td>
                                 <Link
                                     className="button"
-                                    to={`${task.getApiId()}/solutions`}
-                                >
-                                    Abgegebene Lösungen
-                                </Link>
-                                <Link
-                                    className="button"
                                     to={`${task.getApiId()}/meta`}
                                 >
                                     Metadaten Bearbeiten
