@@ -1,26 +1,28 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
 
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
-import useHandleFormSubmit from "../../helpers/useHandleFormSubmit"
 import Package from "../../models/Package"
 
-import PackageForm from "./PackageForm"
+import PackageForm, { PackageFormSubmitHandler } from "./PackageForm"
 
 const EditPackage: React.FC<RouteComponentProps> = () => {
     const { currentPackage, updateCurrentPackage } = useCurrentPackageContext()
 
-    const onSubmit = useHandleFormSubmit(["title", "slug"], async (values) => {
-        currentPackage.patch(values)
+    const onSubmit = useCallback<PackageFormSubmitHandler>(
+        async (values) => {
+            currentPackage.patch(values)
 
-        const updated = (await currentPackage.save()).getModel()
-        if (!updated) {
-            // TODO: handle error
-            return
-        }
+            const updated = (await currentPackage.save()).getModel()
+            if (!updated) {
+                // TODO: handle error
+                return
+            }
 
-        await updateCurrentPackage(updated as Package)
-    })
+            await updateCurrentPackage(updated as Package)
+        },
+        [currentPackage, updateCurrentPackage]
+    )
 
     return (
         <>
