@@ -292,8 +292,6 @@ export const useEditTaskContext = (
                                         })
                                 )
 
-                                apiQuest.setAnswers(newAnswers)
-
                                 saved = (
                                     await apiQuest.save()
                                 ).getModel() as Quest | null
@@ -301,6 +299,8 @@ export const useEditTaskContext = (
                                 if (!saved) {
                                     throw new Error("could not save quest")
                                 }
+
+                                saved.setAnswers(newAnswers)
 
                                 return saved
                             })

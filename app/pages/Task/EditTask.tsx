@@ -17,7 +17,6 @@ const EditTask: React.FC<RouteComponentProps> = () => {
     const onSubmit = useCallback<TaskFormSubmitHandler>(
         async (values) => {
             task.patch(values)
-            task.setPackage(currentPackage)
 
             setSuccess(undefined)
             setSaving(true)
