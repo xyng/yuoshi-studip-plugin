@@ -2,11 +2,9 @@ import React from "react"
 import { Link, RouteComponentProps } from "@reach/router"
 
 import { useCurrentTaskSolutionContext } from "../../../contexts/CurrentTaskSolutionContext"
-import { useCurrentTaskContext } from "../../../contexts/CurrentTaskContext"
 import RenderSolution from "../../../components/RenderSolution/RenderSolution"
 
 const SolutionShow: React.FC<RouteComponentProps> = () => {
-    const { task } = useCurrentTaskContext()
     const { taskSolution } = useCurrentTaskSolutionContext()
 
     return (
@@ -14,7 +12,10 @@ const SolutionShow: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="../">
                 Zurück
             </Link>
-            <RenderSolution taskSolution={taskSolution} task={task} />
+            <RenderSolution
+                taskSolution={taskSolution}
+                task={taskSolution.getTask()}
+            />
         </form>
     )
 }

@@ -2,13 +2,11 @@ import React, { ChangeEventHandler, useCallback, useState } from "react"
 import { Link, RouteComponentProps } from "@reach/router"
 
 import { useCurrentTaskSolutionContext } from "../../../contexts/CurrentTaskSolutionContext"
-import { useCurrentTaskContext } from "../../../contexts/CurrentTaskContext"
 import RenderSolution from "../../../components/RenderSolution/RenderSolution"
 
 import Styles from "./SolutionRate.module.css"
 
 const SolutionRate: React.FC<RouteComponentProps> = () => {
-    const { task } = useCurrentTaskContext()
     const { taskSolution, updateTaskSolution } = useCurrentTaskSolutionContext()
 
     const [points, setPoints] = useState(taskSolution.getPoints())
@@ -52,7 +50,10 @@ const SolutionRate: React.FC<RouteComponentProps> = () => {
                     </button>
                 </div>
             </div>
-            <RenderSolution taskSolution={taskSolution} task={task} />
+            <RenderSolution
+                taskSolution={taskSolution}
+                task={taskSolution.getTask()}
+            />
         </form>
     )
 }

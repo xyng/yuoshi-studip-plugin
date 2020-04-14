@@ -29,6 +29,7 @@ const fetchTaskSolution = async (taskId: string) => {
             .with("content_solutions.quest_solutions.quest")
             .with("content_solutions.quest_solutions.answers.answer.quest")
             .with("content_solutions.content")
+            .with("task")
             .find(taskId)
     ).getData() as TaskSolution | null
 

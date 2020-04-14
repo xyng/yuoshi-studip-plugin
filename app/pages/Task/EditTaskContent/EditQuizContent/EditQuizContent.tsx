@@ -360,12 +360,8 @@ const EditQuizContent: EditTaskContentView = ({ editTaskContext }) => {
             className="default"
             onSubmit={onSubmit}
         >
-            <button className="button" onClick={createContent()}>
-                Inhalt hinzufügen
-            </button>
-            <button className="button" type="submit">
-                Speichern
-            </button>
+            <Button onClick={createContent()}>Inhalt hinzufügen</Button>
+            <Button type="submit">Speichern</Button>
             <div className={Styles.container}>
                 {contents.map((content, index) => (
                     <RenderContentForm

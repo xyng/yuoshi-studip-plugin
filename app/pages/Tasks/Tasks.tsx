@@ -10,7 +10,6 @@ import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
 import CreateTask from "../Task/CreateTask"
 import EditTaskContent from "../Task/EditTaskContent/EditTaskContent"
-import Solutions from "../Task/Solutions/Solutions"
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (
@@ -32,7 +31,6 @@ const TaskSubRoute: React.FC<RouteComponentProps<{
             <Router>
                 <EditTaskContent path="edit" />
                 <EditTask path="meta" />
-                <Solutions path="solutions/*" />
             </Router>
         </CurrentTaskContextProvider>
     )

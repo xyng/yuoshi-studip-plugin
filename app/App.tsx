@@ -8,6 +8,7 @@ import { CourseContextProvider } from "./contexts/CourseContext"
 import Loading from "./components/Loading/Loading"
 import Start from "./pages/Start/Start"
 import Styles from "./App.module.css"
+import Progress from "./pages/Progress/Progress"
 
 // hash router helps prevent studip routing issues and preserved the course query string
 // memory source would be another option, but the state is harder to persist.
@@ -24,6 +25,7 @@ const App: React.FC = () => {
                         <Router>
                             <Start path="/" />
                             <Packages path="packages/*" />
+                            <Progress path="progress/*" />
                         </Router>
                     </LocationProvider>
                 </CourseContextProvider>

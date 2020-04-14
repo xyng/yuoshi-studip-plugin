@@ -25,7 +25,7 @@ class TaskSolutionsController extends JsonApiController
     use ValidationTrait;
 
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['task'];
+    protected $allowedFilteringParameters = ['task', 'user'];
     protected $allowedIncludePaths = [
         'task',
         'user',
@@ -47,22 +47,32 @@ class TaskSolutionsController extends JsonApiController
         $task_id = $args['task_id'] ?? null;
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
+
+        $task_ids = [];
         if (!$task_id) {
-            $task_id = $filters['task'] ?? null;
+            if ($task_filters = $filters['task'] ?? null) {
+                $task_ids = explode(',', $task_filters);
+            }
+        } else {
+            $task_ids = [$task_id];
         }
 
-        if (!$task_id) {
+        if (!$task_ids) {
             throw new \InvalidArgumentException("Cannot select TaskSolutions without task filter.");
         }
 
         $cond = [];
+
+        if ($user_filters = $filters['user'] ?? null) {
+            $cond['yuoshi_user_task_solutions.user_id in'] = explode(',', $user_filters);
+        }
 
         // TODO: check for actual course permissions, not global ones
         if (!PermissionHelper::getPerm()->have_perm('dozent')) {
             $cond['yuoshi_user_task_solutions.user_id'] = $this->getUser($request)->id;
         }
 
-        $solutions = TaskSolutionAuthority::findFiltered([$task_id], $this->getUser($request), PermissionHelper::getMasters('autor'), $cond);
+        $solutions = TaskSolutionAuthority::findFiltered($task_ids, $this->getUser($request), PermissionHelper::getMasters('autor'), $cond);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 

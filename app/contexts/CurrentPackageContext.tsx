@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react"
+import React, { createContext, useContext, useMemo } from "react"
 
 import Package from "../models/Package"
 import useGetModelFromListOrFetch from "../helpers/useGetModelFromListOrFetch"
@@ -25,8 +25,14 @@ export const useCurrentPackageContext = () => {
     return ctx
 }
 
-const fetchPackage = async (packageId: string) => {
-    const packageItem = (await Package.find(packageId)).getData()
+const fetchPackage = (byUser: boolean) => async (packageId: string) => {
+    let query = Package.query()
+
+    if (byUser) {
+        query = query.with("packageUserProgress.user")
+    }
+
+    const packageItem = (await query.find(packageId)).getData()
 
     if (!packageItem) {
         throw new Error("package not found")
@@ -37,7 +43,13 @@ const fetchPackage = async (packageId: string) => {
 
 export const CurrentPackageContextProvider: React.FC<{
     currentPackage?: string
-}> = ({ currentPackage, children }) => {
+    byUser?: boolean
+}> = ({ byUser, currentPackage, children }) => {
+    const cacheKey = useMemo(() => (byUser ? "package_by_user" : "package"), [
+        byUser,
+    ])
+    const fetch = useMemo(() => fetchPackage(!!byUser), [byUser])
+
     const { packages, reloadPackages, updatePackage } = usePackagesContext()
     const {
         entityData: currentPackageData,
@@ -45,8 +57,8 @@ export const CurrentPackageContextProvider: React.FC<{
     } = useGetModelFromListOrFetch(
         currentPackage,
         packages,
-        currentPackage ? [currentPackage, "package"] : null,
-        fetchPackage,
+        currentPackage ? [currentPackage, cacheKey] : null,
+        fetch,
         updatePackage,
         reloadPackages
     )

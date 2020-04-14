@@ -25,6 +25,7 @@ class PackagesController extends JsonApiController
 
     protected $allowedFilteringParameters = ['course'];
     protected $allowedPagingParameters = ['offset', 'limit'];
+    protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $course_id = $args['id'] ?? null;
@@ -34,61 +35,8 @@ class PackagesController extends JsonApiController
             $course_id = $filters['course'] ?? null;
         }
 
-        $solvedTaskCount = 'count(distinct concat(`yuoshi_user_task_solutions`.`task_id`, `yuoshi_user_task_solutions`.`user_id`))';
-
-        $studentJoinConditions = [];
-
         $user = $this->getUser($request);
-        if (!PermissionHelper::getPerm()->have_studip_perm('dozent', $course_id, $user->id)) {
-            $studentJoinConditions['Students.user_id'] = $user->id;
-        }
-
-        $packages = Packages::findWithQuery(
-            [
-                'joins' => [
-                    [
-                        'sql' => PackageAuthority::getFilter(),
-                        'params' => [
-                            'user_id' => $user->id,
-                        ]
-                    ],
-                    [
-                        'type' => 'left',
-                        'table' => 'yuoshi_tasks',
-                        'on' => [
-                            'yuoshi_packages.id' => new QueryField('yuoshi_tasks.package_id')
-                        ]
-                    ],
-                    [
-                        'type' => 'left',
-                        'table' => 'seminar_user',
-                        'alias' => 'Students',
-                        'on' => [
-                            'Students.Seminar_id' => new QueryField('yuoshi_packages.course_id'),
-                            'Students.status IN' => PermissionHelper::getSlaves('autor'),
-                        ] + $studentJoinConditions,
-                    ],
-                    [
-                        'type' => 'left',
-                        'table' => 'yuoshi_user_task_solutions',
-                        'on' => [
-                            'yuoshi_tasks.id' => new QueryField('yuoshi_user_task_solutions.task_id'),
-                            'Students.user_id' => new QueryField('yuoshi_user_task_solutions.user_id'),
-                            'yuoshi_user_task_solutions.finished is not null',
-                        ]
-                    ]
-                ],
-                'conditions' => [
-                    'yuoshi_packages.course_id' => $course_id,
-                ],
-                'group' => [
-                    'yuoshi_packages.id'
-                ]
-            ],
-            [
-                'progress' => '(' . $solvedTaskCount . '* 100) / count(`yuoshi_tasks`.`id`)',
-            ]
-        );
+        $packages = PackageAuthority::findFiltered([$course_id], $user);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -99,8 +47,15 @@ class PackagesController extends JsonApiController
     }
 
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        ['id' => $id] = $args;
-        $package = Packages::find($id);
+        $id = $args['id'] ?? null;
+
+        if (!$id) {
+            $filters = $this->getQueryParameters()->getFilteringParameters();
+            $id = $filters['id'] ?? null;
+        }
+
+        $user = $this->getUser($request);
+        $package = PackageAuthority::findOneFiltered($id, $user);
 
         if (!$package) {
             throw new RecordNotFoundException();

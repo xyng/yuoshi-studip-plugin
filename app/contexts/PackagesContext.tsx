@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext } from "react"
+import React, { createContext, useCallback, useContext, useMemo } from "react"
 import useSWR from "swr/esm/use-swr"
 import { PluralResponse } from "coloquent"
 
@@ -27,21 +27,35 @@ export const usePackagesContext = () => {
     return ctx
 }
 
-const fetchPackages = async (courseId: string): Promise<Package[]> => {
-    const packageItem = (await Package.where(
-        "course",
-        courseId
-    ).get()) as PluralResponse
+const fetchPackages = (byUser: boolean) => async (
+    courseId: string
+): Promise<Package[]> => {
+    let query = Package.where("course", courseId)
+
+    if (byUser) {
+        query = query.with("packageUserProgress.user")
+    } else {
+        query = query.with("packageTotalProgress")
+    }
+
+    const packageItem = (await query.get()) as PluralResponse
 
     return packageItem.getData() as Package[]
 }
 
-export const PackagesContextProvider: React.FC = ({ children }) => {
+export const PackagesContextProvider: React.FC<{
+    byUser?: boolean
+}> = ({ children, byUser }) => {
+    const cacheKey = useMemo(
+        () => (byUser ? "course/packages_by_user" : "course/packages"),
+        [byUser]
+    )
+    const fetch = useMemo(() => fetchPackages(!!byUser), [byUser])
+
     const { course } = useCourseContext()
     const { data, mutate, revalidate } = useSWR(
-        () =>
-            course.getApiId() ? [course.getApiId(), "course/packages"] : null,
-        fetchPackages,
+        () => (course.getApiId() ? [course.getApiId(), cacheKey] : null),
+        fetch,
         { suspense: true }
     )
 

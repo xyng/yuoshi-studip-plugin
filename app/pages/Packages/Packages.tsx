@@ -107,7 +107,11 @@ const RenderPackageTableData: React.FC = () => {
                         </td>
                         <td>
                             <Progress
-                                value={packageItem.getProgress() || 0}
+                                value={
+                                    packageItem
+                                        .getPackageTotalProgress()
+                                        .getProgress() || 0
+                                }
                                 max={100}
                             />
                         </td>
