@@ -112,7 +112,7 @@ class Packages extends BaseModel {
             ]
         ];
 
-        $progressCount = '(' . $solvedTaskCount . '* 100) / count(distinct `TotalTasks`.`id`)';
+        $progressCount = '(' . $solvedTaskCount . '* 100) / (count(distinct `TotalTasks`.`id`) * count(distinct `yuoshi_user_task_solutions`.`user_id`))';
 
         if (!$byUsers) {
             return UserPackageProgress::findOneWithQuery(
