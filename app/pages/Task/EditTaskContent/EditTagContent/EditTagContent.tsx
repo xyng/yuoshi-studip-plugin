@@ -26,6 +26,7 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
                     question: "Tags",
                     multiple: true,
                     requireOrder: false,
+                    customAnswer: false,
                     answers: [],
                 },
             ],

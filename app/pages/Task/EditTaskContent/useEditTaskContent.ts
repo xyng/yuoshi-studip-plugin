@@ -26,6 +26,7 @@ export interface QuizQuest extends Creatable, Sortable {
     question: string
     multiple: boolean
     requireOrder: boolean
+    customAnswer: boolean
     prePhrase?: string
     answers: QuizAnswer[]
 }
@@ -82,6 +83,7 @@ export const useEditTaskContext = (
                                 name: quest.getName(),
                                 question: quest.getQuestion(),
                                 multiple: quest.getMultiple(),
+                                customAnswer: quest.getCustomAnswer(),
                                 requireOrder: quest.getRequireOrder(),
                                 prePhrase: quest.getPrePhrase(),
                                 sort: quest.getSort(),
@@ -202,7 +204,8 @@ export const useEditTaskContext = (
                                     question: quest.question,
                                     sort: quest.sort,
                                     require_order: quest.requireOrder,
-                                    multiple: true,
+                                    multiple: quest.multiple,
+                                    custom_answer: quest.customAnswer,
                                 })
                                 apiQuest.setContent(apiContent)
 
@@ -459,6 +462,7 @@ export const useEditTaskContext = (
                             question: "",
                             multiple: false,
                             requireOrder: false,
+                            customAnswer: false,
                             answers: [],
                             ...defaults,
                         },
