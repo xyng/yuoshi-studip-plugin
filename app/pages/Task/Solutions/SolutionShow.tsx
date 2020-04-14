@@ -11,7 +11,9 @@ const SolutionShow: React.FC<RouteComponentProps> = () => {
 
     return (
         <form className="default" onSubmit={(event) => event.preventDefault()}>
-            <Link to="../">Zurück</Link>
+            <Link className="button" to="../">
+                Zurück
+            </Link>
             <RenderSolution taskSolution={taskSolution} task={task} />
         </form>
     )

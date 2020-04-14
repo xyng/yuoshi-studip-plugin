@@ -40,8 +40,12 @@ const PackageSubRoute: React.FC<RouteComponentProps<{
 const PackagesIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
-            <Link to="/">Zurück</Link>
-            <Link to="create">Neues Paket</Link>
+            <Link className="button" to="/">
+                Zurück
+            </Link>
+            <Link className="button" to="create">
+                Neues Paket
+            </Link>
             <table className="default">
                 <caption>Pakete</caption>
                 <thead>

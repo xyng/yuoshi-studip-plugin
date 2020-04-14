@@ -47,7 +47,9 @@ const RenderTaskViews: React.FC = () => {
 const EditTaskContent: React.FC<RouteComponentProps> = () => {
     return (
         <div>
-            <Link to="../../">Zurück</Link>
+            <Link className="button" to="../../">
+                Zurück
+            </Link>
             <RenderTaskViews />
         </div>
     )

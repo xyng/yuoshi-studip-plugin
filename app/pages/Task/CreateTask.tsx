@@ -38,7 +38,10 @@ const CreateTask: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <Link to={`/packages/${currentPackage.getApiId()}/tasks`}>
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.getApiId()}/tasks`}
+            >
                 Zurück
             </Link>
             <h1>Neue Aufgabe</h1>

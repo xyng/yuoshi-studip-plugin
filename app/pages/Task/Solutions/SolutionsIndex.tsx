@@ -10,7 +10,9 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
 
     return (
         <div>
-            <Link to="../../">Zurück</Link>
+            <Link className="button" to="../../">
+                Zurück
+            </Link>
             <table className="default">
                 <caption>Lösungen für Aufgabe: {task.getTitle()}</caption>
                 <thead>

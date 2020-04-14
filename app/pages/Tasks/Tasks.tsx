@@ -43,9 +43,13 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <Link to="/packages">Zurück</Link>
-            <Link to="create">Neue Aufgabe</Link>
             <h1>Paket: {currentPackage.getTitle()}</h1>
+            <Link className="button" to="/packages">
+                Zurück
+            </Link>
+            <Link className="button" to="create">
+                Neue Aufgabe
+            </Link>
             <table className="default">
                 <caption>Aufgaben</caption>
                 <thead>

@@ -24,7 +24,9 @@ const EditPackage: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <Link to="/packages">Zurück</Link>
+            <Link className="button" to="/packages">
+                Zurück
+            </Link>
             <h1>Paket bearbeiten: {currentPackage.getTitle()}</h1>
 
             <PackageForm

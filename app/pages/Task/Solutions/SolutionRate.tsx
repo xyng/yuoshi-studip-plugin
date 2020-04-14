@@ -32,7 +32,9 @@ const SolutionRate: React.FC<RouteComponentProps> = () => {
 
     return (
         <form className="default" onSubmit={(event) => event.preventDefault()}>
-            <Link to="../../">Zurück</Link>
+            <Link className="button" to="../../">
+                Zurück
+            </Link>
             <div className={Styles.rateWrap}>
                 <div className={Styles.points}>
                     <label>
