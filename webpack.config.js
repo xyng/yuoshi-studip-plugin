@@ -31,8 +31,6 @@ module.exports = {
     mode: prod ? "production" : "development",
     entry: [
         "react-hot-loader/patch",
-        "core-js/stable",
-        "regenerator-runtime/runtime",
         "./index.tsx"
     ],
     output: {
@@ -121,6 +119,9 @@ module.exports = {
             new TerserJSPlugin({}),
             new OptimizeCSSAssetsPlugin({})
         ],
+        splitChunks: {
+            chunks: "all",
+        },
     },
     devServer: {
 		proxy: {

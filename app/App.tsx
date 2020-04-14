@@ -3,10 +3,17 @@ import { hot } from "react-hot-loader/root"
 import { createHistory, LocationProvider, Router } from "@reach/router"
 import createHashSource from "hash-source"
 
-import { CourseContextProvider } from "./contexts/CourseContext"
-import Loading from "./components/Loading/Loading"
 import Start from "./pages/Start/Start"
+import Loading from "./components/Loading/Loading"
 import Styles from "./App.module.css"
+
+const CourseContextProvider = React.lazy(async () => {
+    return {
+        default: (await import("./contexts/CourseContext"))
+            .CourseContextProvider,
+    }
+})
+
 const Packages = React.lazy(() => import("./pages/Packages/Packages"))
 const Progress = React.lazy(() => import("./pages/Progress/Progress"))
 
