@@ -19,7 +19,7 @@ export default class TaskContentQuestSolutionAnswer extends AppModelWithDate<
     }
 
     answer(): ToOneRelation {
-        return this.hasOne(Answer)
+        return this.hasOne(Answer, "answer")
     }
 
     getAnswer(): Answer {

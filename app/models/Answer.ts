@@ -29,7 +29,7 @@ export default class Answer extends AppModelWithDate<Attributes> {
     }
 
     quest(): ToOneRelation {
-        return this.hasOne(Quest)
+        return this.hasOne(Quest, "quest")
     }
 
     getQuest(): Quest {

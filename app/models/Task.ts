@@ -101,11 +101,11 @@ export default class Task extends AppModelWithDate<Attributes> {
     }
 
     public package(): ToOneRelation {
-        return this.hasOne(Package)
+        return this.hasOne(Package, "package")
     }
 
     public contents(): ToManyRelation {
-        return this.hasMany(Content)
+        return this.hasMany(Content, "contents")
     }
 
     public getContents(): Content[] {
