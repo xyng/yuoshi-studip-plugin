@@ -55,7 +55,7 @@ export default class Quest extends AppModelWithDate<Attributes> {
     }
 
     answers(): ToManyRelation {
-        return this.hasMany(Answer)
+        return this.hasMany(Answer, "answers")
     }
 
     getAnswers(): Answer[] {
@@ -67,7 +67,7 @@ export default class Quest extends AppModelWithDate<Attributes> {
     }
 
     content(): ToOneRelation {
-        return this.hasOne(Content)
+        return this.hasOne(Content, "content")
     }
 
     getContent(): Content {

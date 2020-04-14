@@ -38,7 +38,7 @@ export default class Package extends AppModelWithDate<Attributes> {
     }
 
     tasks(): ToManyRelation {
-        return this.hasMany(Task)
+        return this.hasMany(Task, "tasks")
     }
 
     getTasks(): Task[] {

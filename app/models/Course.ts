@@ -39,7 +39,7 @@ export default class Course extends AppModel<Attributes> {
     }
 
     packages(): ToManyRelation {
-        return this.hasMany(Package)
+        return this.hasMany(Package, "packages")
     }
 
     getPackages(): Package[] {

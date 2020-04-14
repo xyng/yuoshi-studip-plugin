@@ -16,7 +16,7 @@ export default class TaskContentSolution extends AppModelWithDate<Attributes> {
     }
 
     task_solution(): ToOneRelation {
-        return this.hasOne(TaskSolution)
+        return this.hasOne(TaskSolution, "task_solution")
     }
 
     getTaskSolution(): TaskSolution {
@@ -24,7 +24,7 @@ export default class TaskContentSolution extends AppModelWithDate<Attributes> {
     }
 
     content(): ToOneRelation {
-        return this.hasOne(Content)
+        return this.hasOne(Content, "content")
     }
 
     getContent(): Content {
@@ -32,7 +32,7 @@ export default class TaskContentSolution extends AppModelWithDate<Attributes> {
     }
 
     quest_solutions(): ToManyRelation {
-        return this.hasMany(TaskContentQuestSolution)
+        return this.hasMany(TaskContentQuestSolution, "quest_solutions")
     }
 
     getQuestSolutions(): TaskContentQuestSolution[] {

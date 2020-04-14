@@ -37,7 +37,7 @@ export default class Content extends AppModelWithDate<Attributes> {
     }
 
     quests(): ToManyRelation {
-        return this.hasMany(Quest)
+        return this.hasMany(Quest, "quests")
     }
 
     public getQuests(): Quest[] {
@@ -49,7 +49,7 @@ export default class Content extends AppModelWithDate<Attributes> {
     }
 
     task(): ToOneRelation {
-        return this.hasOne(Task)
+        return this.hasOne(Task, "task")
     }
 
     getTask(): Task {
