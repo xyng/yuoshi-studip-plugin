@@ -8,7 +8,7 @@ import ValidatedForm from "../../components/Form/ValidatedForm"
 import Input from "../../components/Form/Input"
 import Select from "../../components/Form/Select"
 import TextArea from "../../components/Form/Textarea"
-import LoadingButton from "../../components/LoadingButton"
+import Button from "../../components/Button/Button"
 
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
@@ -25,16 +25,17 @@ type TaskFormData = Yup.InferType<typeof TaskValidation>
 export type TaskFormSubmitHandler = SubmitHandler<TaskFormData>
 
 const TaskForm: React.FC<{
-    saving?: boolean
     defaultValues?: Partial<TaskFormData>
     onSubmit: TaskFormSubmitHandler
-}> = ({ onSubmit, defaultValues, saving }) => {
+}> = ({ onSubmit, defaultValues }) => {
     return (
         <ValidatedForm
             validation={TaskValidation}
             initialData={defaultValues}
             className="default"
             onSubmit={onSubmit}
+            errorMessage="Die Aufgabe konnte nicht gespeichert werden."
+            successMessage="Die Aufgabe wurde erfolgreich gespeichert."
         >
             <Input name="title" label="Title" type="text" />
             <Select label="Typ" name="kind">
@@ -48,9 +49,7 @@ const TaskForm: React.FC<{
             </Select>
             <TextArea label="Beschreibung" name="description" />
             <Input label="Punkte" name="credits" type="number" />
-            <LoadingButton loading={!!saving} className="button" type="submit">
-                Speichern
-            </LoadingButton>
+            <Button type="submit">Speichern</Button>
         </ValidatedForm>
     )
 }
