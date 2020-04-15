@@ -35,6 +35,7 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                 <thead>
                     <tr>
                         <th>Aufgabe</th>
+                        <th>Aufgaben-Typ</th>
                         <th>Punkte</th>
                         <th>Max. Punkte</th>
                         <th>Start</th>
@@ -51,6 +52,7 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                             return (
                                 <tr key={`solution-${task.getApiId()}`}>
                                     <td>{task.getTitle()}</td>
+                                    <td>{task.getType()}</td>
                                     <td>Noch nichts abgegeben.</td>
                                     <td>{task.getCredits()}</td>
                                     <td>Noch nichts abgegeben.</td>
@@ -65,6 +67,7 @@ const SolutionsIndex: React.FC<RouteComponentProps> = () => {
                         return (
                             <tr key={`solution-${task.getApiId()}`}>
                                 <td>{task.getTitle()}</td>
+                                <td>{task.getType()}</td>
                                 <td>
                                     {taskSolution.getPoints() ||
                                         "Noch keine Punkte vergeben"}

@@ -1,0 +1,3 @@
+.huge {
+    @apply text-4xl text-gray-800 bg-indigo-200 px-6 box-border rounded-full;
+}
