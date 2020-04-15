@@ -5,6 +5,9 @@ import { uniqueId } from "../../../../helpers/uniqueId"
 import { ensureSequenceForKey } from "../../../../helpers/listHelpers"
 import { QuizAnswer } from "../useEditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
+import Button from "../../../../components/Button/Button"
+
+import Styles from "./EditMemoryContent.module.css"
 
 const createNewAnswer = (): QuizAnswer => {
     return {
@@ -150,55 +153,64 @@ const EditMemoryContent: EditTaskContentView = ({ editTaskContext }) => {
 
             {contents.map((content) => {
                 return (
-                    <div key={`memory-content-${content.id}`}>
+                    <div
+                        className={Styles.pairs}
+                        key={`memory-content-${content.id}`}
+                    >
                         {content.quests.map((quest, index) => {
                             return (
-                                <div key={`memory-quest-${quest.id}`}>
-                                    <h2>
+                                <details
+                                    className={Styles.pair}
+                                    key={`memory-quest-${quest.id}`}
+                                >
+                                    <summary className={Styles.pairSummary}>
                                         Paar {index + 1}: {quest.name}
-                                    </h2>
-                                    <label>
-                                        <span>Paar-Name</span>
-                                        <input
-                                            type="text"
-                                            value={quest.name}
-                                            onChange={changeQuestTitle(
-                                                content.id,
-                                                quest.id
-                                            )}
-                                        />
-                                    </label>
-                                    {quest.answers.map((answer, index) => {
-                                        return (
-                                            <div
-                                                key={`memory-answer-${answer.id}`}
-                                            >
-                                                <h3>Teil {index + 1}</h3>
-                                                <label>
-                                                    <span>Text</span>
-                                                    <input
-                                                        type="text"
-                                                        value={answer.content}
-                                                        onChange={onAnswerInputChange(
-                                                            content.id,
-                                                            quest.id,
-                                                            answer.id,
-                                                            "content"
-                                                        )}
-                                                    />
-                                                </label>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
+                                    </summary>
+
+                                    <div className={Styles.pairContent}>
+                                        <label>
+                                            <span>Paar-Name</span>
+                                            <input
+                                                type="text"
+                                                value={quest.name}
+                                                onChange={changeQuestTitle(
+                                                    content.id,
+                                                    quest.id
+                                                )}
+                                            />
+                                        </label>
+                                        {quest.answers.map((answer, index) => {
+                                            return (
+                                                <div
+                                                    key={`memory-answer-${answer.id}`}
+                                                >
+                                                    <h3>Teil {index + 1}</h3>
+                                                    <label>
+                                                        <span>Text</span>
+                                                        <input
+                                                            type="text"
+                                                            value={
+                                                                answer.content
+                                                            }
+                                                            onChange={onAnswerInputChange(
+                                                                content.id,
+                                                                quest.id,
+                                                                answer.id,
+                                                                "content"
+                                                            )}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </details>
                             )
                         })}
                     </div>
                 )
             })}
-            <button className="button" onClick={createPair(firstContent.id)}>
-                Neues Paar
-            </button>
+            <Button onClick={createPair(firstContent.id)}>Neues Paar</Button>
         </form>
     )
 }
