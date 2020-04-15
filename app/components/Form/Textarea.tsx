@@ -1,10 +1,10 @@
-import React, { HTMLProps, useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { useField } from "@unform/core"
 
 import Validation from "./Validation"
 
 const TextArea: React.FC<
-    HTMLProps<HTMLTextAreaElement> & {
+    JSX.IntrinsicElements["textarea"] & {
         label: string
         name: string
     }
