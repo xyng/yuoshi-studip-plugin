@@ -1,10 +1,18 @@
-import React, { ChangeEventHandler, useCallback, useEffect } from "react"
+import React, { useCallback, useEffect } from "react"
+import * as Yup from "yup"
+import { SubmitHandler } from "@unform/core"
 
 import { EditTaskContentView } from "../EditTaskContent"
 import { uniqueId } from "../../../../helpers/uniqueId"
 import { ensureSequenceForKey } from "../../../../helpers/listHelpers"
 import { QuizAnswer } from "../useEditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
+import Button from "../../../../components/Button/Button"
+import ValidatedForm from "../../../../components/Form/ValidatedForm"
+import Input from "../../../../components/Form/Input"
+import TextArea from "../../../../components/Form/Textarea"
+
+import Styles from "./EditMemoryContent.module.css"
 
 const createNewAnswer = (): QuizAnswer => {
     return {
@@ -15,24 +23,43 @@ const createNewAnswer = (): QuizAnswer => {
     }
 }
 
+const MemoryContentSchema = Yup.object().shape({
+    contentTitle: Yup.string().required(),
+    contentText: Yup.string().required(),
+    contents: Yup.array().of(
+        Yup.object().shape({
+            id: Yup.string().required(),
+            quests: Yup.array().of(
+                Yup.object().shape({
+                    id: Yup.string().required(),
+                    name: Yup.string().required(),
+                    answers: Yup.array()
+                        .min(2)
+                        .max(2)
+                        .of(
+                            Yup.object().shape({
+                                id: Yup.string().required(),
+                                content: Yup.string().required(),
+                            })
+                        ),
+                })
+            ),
+        })
+    ),
+})
+
+type MemoryContentData = Yup.InferType<typeof MemoryContentSchema>
+
 const EditMemoryContent: EditTaskContentView = ({ editTaskContext }) => {
     const {
         task,
         contents,
         setContents,
         createQuest,
-        onQuestInputChange,
-        onAnswerInputChange,
-        onSave,
+        onModifyAndSave,
     } = editTaskContext
 
-    const {
-        firstContent,
-        contentText,
-        contentTitle,
-        changeContentTitle,
-        changeContentText,
-    } = useGlobalContent(editTaskContext)
+    const { firstContent } = useGlobalContent(editTaskContext)
 
     useEffect(() => {
         if (contents.length) {
@@ -107,14 +134,56 @@ const EditMemoryContent: EditTaskContentView = ({ editTaskContext }) => {
         [createQuest]
     )
 
-    const changeQuestTitle = useCallback(
-        (content_id: string, category_id: string): ChangeEventHandler => (
-            event
-        ) => {
-            onQuestInputChange(content_id, category_id, "name")(event)
-            onQuestInputChange(content_id, category_id, "question")(event)
+    const onSubmit = useCallback<SubmitHandler<MemoryContentData>>(
+        async (value) => {
+            await onModifyAndSave((contents) => {
+                return value.contents.map((content) => {
+                    const origContent = contents.find(
+                        (c) => c.id === content.id
+                    )
+
+                    if (!origContent) {
+                        throw new Error("data integrity broken")
+                    }
+
+                    return {
+                        ...origContent,
+                        title: value.contentTitle,
+                        content: value.contentText,
+                        quests: content.quests.map((quest) => {
+                            const origQuest = origContent.quests.find(
+                                (q) => q.id === quest.id
+                            )
+
+                            if (!origQuest) {
+                                throw new Error("data integrity broken")
+                            }
+
+                            return {
+                                ...origQuest,
+                                name: quest.name,
+                                answers: quest.answers.map((answer) => {
+                                    const origAnswer = origQuest.answers.find(
+                                        (a) => a.id === answer.id
+                                    )
+
+                                    if (!origAnswer) {
+                                        throw new Error("data integrity broken")
+                                    }
+
+                                    return {
+                                        ...origAnswer,
+                                        content: answer.content,
+                                        is_correct: true,
+                                    }
+                                }),
+                            }
+                        }),
+                    }
+                })
+            })
         },
-        [onQuestInputChange]
+        [onModifyAndSave]
     )
 
     if (!firstContent) {
@@ -122,84 +191,89 @@ const EditMemoryContent: EditTaskContentView = ({ editTaskContext }) => {
     }
 
     return (
-        <form className="default">
+        <ValidatedForm
+            validation={MemoryContentSchema}
+            initialData={{
+                contentTitle: firstContent?.title,
+                contentText: firstContent?.content,
+                contents,
+            }}
+            onSubmit={onSubmit}
+            className="default"
+        >
             <h1>Memory Aufgabe: {task.getTitle()}</h1>
 
-            <button className="button" onClick={onSave}>
-                Speichern
-            </button>
+            <Button type="submit">Speichern</Button>
 
             <div>
                 <h2>Inhalt</h2>
-                <label>
-                    <p>Titel</p>
-                    <input
-                        type="text"
-                        value={contentTitle}
-                        onChange={changeContentTitle}
-                    />
-                </label>
-                <label>
-                    <p>Text</p>
-                    <textarea
-                        value={contentText}
-                        onChange={changeContentText}
-                    />
-                </label>
+                <Input label="Titel" name="contentTitle" type="text" />
+                <TextArea label="Text" name="contentText" />
             </div>
 
-            {contents.map((content) => {
+            {contents.map((content, contentIndex) => {
+                const contentPath = `contents[${contentIndex}]`
                 return (
-                    <div key={`memory-content-${content.id}`}>
+                    <div
+                        className={Styles.pairs}
+                        key={`memory-content-${content.id}`}
+                    >
+                        <Input
+                            label=""
+                            name={`${contentPath}.id`}
+                            type="hidden"
+                        />
                         {content.quests.map((quest, index) => {
+                            const questPath = `${contentPath}.quests[${index}]`
+
                             return (
-                                <div key={`memory-quest-${quest.id}`}>
-                                    <h2>
+                                <details
+                                    className={Styles.pair}
+                                    key={`memory-quest-${quest.id}`}
+                                >
+                                    <summary className={Styles.pairSummary}>
                                         Paar {index + 1}: {quest.name}
-                                    </h2>
-                                    <label>
-                                        <span>Paar-Name</span>
-                                        <input
-                                            type="text"
-                                            value={quest.name}
-                                            onChange={changeQuestTitle(
-                                                content.id,
-                                                quest.id
-                                            )}
+                                    </summary>
+
+                                    <div className={Styles.pairContent}>
+                                        <Input
+                                            label=""
+                                            name={`${questPath}.id`}
+                                            type="hidden"
                                         />
-                                    </label>
-                                    {quest.answers.map((answer, index) => {
-                                        return (
-                                            <div
-                                                key={`memory-answer-${answer.id}`}
-                                            >
-                                                <h3>Teil {index + 1}</h3>
-                                                <label>
-                                                    <span>Text</span>
-                                                    <input
-                                                        type="text"
-                                                        value={answer.content}
-                                                        onChange={onAnswerInputChange(
-                                                            content.id,
-                                                            quest.id,
-                                                            answer.id,
-                                                            "content"
-                                                        )}
+                                        <Input
+                                            label="Paar-Name"
+                                            name={`${questPath}.name`}
+                                            type="text"
+                                        />
+                                        {quest.answers.map((answer, index) => {
+                                            return (
+                                                <div
+                                                    key={`memory-answer-${answer.id}`}
+                                                >
+                                                    <h3>Teil {index + 1}</h3>
+                                                    <Input
+                                                        label=""
+                                                        name={`${questPath}.answers[${index}].id`}
+                                                        type="hidden"
                                                     />
-                                                </label>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
+                                                    <Input
+                                                        label="Text"
+                                                        name={`${questPath}.answers[${index}].content`}
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </details>
                             )
                         })}
                     </div>
                 )
             })}
-            <button className="button" onClick={createPair(firstContent.id)}>
-                Neues Paar
-            </button>
-        </form>
+            <Button onClick={createPair(firstContent.id)}>Neues Paar</Button>
+        </ValidatedForm>
     )
 }
 

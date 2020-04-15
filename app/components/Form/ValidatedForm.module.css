@@ -1,0 +1,9 @@
+.form {
+    @apply relative;
+}
+
+.saving {
+    @apply absolute flex items-center top-0 left-0 w-full h-full z-10;
+
+    background: rgba(230, 230, 230, 0.4)
+}

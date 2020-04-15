@@ -3,14 +3,28 @@ import { Link, RouteComponentProps } from "@reach/router"
 import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
 import { useCurrentTaskContext } from "contexts/CurrentTaskContext"
 
-import EditQuizContent from "./EditQuizContent/EditQuizContent"
-import EditDragContent from "./EditDragContent/EditDragContent"
-import EditCardContent from "./EditCardContent/EditCardContent"
 import { useEditTaskContext } from "./useEditTaskContent"
-import EditMemoryContent from "./EditMemoryContent/EditMemoryContent"
-import EditTagContent from "./EditTagContent/EditTagContent"
-import EditClozeContent from "./EditClozeContent/EditClozeContent"
+
 import TaskTypeName = NSTaskAdapter.TaskTypeName
+
+const EditQuizContent = React.lazy(() =>
+    import("./EditQuizContent/EditQuizContent")
+)
+const EditDragContent = React.lazy(() =>
+    import("./EditDragContent/EditDragContent")
+)
+const EditCardContent = React.lazy(() =>
+    import("./EditCardContent/EditCardContent")
+)
+const EditMemoryContent = React.lazy(() =>
+    import("./EditMemoryContent/EditMemoryContent")
+)
+const EditTagContent = React.lazy(() =>
+    import("./EditTagContent/EditTagContent")
+)
+const EditClozeContent = React.lazy(() =>
+    import("./EditClozeContent/EditClozeContent")
+)
 
 export type EditTaskContentView<T = {}> = React.FC<
     {
@@ -47,7 +61,9 @@ const RenderTaskViews: React.FC = () => {
 const EditTaskContent: React.FC<RouteComponentProps> = () => {
     return (
         <div>
-            <Link to="../../">Zurück</Link>
+            <Link className="button" to="../../">
+                Zurück
+            </Link>
             <RenderTaskViews />
         </div>
     )

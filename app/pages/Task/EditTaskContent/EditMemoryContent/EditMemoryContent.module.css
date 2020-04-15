@@ -1,0 +1,25 @@
+.pairs {
+    @apply mt-10;
+}
+
+.pair {
+    @apply shadow-lg rounded-lg my-6
+}
+
+.pairSummary {
+    @apply bg-gray-200 p-6 rounded-lg;
+
+    &:focus {
+        @apply outline-none shadow-outline;
+    }
+}
+
+.pair[open] {
+    .pairSummary {
+        @apply rounded-b-none
+    }
+}
+
+.pairContent {
+    @apply p-6 pb-8;
+}

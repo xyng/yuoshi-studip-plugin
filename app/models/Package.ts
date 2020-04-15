@@ -1,8 +1,10 @@
 import { ToManyRelation } from "coloquent"
+import { ToOneRelation } from "coloquent/dist/relation/ToOneRelation"
 
 import { AppModelWithDate } from "./AppModel"
 import Course from "./Course"
 import Task from "./Task"
+import PackageProgress from "./PackageProgress"
 
 type Attributes = {
     title: string
@@ -11,7 +13,6 @@ type Attributes = {
 export default class Package extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = ["title", "slug"]
     protected jsonApiType: string = "packages"
-    readOnlyAttributes = ["progress"]
 
     getTitle(): string {
         return this.getAttribute("title")
@@ -19,10 +20,6 @@ export default class Package extends AppModelWithDate<Attributes> {
 
     getSlug(): string {
         return this.getAttribute("slug")
-    }
-
-    public getProgress(): number | undefined {
-        return this.getAttribute("progress")
     }
 
     setTitle(title: string) {
@@ -43,5 +40,21 @@ export default class Package extends AppModelWithDate<Attributes> {
 
     getTasks(): Task[] {
         return this.getRelation("tasks")
+    }
+
+    packageTotalProgress(): ToOneRelation {
+        return this.hasOne(PackageProgress, "packageTotalProgress")
+    }
+
+    getPackageTotalProgress(): PackageProgress {
+        return this.getRelation("packageTotalProgress")
+    }
+
+    packageUserProgress(): ToManyRelation {
+        return this.hasMany(PackageProgress, "packageUserProgress")
+    }
+
+    getPackageUserProgress(): PackageProgress[] {
+        return this.getRelation("packageUserProgress")
     }
 }

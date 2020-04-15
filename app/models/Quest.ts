@@ -11,8 +11,9 @@ type Attributes = {
     prePhrase?: string
     question: string
     multiple: boolean
-    sort?: number
     require_order: boolean
+    custom_answer: boolean
+    sort?: number
 }
 export default class Quest extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = [
@@ -21,8 +22,9 @@ export default class Quest extends AppModelWithDate<Attributes> {
         "prePhrase",
         "question",
         "multiple",
-        "sort",
         "require_order",
+        "custom_answer",
+        "sort",
     ]
     protected jsonApiType: string = "quests"
 
@@ -44,6 +46,10 @@ export default class Quest extends AppModelWithDate<Attributes> {
 
     public getMultiple(): boolean {
         return this.getAttribute("multiple")
+    }
+
+    public getCustomAnswer(): boolean {
+        return this.getAttribute("custom_answer")
     }
 
     public getSort(): number | undefined {

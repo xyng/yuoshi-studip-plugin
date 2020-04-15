@@ -1,0 +1,19 @@
+.card {
+    @apply shadow-lg rounded-lg mb-6
+}
+
+.cardSummary {
+    @apply bg-gray-400 p-4 rounded-lg text-2xl text-gray-900;
+
+    &:focus {
+        @apply outline-none shadow-outline
+    }
+}
+
+.card[open] .cardSummary {
+    @apply rounded-b-none
+}
+
+.cardContent {
+    @apply p-6 text-gray-800
+}

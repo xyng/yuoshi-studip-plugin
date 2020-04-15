@@ -2,7 +2,6 @@ import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
 import { CurrentPackageContextProvider } from "../../contexts/CurrentPackageContext"
-import Tasks from "../Tasks/Tasks"
 import {
     PackagesContextProvider,
     usePackagesContext,
@@ -11,6 +10,8 @@ import Progress from "../../components/Progress/Progress"
 
 import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
+
+const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
 const Packages: React.FC<RouteComponentProps> = () => {
     return (
@@ -40,8 +41,12 @@ const PackageSubRoute: React.FC<RouteComponentProps<{
 const PackagesIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
-            <Link to="/">Zurück</Link>
-            <Link to="create">Neues Paket</Link>
+            <Link className="button" to="/">
+                Zurück
+            </Link>
+            <Link className="button" to="create">
+                Neues Paket
+            </Link>
             <table className="default">
                 <caption>Pakete</caption>
                 <thead>
@@ -103,7 +108,11 @@ const RenderPackageTableData: React.FC = () => {
                         </td>
                         <td>
                             <Progress
-                                value={packageItem.getProgress() || 0}
+                                value={
+                                    packageItem
+                                        .getPackageTotalProgress()
+                                        .getProgress() || 0
+                                }
                                 max={100}
                             />
                         </td>

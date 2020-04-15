@@ -1,10 +1,14 @@
 import React from "react"
 
+import { CenterSpinner } from "../Spinner/Spinner"
+
+import Styles from "./Loading.module.css"
+
 const Loading: React.FC = () => {
     return (
         <div>
-            <h2>Initialisiere Applikation. Bitte warten.</h2>
-            <span>SPINNER HIER EINFÜGEN</span>
+            <CenterSpinner />
+            <span className={Styles.text}>Einen Moment, bitte!</span>
         </div>
     )
 }

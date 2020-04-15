@@ -11,7 +11,7 @@ export default class TaskContentSolution extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = []
     protected jsonApiType: string = "content_solutions"
 
-    getValue(): string | undefined {
+    getValue(): any | undefined {
         return this.getAttribute("value")
     }
 

@@ -31,13 +31,12 @@ module.exports = {
     mode: prod ? "production" : "development",
     entry: [
         "react-hot-loader/patch",
-        "core-js/stable",
-        "regenerator-runtime/runtime",
         "./index.tsx"
     ],
     output: {
         // TODO: add hash to output file (make studip load the has file)
         filename: "js/bundle.[hash].js",
+        chunkFilename: "js/chunk.[chunkhash].js",
         path: path.resolve(__dirname, "./dist"),
         publicPath: `${env.PLUGIN_PATH}/dist/`,
     },
@@ -120,6 +119,9 @@ module.exports = {
             new TerserJSPlugin({}),
             new OptimizeCSSAssetsPlugin({})
         ],
+        splitChunks: {
+            chunks: "all",
+        },
     },
     devServer: {
 		proxy: {

@@ -9,8 +9,10 @@ import {
 import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
 import CreateTask from "../Task/CreateTask"
-import EditTaskContent from "../Task/EditTaskContent/EditTaskContent"
-import Solutions from "../Task/Solutions/Solutions"
+
+const EditTaskContent = React.lazy(() =>
+    import("../Task/EditTaskContent/EditTaskContent")
+)
 
 const Tasks: React.FC<RouteComponentProps> = () => {
     return (
@@ -32,7 +34,6 @@ const TaskSubRoute: React.FC<RouteComponentProps<{
             <Router>
                 <EditTaskContent path="edit" />
                 <EditTask path="meta" />
-                <Solutions path="solutions/*" />
             </Router>
         </CurrentTaskContextProvider>
     )
@@ -43,9 +44,13 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <Link to="/packages">Zurück</Link>
-            <Link to="create">Neue Aufgabe</Link>
             <h1>Paket: {currentPackage.getTitle()}</h1>
+            <Link className="button" to="/packages">
+                Zurück
+            </Link>
+            <Link className="button" to="create">
+                Neue Aufgabe
+            </Link>
             <table className="default">
                 <caption>Aufgaben</caption>
                 <thead>
@@ -107,12 +112,6 @@ const RenderTaskTableContent: React.FC = () => {
                             <td>{task.getCredits()}</td>
                             <td>{task.getModified().toLocaleString()}</td>
                             <td>
-                                <Link
-                                    className="button"
-                                    to={`${task.getApiId()}/solutions`}
-                                >
-                                    Abgegebene Lösungen
-                                </Link>
                                 <Link
                                     className="button"
                                     to={`${task.getApiId()}/meta`}

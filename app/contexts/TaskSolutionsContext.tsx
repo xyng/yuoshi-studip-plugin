@@ -1,11 +1,12 @@
-import React, { createContext, useCallback, useContext } from "react"
+import React, { createContext, useCallback, useContext, useMemo } from "react"
 import useSWR from "swr/esm/use-swr"
 import { PluralResponse } from "coloquent"
 
 import TaskSolution from "../models/TaskSolution"
 import updateModelList from "../helpers/updateModelList"
 
-import { useCurrentTaskContext } from "./CurrentTaskContext"
+import { useTasksContext } from "./TasksContext"
+import { useCurrentUserContext } from "./CurrentUserContext"
 
 interface TaskSolutionsContextInterface {
     taskSolutions: TaskSolution[]
@@ -29,21 +30,32 @@ export const useTaskSolutionsContext = () => {
     return ctx
 }
 
-const fetchTasksForPackage = async (
-    taskId: string
+const fetchSolutionsForTasks = async (
+    tasks: string,
+    userId: string
 ): Promise<TaskSolution[]> => {
-    const taskSolutions = (await TaskSolution.where("task", taskId)
-        .with("user")
+    const taskSolutions = (await TaskSolution.where("task", tasks)
+        .where("user", userId)
+        .with("task")
         .get()) as PluralResponse
 
     return taskSolutions.getData() as TaskSolution[]
 }
 
 export const TaskSolutionsContextProvider: React.FC = ({ children }) => {
-    const { task } = useCurrentTaskContext()
+    const { user } = useCurrentUserContext()
+    const { tasks } = useTasksContext()
+
+    const taskIds = useMemo(() => {
+        return tasks
+            .map((t) => t.getApiId())
+            .filter(Boolean)
+            .join(",")
+    }, [tasks])
+
     const { data, mutate, revalidate } = useSWR(
-        () => [task.getApiId(), "tasks/solutions"],
-        fetchTasksForPackage,
+        [taskIds, user.getApiId(), "tasks/solutions"],
+        fetchSolutionsForTasks,
         { suspense: true }
     )
 

@@ -1,19 +1,17 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
 
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
 import Task from "../../models/Task"
-import useHandleFormSubmit from "../../helpers/useHandleFormSubmit"
 import { useTasksContext } from "../../contexts/TasksContext"
 
-import TaskForm from "./TaskForm"
+import TaskForm, { TaskFormSubmitHandler } from "./TaskForm"
 
 const CreateTask: React.FC<RouteComponentProps> = () => {
     const { currentPackage } = useCurrentPackageContext()
     const { reloadTasks } = useTasksContext()
 
-    const onSubmit = useHandleFormSubmit(
-        ["title", "kind", "description", "credits"],
+    const onSubmit = useCallback<TaskFormSubmitHandler>(
         async (values) => {
             const task = new Task()
             task.patch(values)
@@ -21,21 +19,23 @@ const CreateTask: React.FC<RouteComponentProps> = () => {
 
             const updated = (await task.save()).getModel()
             if (!updated) {
-                // TODO: handle error
                 return
             }
 
             await reloadTasks()
-        }
+        },
+        [reloadTasks, currentPackage]
     )
 
     return (
         <>
-            <Link to={`/packages/${currentPackage.getApiId()}/tasks`}>
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.getApiId()}/tasks`}
+            >
                 Zurück
             </Link>
-            <h1>Neuer Task</h1>
-
+            <h1>Neue Aufgabe</h1>
             <TaskForm onSubmit={onSubmit} />
         </>
     )

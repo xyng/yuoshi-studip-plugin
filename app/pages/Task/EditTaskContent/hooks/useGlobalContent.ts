@@ -13,19 +13,25 @@ const useGlobalContent = (
 ) => {
     const { createContent, contents, setContents } = editTaskContext
 
-    const [contentTitle, setContentTitle] = useState("")
-    const [contentText, setContentText] = useState("")
-
-    useEffect(() => {
+    const { defaultTitle, defaultText } = useMemo(() => {
         if (!contents.length) {
             createContent()()
-            return
+
+            return {
+                defaultTitle: "",
+                defaultText: "",
+            }
         }
 
         const [content] = contents
-        setContentTitle(content.title)
-        setContentText(content.content)
+        return {
+            defaultTitle: content.title,
+            defaultText: content.content,
+        }
     }, [contents, createContent])
+
+    const [contentTitle, setContentTitle] = useState(defaultTitle)
+    const [contentText, setContentText] = useState(defaultText)
 
     useEffect(() => {
         setContents((contents) =>

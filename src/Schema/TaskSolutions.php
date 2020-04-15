@@ -25,6 +25,7 @@ class TaskSolutions extends SchemaProvider {
         return [
             'points' => (int) $resource->points,
             'is_correct' => (bool) $resource->is_correct,
+            'finished' => $resource->finished ? $resource->finished->format('c') : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

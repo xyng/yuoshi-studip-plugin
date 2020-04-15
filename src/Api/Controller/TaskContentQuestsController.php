@@ -82,6 +82,7 @@ class TaskContentQuestsController extends JsonApiController
                 'question',
                 'multiple',
                 'require_order',
+                'custom_answer',
                 'sort',
             ])
         );
@@ -113,6 +114,7 @@ class TaskContentQuestsController extends JsonApiController
             'question',
             'multiple',
             'require_order',
+            'custom_answer',
             'sort',
         ]);
 

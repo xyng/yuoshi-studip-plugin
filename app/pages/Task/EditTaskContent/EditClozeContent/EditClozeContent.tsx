@@ -1,13 +1,30 @@
-import React, { useMemo } from "react"
+import React, { useCallback, useMemo } from "react"
 import {
     matchImage,
     matchInput,
     parseContentMultiple,
 } from "@xyng/yuoshi-backend-adapter"
+import * as Yup from "yup"
+import { SubmitHandler } from "@unform/core"
 
 import { EditTaskContentView } from "../EditTaskContent"
+import ValidatedForm from "../../../../components/Form/ValidatedForm"
+import Button from "../../../../components/Button/Button"
+import Input from "../../../../components/Form/Input"
+import TextArea from "../../../../components/Form/Textarea"
 
 import Styles from "./EditClozeContent.module.css"
+
+const ClozeContentSchema = Yup.object().shape({
+    contents: Yup.array().of(
+        Yup.object().shape({
+            id: Yup.string().required(),
+            title: Yup.string().required(),
+            content: Yup.string().required(),
+        })
+    ),
+})
+type ClozeContentData = Yup.InferType<typeof ClozeContentSchema>
 
 const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
     const {
@@ -16,7 +33,7 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
         createContent,
         removeContent,
         onContentInputChange,
-        onSave,
+        onModifyAndSave,
     } = editTaskContext
 
     const contentsWithParts = useMemo(() => {
@@ -31,50 +48,73 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
         })
     }, [contents])
 
+    const onSubmit = useCallback<SubmitHandler<ClozeContentData>>(
+        async (value) => {
+            await onModifyAndSave((contents) => {
+                return value.contents.map((content) => {
+                    const origContent = contents.find(
+                        (c) => c.id === content.id
+                    )
+
+                    if (!origContent) {
+                        throw new Error("data integrity is broken")
+                    }
+
+                    return {
+                        ...origContent,
+                        title: content.title,
+                        content: content.content,
+                    }
+                })
+            })
+        },
+        [onModifyAndSave]
+    )
+
     return (
-        <form className="default">
+        <ValidatedForm
+            validation={ClozeContentSchema}
+            initialData={{
+                contents,
+            }}
+            onSubmit={onSubmit}
+            className="default"
+        >
             <h1>Lückentext-Aufgabe: {task.getTitle()}</h1>
 
-            <button className="button" onClick={onSave}>
-                Speichern
-            </button>
+            <Button type="submit">Speichern</Button>
 
-            <button className="button" onClick={createContent()}>
-                Neuer Inhalt
-            </button>
+            <Button onClick={createContent()}>Neuer Inhalt</Button>
 
-            {contentsWithParts.map((content) => {
+            {contentsWithParts.map((content, index) => {
                 return (
                     <div key={`tag-content-${content.id}`}>
                         <div>
                             <h2>Inhalt</h2>
-                            <label>
-                                <p>Titel</p>
-                                <input
-                                    type="text"
-                                    value={content.title}
-                                    onChange={onContentInputChange(
-                                        content.id,
-                                        "title"
-                                    )}
-                                />
-                            </label>
-                            <label>
-                                <p>Text</p>
-                                <textarea
-                                    value={content.content}
-                                    onChange={onContentInputChange(
-                                        content.id,
-                                        "content"
-                                    )}
-                                />
-                                <small>
-                                    Verwenden Sie das Format <code>##X##</code>{" "}
-                                    um eine Lücke zu kennzeichnen.{" "}
-                                    <code>X</code> sollte hierbei eine
-                                    aufsteigende natürliche Zahl sein.
-                                </small>
-                            </label>
+                            <Input
+                                label=""
+                                name={`contents[${index}].id`}
+                                type="hidden"
+                            />
+                            <Input
+                                label="Titel"
+                                name={`contents[${index}].title`}
+                                type="text"
+                            />
+                            <TextArea
+                                label="Text"
+                                name={`contents[${index}].content`}
+                                onChange={onContentInputChange(
+                                    content.id,
+                                    "content"
+                                )}
+                            />
+                            <small>
+                                Verwenden Sie das Format <code>##X##</code> um
+                                eine Lücke zu kennzeichnen. <code>X</code>{" "}
+                                sollte hierbei eine aufsteigende natürliche Zahl
+                                sein.
+                            </small>
                         </div>
 
                         <h4>Vorschau:</h4>
@@ -100,16 +140,13 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
                             })}
                         </div>
 
-                        <button
-                            className="button"
-                            onClick={removeContent(content.id)}
-                        >
+                        <Button onClick={removeContent(content.id)}>
                             Entfernen
-                        </button>
+                        </Button>
                     </div>
                 )
             })}
-        </form>
+        </ValidatedForm>
     )
 }
 
