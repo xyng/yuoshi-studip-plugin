@@ -9,6 +9,7 @@ import Button from "../../../../components/Button/Button"
 import Input from "../../../../components/Form/Input"
 import { findOrFail } from "../../../../helpers/listHelpers"
 import TextArea from "../../../../components/Form/Textarea"
+import Styles from "../EditQuizContent/EditQuizContent.module.css"
 
 const TagContentSchema = Yup.object().shape({
     contents: Yup.array().of(
@@ -144,9 +145,27 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
                 const contentPath = `contents[${index}]`
 
                 return (
-                    <div key={`tag-content-${content.id}`}>
-                        <div>
-                            <h2>Inhalt</h2>
+                    <details
+                        className={Styles.content}
+                        key={`tag-content-${content.id}`}
+                    >
+                        <summary className={Styles.toggleContent}>
+                            <span>
+                                {content.title.length
+                                    ? `Inhalt: ${content.title}`
+                                    : "Neuer Inhalt"}
+                            </span>
+                            <div className={Styles.toggleContentButton}>
+                                <Button
+                                    fixMargin
+                                    onClick={removeContent(content.id)}
+                                >
+                                    Löschen
+                                </Button>
+                            </div>
+                        </summary>
+
+                        <div className={Styles.contentMain}>
                             <Input
                                 label=""
                                 name={`${contentPath}.id`}
@@ -161,69 +180,67 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
                                 label="Text"
                                 name={`${contentPath}.content`}
                             />
+
+                            {/* content always has at least one quest (probably exactly one */}
+                            <Button onClick={createTag(content.id)}>
+                                Tag hinzufügen
+                            </Button>
+
+                            <div>
+                                {content.quests.map((quest, index) => {
+                                    const questPath = `${contentPath}.quests[${index}]`
+
+                                    return (
+                                        <div key={`tags-${quest.id}`}>
+                                            <Input
+                                                label=""
+                                                name={`${questPath}.id`}
+                                                type="hidden"
+                                            />
+                                            {!quest.answers.length && (
+                                                <span>
+                                                    Sie müssen mindestens einen
+                                                    Tag anlegen.
+                                                </span>
+                                            )}
+                                            {quest.answers.map(
+                                                (answer, index) => {
+                                                    const answerPath = `${questPath}.answers[${index}]`
+                                                    return (
+                                                        <div
+                                                            key={`tags-tag-${answer.id}`}
+                                                        >
+                                                            <Input
+                                                                label=""
+                                                                name={`${answerPath}.id`}
+                                                                type="hidden"
+                                                            />
+                                                            <Input
+                                                                label="Tag"
+                                                                name={`${answerPath}.content`}
+                                                                type="text"
+                                                            />
+
+                                                            <button
+                                                                className="button"
+                                                                onClick={removeAnswer(
+                                                                    content.id,
+                                                                    quest.id,
+                                                                    answer.id
+                                                                )}
+                                                            >
+                                                                Tag Entfernen
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                }
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
-
-                        <Button onClick={removeContent(content.id)}>
-                            Inhalt Entfernen
-                        </Button>
-
-                        {/* content always has at least one quest (probably exactly one */}
-                        <Button onClick={createTag(content.id)}>
-                            Tag hinzufügen
-                        </Button>
-
-                        <div>
-                            {content.quests.map((quest, index) => {
-                                const questPath = `${contentPath}.quests[${index}]`
-
-                                return (
-                                    <div key={`tags-${quest.id}`}>
-                                        <Input
-                                            label=""
-                                            name={`${questPath}.id`}
-                                            type="hidden"
-                                        />
-                                        {!quest.answers.length && (
-                                            <span>
-                                                Sie müssen mindestens einen Tag
-                                                anlegen.
-                                            </span>
-                                        )}
-                                        {quest.answers.map((answer, index) => {
-                                            const answerPath = `${questPath}.answers[${index}]`
-                                            return (
-                                                <div
-                                                    key={`tags-tag-${answer.id}`}
-                                                >
-                                                    <Input
-                                                        label=""
-                                                        name={`${answerPath}.id`}
-                                                        type="hidden"
-                                                    />
-                                                    <Input
-                                                        label="Tag"
-                                                        name={`${answerPath}.content`}
-                                                        type="text"
-                                                    />
-
-                                                    <button
-                                                        className="button"
-                                                        onClick={removeAnswer(
-                                                            content.id,
-                                                            quest.id,
-                                                            answer.id
-                                                        )}
-                                                    >
-                                                        Tag Entfernen
-                                                    </button>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
+                    </details>
                 )
             })}
         </ValidatedForm>
