@@ -1,5 +1,5 @@
 .categories {
-    @apply flex;
+    @apply flex flex-wrap -m-4 mt-4;
 }
 
 .settingsHeader {
@@ -15,7 +15,9 @@
 }
 
 .category {
-    @apply p-6;
+    @apply m-4 p-6 box-border shadow-lg;
+
+    width: 450px;
 }
 
 .statement {

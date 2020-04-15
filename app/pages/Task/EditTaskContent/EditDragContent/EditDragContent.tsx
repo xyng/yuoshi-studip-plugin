@@ -2,11 +2,13 @@ import React, {
     ChangeEventHandler,
     useCallback,
     useEffect,
+    useMemo,
     useState,
 } from "react"
 
 import { EditTaskContentView } from "../EditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
+import Button from "../../../../components/Button/Button"
 
 import Styles from "./EditDragContent.module.css"
 
@@ -113,6 +115,12 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         [onQuestInputChange]
     )
 
+    const questCount = useMemo(() => {
+        return contents.reduce((acc, value) => {
+            return acc + value.quests.length
+        }, 0)
+    }, [contents])
+
     if (!firstContent) {
         return null
     }
@@ -167,13 +175,46 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
                     </label>
                 </div>
                 <div className={Styles.categories}>
+                    {!questCount && (
+                        <span>
+                            Sie müssen mindestens eine Kategorie anlegen.
+                        </span>
+                    )}
                     {contents.map((content) => {
-                        return content.quests.map((category) => {
+                        return content.quests.map((category, index) => {
                             return (
                                 <div
                                     className={Styles.category}
                                     key={`category-${category.id}`}
                                 >
+                                    <div>
+                                        <Button
+                                            disabled={index === 0}
+                                            onClick={onQuestUp(
+                                                content.id,
+                                                category.id
+                                            )}
+                                        >
+                                            &larr;
+                                        </Button>
+                                        <Button
+                                            disabled={index === questCount - 1}
+                                            onClick={onQuestDown(
+                                                content.id,
+                                                category.id
+                                            )}
+                                        >
+                                            &rarr;
+                                        </Button>
+                                        <Button
+                                            onClick={removeQuest(
+                                                content.id,
+                                                category.id
+                                            )}
+                                        >
+                                            Löschen
+                                        </Button>
+                                    </div>
                                     <label
                                         htmlFor={`category-${category.id}-input`}
                                     >
@@ -203,100 +244,102 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
                                         </span>
                                     </label>
 
-                                    <div>
-                                        <button
-                                            onClick={onQuestUp(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            &larr;
-                                        </button>
-                                        <button
-                                            onClick={onQuestDown(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            &rarr;
-                                        </button>
-                                    </div>
-                                    <div>
-                                        <button
-                                            onClick={removeQuest(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            &minus;
-                                        </button>
-                                    </div>
-
                                     <p>Zugehörige Elemente</p>
-                                    <div className={Styles.statements}>
-                                        {category.answers.map((statement) => {
-                                            return (
-                                                <div
-                                                    className={Styles.statement}
-                                                    key={`statement-${statement.id}`}
-                                                >
-                                                    {category.requireOrder && (
-                                                        <>
-                                                            <button
-                                                                onClick={onAnswerUp(
-                                                                    content.id,
-                                                                    category.id,
-                                                                    statement.id
-                                                                )}
-                                                            >
-                                                                &uarr;
-                                                            </button>
-                                                            <button
-                                                                onClick={onAnswerDown(
-                                                                    content.id,
-                                                                    category.id,
-                                                                    statement.id
-                                                                )}
-                                                            >
-                                                                &darr;
-                                                            </button>
-                                                        </>
-                                                    )}
-
-                                                    <input
-                                                        type="text"
-                                                        value={
-                                                            statement.content
-                                                        }
-                                                        onChange={onAnswerInputChange(
-                                                            content.id,
-                                                            category.id,
-                                                            statement.id,
-                                                            "content"
-                                                        )}
-                                                    />
-                                                    <button
-                                                        onClick={removeAnswer(
-                                                            content.id,
-                                                            category.id,
-                                                            statement.id
-                                                        )}
-                                                    >
-                                                        &minus;
-                                                    </button>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
                                     <div>
-                                        <button
+                                        <Button
                                             onClick={createCorrectAnswer(
                                                 content.id,
                                                 category.id
                                             )}
                                         >
                                             Neues Element
-                                        </button>
+                                        </Button>
+                                    </div>
+                                    <div className={Styles.statements}>
+                                        {!category.answers.length && (
+                                            <span>
+                                                Sie müssen mindestens ein
+                                                Element anlegen.
+                                            </span>
+                                        )}
+                                        {category.answers.map(
+                                            (statement, index) => {
+                                                return (
+                                                    <div
+                                                        className={
+                                                            Styles.statement
+                                                        }
+                                                        key={`statement-${statement.id}`}
+                                                    >
+                                                        {category.requireOrder && (
+                                                            <>
+                                                                <Button
+                                                                    disabled={
+                                                                        index ===
+                                                                        0
+                                                                    }
+                                                                    onClick={onAnswerUp(
+                                                                        content.id,
+                                                                        category.id,
+                                                                        statement.id
+                                                                    )}
+                                                                >
+                                                                    &uarr;
+                                                                </Button>
+                                                                <Button
+                                                                    disabled={
+                                                                        index ===
+                                                                        category
+                                                                            .answers
+                                                                            .length -
+                                                                            1
+                                                                    }
+                                                                    onClick={onAnswerDown(
+                                                                        content.id,
+                                                                        category.id,
+                                                                        statement.id
+                                                                    )}
+                                                                >
+                                                                    &darr;
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                        <Button
+                                                            onClick={removeAnswer(
+                                                                content.id,
+                                                                category.id,
+                                                                statement.id
+                                                            )}
+                                                        >
+                                                            Löschen
+                                                        </Button>
+
+                                                        <input
+                                                            type="text"
+                                                            value={
+                                                                statement.content
+                                                            }
+                                                            onChange={onAnswerInputChange(
+                                                                content.id,
+                                                                category.id,
+                                                                statement.id,
+                                                                "content"
+                                                            )}
+                                                        />
+                                                    </div>
+                                                )
+                                            }
+                                        )}
+                                    </div>
+                                    <div>
+                                        <Button
+                                            onClick={createCorrectAnswer(
+                                                content.id,
+                                                category.id
+                                            )}
+                                        >
+                                            Neues Element
+                                        </Button>
                                     </div>
                                 </div>
                             )
