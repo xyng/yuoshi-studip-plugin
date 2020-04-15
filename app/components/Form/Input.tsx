@@ -1,14 +1,14 @@
-import React, { HTMLProps, useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { useField } from "@unform/core"
 
 import Validation from "./Validation"
 
 const Input: React.FC<
-    HTMLProps<HTMLInputElement> & {
+    JSX.IntrinsicElements["input"] & {
         label: string
         name: string
     }
-> = ({ label, name, type, ...props }) => {
+> = ({ label, name, type, checked, value, ...props }) => {
     const inputRef = useRef(null)
     const { fieldName, defaultValue = "", registerField, error } = useField(
         name
@@ -42,15 +42,26 @@ const Input: React.FC<
 
     return (
         <label htmlFor={fieldName}>
-            <span>{label}</span>
+            {type !== "checkbox" && <span>{label}</span>}
             <input
                 {...props}
                 id={fieldName}
-                defaultValue={type !== "checkbox" ? defaultValue : undefined}
-                defaultChecked={type === "checkbox" ? defaultValue : undefined}
+                defaultValue={
+                    type !== "checkbox" && value === undefined
+                        ? defaultValue
+                        : undefined
+                }
+                defaultChecked={
+                    type === "checkbox" && checked === undefined
+                        ? defaultValue
+                        : undefined
+                }
+                value={value}
+                checked={checked}
                 ref={inputRef}
                 type={type}
             />
+            {type === "checkbox" && <span>{label}</span>}
             <Validation error={error} />
         </label>
     )

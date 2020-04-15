@@ -5,12 +5,46 @@ import React, {
     useMemo,
     useState,
 } from "react"
+import * as Yup from "yup"
+import { SubmitHandler } from "@unform/core"
 
 import { EditTaskContentView } from "../EditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
 import Button from "../../../../components/Button/Button"
+import ValidatedForm from "../../../../components/Form/ValidatedForm"
+import { findOrFail } from "../../../../helpers/listHelpers"
+import Input from "../../../../components/Form/Input"
+import TextArea from "../../../../components/Form/Textarea"
 
 import Styles from "./EditDragContent.module.css"
+
+const DragContentSchema = Yup.object().shape({
+    contentTitle: Yup.string().required(),
+    contentText: Yup.string().required(),
+    contents: Yup.array().of(
+        Yup.object().shape({
+            id: Yup.string().required(),
+            quests: Yup.array()
+                .of(
+                    Yup.object().shape({
+                        id: Yup.string().required(),
+                        name: Yup.string().required(),
+                        requireOrder: Yup.boolean().required(),
+                        answers: Yup.array()
+                            .of(
+                                Yup.object().shape({
+                                    id: Yup.string().required(),
+                                    content: Yup.string().required(),
+                                })
+                            )
+                            .required(),
+                    })
+                )
+                .required(),
+        })
+    ),
+})
+type DragContentData = Yup.InferType<typeof DragContentSchema>
 
 const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
     const {
@@ -24,20 +58,13 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         onModifyAndSave,
         isSaving,
         onQuestInputChange,
-        onAnswerInputChange,
         onQuestUp,
         onQuestDown,
         onAnswerUp,
         onAnswerDown,
     } = editTaskContext
 
-    const {
-        firstContent,
-        contentTitle,
-        contentText,
-        changeContentText,
-        changeContentTitle,
-    } = useGlobalContent(editTaskContext)
+    const { firstContent } = useGlobalContent(editTaskContext)
 
     const [requireOrder, setRequireOrder] = useState<boolean>()
 
@@ -74,28 +101,6 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         [isSaving]
     )
 
-    const onSave = useCallback(() => {
-        // ensure that answer is set to be correct
-        return onModifyAndSave((contents) => {
-            return contents.map((content) => {
-                return {
-                    ...content,
-                    quests: content.quests.map((quest) => {
-                        return {
-                            ...quest,
-                            answers: quest.answers.map((answer) => {
-                                return {
-                                    ...answer,
-                                    is_correct: true,
-                                }
-                            }),
-                        }
-                    }),
-                }
-            })
-        })
-    }, [onModifyAndSave])
-
     const createCorrectAnswer = useCallback(
         (content_id: string, quest_id: string) => {
             return createAnswer(content_id, quest_id, {
@@ -105,21 +110,57 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         [createAnswer]
     )
 
-    const changeQuestTitle = useCallback(
-        (content_id: string, category_id: string): ChangeEventHandler => (
-            event
-        ) => {
-            onQuestInputChange(content_id, category_id, "name")(event)
-            onQuestInputChange(content_id, category_id, "question")(event)
-        },
-        [onQuestInputChange]
-    )
-
     const questCount = useMemo(() => {
         return contents.reduce((acc, value) => {
             return acc + value.quests.length
         }, 0)
     }, [contents])
+
+    const onSubmit = useCallback<SubmitHandler<DragContentData>>(
+        async (value) => {
+            await onModifyAndSave((contents) => {
+                return value.contents.map((content) => {
+                    const origContent = findOrFail(contents, "id", content.id)
+
+                    return {
+                        ...origContent,
+                        title: value.contentTitle,
+                        content: value.contentText,
+                        quests: content.quests.map((quest) => {
+                            const origQuest = findOrFail(
+                                origContent.quests,
+                                "id",
+                                quest.id
+                            )
+
+                            return {
+                                multiple: true,
+                                customAnswer: false,
+                                ...origQuest,
+                                name: quest.name,
+                                question: quest.name,
+                                requireOrder: quest.requireOrder,
+                                answers: quest.answers.map((answer) => {
+                                    const origAnswer = findOrFail(
+                                        origQuest.answers,
+                                        "id",
+                                        answer.id
+                                    )
+
+                                    return {
+                                        ...origAnswer,
+                                        content: answer.content,
+                                        is_correct: true,
+                                    }
+                                }),
+                            }
+                        }),
+                    }
+                })
+            })
+        },
+        [onModifyAndSave]
+    )
 
     if (!firstContent) {
         return null
@@ -128,51 +169,40 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
     return (
         <div>
             <h1>Drag n' Drop Aufgabe: {task.getTitle()}</h1>
-            <div className={Styles.settingsHeader}>
-                <label className={Styles.requireOrder}>
-                    <input
-                        checked={!!requireOrder}
-                        onChange={updateRequireOrder}
-                        type="checkbox"
-                    />
-                    <span>
-                        Reihenfolge der Elemente bei allen Kategorien beachten
-                    </span>
-                </label>
-
-                <div className={Styles.save}>
-                    <button
-                        className="button"
-                        onClick={createQuest(firstContent.id)}
-                    >
-                        Neue Kategorie
-                    </button>
-                    <button className="button" onClick={onSave}>
-                        Speichern
-                    </button>
-                </div>
-            </div>
-            <form
+            <ValidatedForm
+                validation={DragContentSchema}
+                initialData={{
+                    contentTitle: firstContent?.title,
+                    contentText: firstContent?.content,
+                    contents,
+                }}
                 className="default"
-                onSubmit={(event) => event.preventDefault()}
+                onSubmit={onSubmit}
             >
+                <div className={Styles.settingsHeader}>
+                    <label className={Styles.requireOrder}>
+                        <input
+                            checked={!!requireOrder}
+                            onChange={updateRequireOrder}
+                            type="checkbox"
+                        />
+                        <span>
+                            Reihenfolge der Elemente bei allen Kategorien
+                            beachten
+                        </span>
+                    </label>
+
+                    <div className={Styles.save}>
+                        <Button onClick={createQuest(firstContent.id)}>
+                            Neue Kategorie
+                        </Button>
+                        <Button type="submit">Speichern</Button>
+                    </div>
+                </div>
                 <div>
                     <h2>Inhalt</h2>
-                    <label>
-                        <p>Titel</p>
-                        <input
-                            type="text"
-                            value={contentTitle}
-                            onChange={changeContentTitle}
-                        />
-                    </label>
-                    <label>
-                        <p>Text</p>
-                        <textarea
-                            value={contentText}
-                            onChange={changeContentText}
-                        />
-                    </label>
+                    <Input label="Titel" name="contentTitle" type="text" />
+                    <TextArea label="Text" name="contentText" />
                 </div>
                 <div className={Styles.categories}>
                     {!questCount && (
@@ -180,173 +210,185 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
                             Sie müssen mindestens eine Kategorie anlegen.
                         </span>
                     )}
-                    {contents.map((content) => {
-                        return content.quests.map((category, index) => {
-                            return (
-                                <div
-                                    className={Styles.category}
-                                    key={`category-${category.id}`}
-                                >
-                                    <div>
-                                        <Button
-                                            disabled={index === 0}
-                                            onClick={onQuestUp(
-                                                content.id,
-                                                category.id
-                                            )}
+                    {contents.map((content, index) => {
+                        const contentPath = `contents[${index}]`
+                        return (
+                            <React.Fragment key={`content-${content.id}`}>
+                                <Input
+                                    label=""
+                                    name={`${contentPath}.id`}
+                                    type="hidden"
+                                />
+                                {content.quests.map((category, index) => {
+                                    const questPath = `${contentPath}.quests[${index}]`
+                                    return (
+                                        <div
+                                            className={Styles.category}
+                                            key={`category-${category.id}`}
                                         >
-                                            &larr;
-                                        </Button>
-                                        <Button
-                                            disabled={index === questCount - 1}
-                                            onClick={onQuestDown(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            &rarr;
-                                        </Button>
-                                        <Button
-                                            onClick={removeQuest(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            Löschen
-                                        </Button>
-                                    </div>
-                                    <label
-                                        htmlFor={`category-${category.id}-input`}
-                                    >
-                                        <p>Titel</p>
-                                        <input
-                                            id={`category-${category.id}-input`}
-                                            type="text"
-                                            value={category.name}
-                                            onChange={changeQuestTitle(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        />
-                                    </label>
-                                    <label>
-                                        <input
-                                            checked={category.requireOrder}
-                                            onChange={onQuestInputChange(
-                                                content.id,
-                                                category.id,
-                                                "requireOrder"
-                                            )}
-                                            type="checkbox"
-                                        />
-                                        <span>
-                                            Reihenfolge der Elemente beachten
-                                        </span>
-                                    </label>
+                                            <div>
+                                                <Button
+                                                    disabled={index === 0}
+                                                    onClick={onQuestUp(
+                                                        content.id,
+                                                        category.id
+                                                    )}
+                                                >
+                                                    &larr;
+                                                </Button>
+                                                <Button
+                                                    disabled={
+                                                        index === questCount - 1
+                                                    }
+                                                    onClick={onQuestDown(
+                                                        content.id,
+                                                        category.id
+                                                    )}
+                                                >
+                                                    &rarr;
+                                                </Button>
+                                                <Button
+                                                    onClick={removeQuest(
+                                                        content.id,
+                                                        category.id
+                                                    )}
+                                                >
+                                                    Löschen
+                                                </Button>
+                                            </div>
+                                            <Input
+                                                label=""
+                                                name={`${questPath}.id`}
+                                                type="hidden"
+                                            />
+                                            <Input
+                                                label="Titel"
+                                                name={`${questPath}.name`}
+                                                type="text"
+                                            />
+                                            <Input
+                                                label="Reihenfolge der Elemente beachten"
+                                                name={`${questPath}.requireOrder`}
+                                                checked={category.requireOrder}
+                                                onChange={onQuestInputChange(
+                                                    content.id,
+                                                    category.id,
+                                                    "requireOrder"
+                                                )}
+                                                type="checkbox"
+                                            />
 
-                                    <p>Zugehörige Elemente</p>
-                                    <div>
-                                        <Button
-                                            onClick={createCorrectAnswer(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            Neues Element
-                                        </Button>
-                                    </div>
-                                    <div className={Styles.statements}>
-                                        {!category.answers.length && (
-                                            <span>
-                                                Sie müssen mindestens ein
-                                                Element anlegen.
-                                            </span>
-                                        )}
-                                        {category.answers.map(
-                                            (statement, index) => {
-                                                return (
-                                                    <div
-                                                        className={
-                                                            Styles.statement
-                                                        }
-                                                        key={`statement-${statement.id}`}
-                                                    >
-                                                        {category.requireOrder && (
-                                                            <>
+                                            <p
+                                                className={
+                                                    Styles.elementsHeader
+                                                }
+                                            >
+                                                Zugehörige Elemente
+                                            </p>
+                                            <div>
+                                                <Button
+                                                    onClick={createCorrectAnswer(
+                                                        content.id,
+                                                        category.id
+                                                    )}
+                                                >
+                                                    Neues Element
+                                                </Button>
+                                            </div>
+                                            <div className={Styles.statements}>
+                                                {!category.answers.length && (
+                                                    <span>
+                                                        Sie müssen mindestens
+                                                        ein Element anlegen.
+                                                    </span>
+                                                )}
+                                                {category.answers.map(
+                                                    (statement, index) => {
+                                                        const answerPath = `${questPath}.answers[${index}]`
+
+                                                        return (
+                                                            <div
+                                                                className={
+                                                                    Styles.statement
+                                                                }
+                                                                key={`statement-${statement.id}`}
+                                                            >
+                                                                {category.requireOrder && (
+                                                                    <>
+                                                                        <Button
+                                                                            disabled={
+                                                                                index ===
+                                                                                0
+                                                                            }
+                                                                            onClick={onAnswerUp(
+                                                                                content.id,
+                                                                                category.id,
+                                                                                statement.id
+                                                                            )}
+                                                                        >
+                                                                            &uarr;
+                                                                        </Button>
+                                                                        <Button
+                                                                            disabled={
+                                                                                index ===
+                                                                                category
+                                                                                    .answers
+                                                                                    .length -
+                                                                                    1
+                                                                            }
+                                                                            onClick={onAnswerDown(
+                                                                                content.id,
+                                                                                category.id,
+                                                                                statement.id
+                                                                            )}
+                                                                        >
+                                                                            &darr;
+                                                                        </Button>
+                                                                    </>
+                                                                )}
                                                                 <Button
-                                                                    disabled={
-                                                                        index ===
-                                                                        0
-                                                                    }
-                                                                    onClick={onAnswerUp(
+                                                                    onClick={removeAnswer(
                                                                         content.id,
                                                                         category.id,
                                                                         statement.id
                                                                     )}
                                                                 >
-                                                                    &uarr;
+                                                                    Löschen
                                                                 </Button>
-                                                                <Button
-                                                                    disabled={
-                                                                        index ===
-                                                                        category
-                                                                            .answers
-                                                                            .length -
-                                                                            1
-                                                                    }
-                                                                    onClick={onAnswerDown(
-                                                                        content.id,
-                                                                        category.id,
-                                                                        statement.id
-                                                                    )}
-                                                                >
-                                                                    &darr;
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        <Button
-                                                            onClick={removeAnswer(
-                                                                content.id,
-                                                                category.id,
-                                                                statement.id
-                                                            )}
-                                                        >
-                                                            Löschen
-                                                        </Button>
 
-                                                        <input
-                                                            type="text"
-                                                            value={
-                                                                statement.content
-                                                            }
-                                                            onChange={onAnswerInputChange(
-                                                                content.id,
-                                                                category.id,
-                                                                statement.id,
-                                                                "content"
-                                                            )}
-                                                        />
-                                                    </div>
-                                                )
-                                            }
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Button
-                                            onClick={createCorrectAnswer(
-                                                content.id,
-                                                category.id
-                                            )}
-                                        >
-                                            Neues Element
-                                        </Button>
-                                    </div>
-                                </div>
-                            )
-                        })
+                                                                <Input
+                                                                    label=""
+                                                                    name={`${answerPath}.id`}
+                                                                    type="hidden"
+                                                                />
+                                                                <Input
+                                                                    label=""
+                                                                    name={`${answerPath}.content`}
+                                                                    type="text"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    }
+                                                )}
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    onClick={createCorrectAnswer(
+                                                        content.id,
+                                                        category.id
+                                                    )}
+                                                >
+                                                    Neues Element
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </React.Fragment>
+                        )
                     })}
                 </div>
-            </form>
+            </ValidatedForm>
         </div>
     )
 }

@@ -8,7 +8,7 @@ const TextArea: React.FC<
         label: string
         name: string
     }
-> = ({ label, name, ...props }) => {
+> = ({ label, name, value, ...props }) => {
     const inputRef = useRef(null)
     const { fieldName, defaultValue = "", registerField, error } = useField(
         name
@@ -28,7 +28,8 @@ const TextArea: React.FC<
             <textarea
                 {...props}
                 id={fieldName}
-                defaultValue={defaultValue}
+                defaultValue={value === undefined ? defaultValue : undefined}
+                value={value}
                 ref={inputRef}
             />
             <Validation error={error} />
