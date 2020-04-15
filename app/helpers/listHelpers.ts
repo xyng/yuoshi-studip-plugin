@@ -121,3 +121,17 @@ export function removeEntityAndSort<T extends IdentifiableSortable>(
         return ensureSequenceForKey("sort", removeEntity<T>(id)(entities))
     }
 }
+
+export function findOrFail<T, TKey extends keyof T>(
+    list: T[],
+    key: TKey,
+    val: T[TKey]
+): T {
+    const data = list.find((elem) => elem[key] === val)
+
+    if (!data) {
+        throw new Error()
+    }
+
+    return data
+}

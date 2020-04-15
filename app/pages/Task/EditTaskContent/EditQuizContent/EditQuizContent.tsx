@@ -1,4 +1,4 @@
-import React, { ComponentProps, useCallback } from "react"
+import React, { ComponentProps, useCallback, useMemo } from "react"
 import * as Yup from "yup"
 import { SubmitHandler } from "@unform/core"
 
@@ -286,7 +286,7 @@ const RenderContentForm: React.FC<{
     )
 }
 
-const QuizValidation = Yup.object().shape({
+export const QuizValidation = Yup.object().shape({
     contents: Yup.array().of(
         Yup.object().shape({
             id: Yup.string().required(),
@@ -299,55 +299,56 @@ const QuizValidation = Yup.object().shape({
     ),
 })
 
-type QuizFormData = Yup.InferType<typeof QuizValidation>
+export type QuizFormData = Yup.InferType<typeof QuizValidation>
+export type QuizFormSubmitHandler = SubmitHandler<QuizFormData>
+
+export const handleFormSubmit = (
+    onModifyAndSave: EditTaskContext["onModifyAndSave"]
+): QuizFormSubmitHandler => async (data) => {
+    await onModifyAndSave((localContents) =>
+        data.contents.map((content) => {
+            const localContent = localContents.find((c) => c.id === content.id)
+
+            if (!localContent) {
+                throw new Error("data integrity problem")
+            }
+
+            return {
+                ...content,
+                quests: content.quests.map((quest) => {
+                    const localQuest = localContent.quests.find(
+                        (q) => q.id === quest.id
+                    )
+                    if (!localQuest) {
+                        throw new Error("data integrity problem")
+                    }
+                    return {
+                        ...quest,
+                        sort: localQuest.sort,
+                        answers: quest.answers.map((answer) => {
+                            const localAnswer = localQuest.answers.find(
+                                (a) => a.id === answer.id
+                            )
+                            if (!localAnswer) {
+                                throw new Error("data integrity problem")
+                            }
+                            return {
+                                ...answer,
+                                sort: localAnswer.sort,
+                            }
+                        }),
+                    }
+                }),
+            }
+        })
+    )
+}
 
 const EditQuizContent: EditTaskContentView = ({ editTaskContext }) => {
     const { contents, createContent, onModifyAndSave } = editTaskContext
 
-    const onSubmit = useCallback<SubmitHandler<QuizFormData>>(
-        async (data) => {
-            await onModifyAndSave((localContents) =>
-                data.contents.map((content) => {
-                    const localContent = localContents.find(
-                        (c) => c.id === content.id
-                    )
-
-                    if (!localContent) {
-                        throw new Error("data integrity problem")
-                    }
-
-                    return {
-                        ...content,
-                        quests: content.quests.map((quest) => {
-                            const localQuest = localContent.quests.find(
-                                (q) => q.id === quest.id
-                            )
-                            if (!localQuest) {
-                                throw new Error("data integrity problem")
-                            }
-                            return {
-                                ...quest,
-                                sort: localQuest.sort,
-                                answers: quest.answers.map((answer) => {
-                                    const localAnswer = localQuest.answers.find(
-                                        (a) => a.id === answer.id
-                                    )
-                                    if (!localAnswer) {
-                                        throw new Error(
-                                            "data integrity problem"
-                                        )
-                                    }
-                                    return {
-                                        ...answer,
-                                        sort: localAnswer.sort,
-                                    }
-                                }),
-                            }
-                        }),
-                    }
-                })
-            )
-        },
+    const onSubmit = useMemo<QuizFormSubmitHandler>(
+        () => handleFormSubmit(onModifyAndSave),
         [onModifyAndSave]
     )
 
