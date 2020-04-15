@@ -7,6 +7,7 @@ import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
 import Button from "../../../../components/Button/Button"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
+import Styles from "../EditQuizContent/EditQuizContent.module.css"
 
 const CardContentSchema = Yup.object().shape({
     contents: Yup.array().of(
@@ -55,12 +56,6 @@ const EditCardContent: EditTaskContentView = ({ editTaskContext }) => {
     return (
         <div>
             <h1>Karteikarten Aufgabe: {task.getTitle()}</h1>
-            <div>
-                <Button onClick={createContent()}>
-                    Karteikarte hinzufügen
-                </Button>
-                <Button type="submit">Speichern</Button>
-            </div>
             <ValidatedForm
                 validation={CardContentSchema}
                 initialData={{
@@ -69,33 +64,54 @@ const EditCardContent: EditTaskContentView = ({ editTaskContext }) => {
                 onSubmit={onSubmit}
                 className="default"
             >
+                <div>
+                    <Button onClick={createContent()}>
+                        Karteikarte hinzufügen
+                    </Button>
+                    <Button type="submit">Speichern</Button>
+                </div>
                 {contents.map((content, index) => {
                     return (
-                        <div key={`card-content-${content.id}`}>
-                            <Input
-                                label=""
-                                name={`contents[${index}].id`}
-                                type="hidden"
-                            />
-                            <Input
-                                label="Titel"
-                                name={`contents[${index}].title`}
-                                type="text"
-                            />
-                            <TextArea
-                                label="Text"
-                                name={`contents[${index}].content`}
-                                onChange={onContentInputChange(
-                                    content.id,
-                                    "content"
-                                )}
-                            />
-                            <div>
-                                <Button onClick={removeContent(content.id)}>
-                                    Entfernen
-                                </Button>
+                        <details
+                            className={Styles.content}
+                            key={`card-content-${content.id}`}
+                        >
+                            <summary className={Styles.toggleContent}>
+                                <span>
+                                    {content.title.length
+                                        ? `Inhalt: ${content.title}`
+                                        : "Neuer Inhalt"}
+                                </span>
+                                <div className={Styles.toggleContentButton}>
+                                    <Button
+                                        fixMargin
+                                        onClick={removeContent(content.id)}
+                                    >
+                                        Löschen
+                                    </Button>
+                                </div>
+                            </summary>
+                            <div className={Styles.contentMain}>
+                                <Input
+                                    label=""
+                                    name={`contents[${index}].id`}
+                                    type="hidden"
+                                />
+                                <Input
+                                    label="Titel"
+                                    name={`contents[${index}].title`}
+                                    type="text"
+                                />
+                                <TextArea
+                                    label="Text"
+                                    name={`contents[${index}].content`}
+                                    onChange={onContentInputChange(
+                                        content.id,
+                                        "content"
+                                    )}
+                                />
                             </div>
-                        </div>
+                        </details>
                     )
                 })}
             </ValidatedForm>
