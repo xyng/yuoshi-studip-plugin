@@ -23,6 +23,8 @@ class TaskContentsController extends JsonApiController
 {
     use ValidationTrait;
 
+    protected $allowedPagingParameters = ['offset', 'limit'];
+
     protected $allowedIncludePaths = [
         'quests',
         'quests.answers'

@@ -25,6 +25,8 @@ use Xyng\Yuoshi\Model\UserTaskSolutions;
 class TaskContentSolutionsController extends JsonApiController {
     use ValidationTrait;
 
+    protected $allowedPagingParameters = ['offset', 'limit'];
+
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $task_solution_id = $args['task_solution_id'] ?? null;
 

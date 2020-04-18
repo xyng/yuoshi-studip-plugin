@@ -18,6 +18,7 @@ use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 class TaskContentQuestAnswersController extends JsonApiController
 {
     use ValidationTrait;
+    protected $allowedPagingParameters = ['offset', 'limit'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $quest_id = $args['id'] ?? null;
