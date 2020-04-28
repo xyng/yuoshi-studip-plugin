@@ -1,12 +1,12 @@
 <?php
-namespace Xyng\Yuoshi\Schema;
+namespace Xyng\Yuoshi\Api\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 use Neomerx\JsonApi\Document\Link;
 
-class Tasks extends SchemaProvider
+class Quests extends SchemaProvider
 {
-    const TYPE = 'tasks';
+    const TYPE = 'quests';
     protected $resourceType = self::TYPE;
 
     /**
@@ -22,15 +22,15 @@ class Tasks extends SchemaProvider
      */
     public function getAttributes($resource)
     {
-        /** @var \Xyng\Yuoshi\Model\Tasks $resource */
         return [
-            'sort' => (int) $resource->sort,
-            'title' => $resource->title,
+            'name' => $resource->name,
             'image' => $resource->image,
-            'kind' => $resource->kind,
-            'description' => $resource->description,
-            'credits' => (int) $resource->credits,
-            'is_training' => (bool) $resource->is_training,
+            'prePhrase' => $resource->prePhrase,
+            'question' => $resource->question,
+            'multiple' => (bool) $resource->multiple,
+            'require_order' => (bool) $resource->require_order,
+            'custom_answer' => (bool) $resource->custom_answer,
+            'sort' => $resource->sort ? (int) $resource->sort : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
@@ -38,17 +38,17 @@ class Tasks extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
-        $contents = null;
-        if ($includeRelationships['contents'] ?? null) {
-            $contents = $resource->contents;
+        $answers = null;
+        if ($includeRelationships['answers'] ?? null) {
+            $answers = $resource->answers;
         }
 
         return [
-            'contents' => [
-                self::DATA => $contents,
+            'answers' => [
+                self::DATA => $answers,
                 self::SHOW_SELF => true,
                 self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'contents')
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'answers')
                 ],
             ]
         ];

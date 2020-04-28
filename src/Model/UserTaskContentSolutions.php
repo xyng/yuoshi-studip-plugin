@@ -3,7 +3,7 @@ namespace Xyng\Yuoshi\Model;
 
 use JSONArrayObject;
 use SimpleORMapCollection;
-use Xyng\Yuoshi\Api\Authority\TaskContentQuestSolutionAuthority;
+use Xyng\Yuoshi\Authority\TaskContentQuestSolutionAuthority;
 
 /**
  * Class UserTaskContentSolutions

@@ -5,7 +5,7 @@ use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Xyng\Yuoshi\Api\Authority\TaskContentQuestSolutionAnswerAuthority;
+use Xyng\Yuoshi\Authority\TaskContentQuestSolutionAnswerAuthority;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers;
 

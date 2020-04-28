@@ -3,7 +3,7 @@ namespace Xyng\Yuoshi\Model;
 
 use SimpleORMapCollection;
 use User;
-use Xyng\Yuoshi\Api\Authority\TaskContentSolutionAuthority;
+use Xyng\Yuoshi\Authority\TaskContentSolutionAuthority;
 
 /**
  * Class UserTaskSolutions

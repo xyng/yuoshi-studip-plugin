@@ -1,6 +1,6 @@
 <?php
 
-namespace Xyng\Yuoshi\Api\Authority;
+namespace Xyng\Yuoshi\Authority;
 
 use SimpleORMap;
 use User;

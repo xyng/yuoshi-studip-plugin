@@ -1,12 +1,12 @@
 <?php
-namespace Xyng\Yuoshi\Schema;
+namespace Xyng\Yuoshi\Api\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 use Neomerx\JsonApi\Document\Link;
 
-class Quests extends SchemaProvider
+class Answers extends SchemaProvider
 {
-    const TYPE = 'quests';
+    const TYPE = 'answers';
     protected $resourceType = self::TYPE;
 
     /**
@@ -23,14 +23,8 @@ class Quests extends SchemaProvider
     public function getAttributes($resource)
     {
         return [
-            'name' => $resource->name,
-            'image' => $resource->image,
-            'prePhrase' => $resource->prePhrase,
-            'question' => $resource->question,
             'content' => $resource->content,
-            'multiple' => (bool) $resource->multiple,
-            'require_order' => (bool) $resource->require_order,
-            'custom_answer' => (bool) $resource->custom_answer,
+            'is_correct' => (bool) $resource->is_correct,
             'sort' => $resource->sort ? (int) $resource->sort : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
@@ -39,17 +33,17 @@ class Quests extends SchemaProvider
 
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
-        $answers = null;
-        if ($includeRelationships['answers'] ?? null) {
-            $answers = $resource->answers;
+        $quest = null;
+        if ($includeRelationships['quest'] ?? null) {
+            $quest = $resource->quest;
         }
 
         return [
-            'answers' => [
-                self::DATA => $answers,
+            'quest' => [
+                self::DATA => $quest,
                 self::SHOW_SELF => true,
                 self::LINKS => [
-                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'answers')
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quest')
                 ],
             ]
         ];

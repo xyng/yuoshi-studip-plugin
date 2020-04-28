@@ -4,7 +4,7 @@ namespace Xyng\Yuoshi\Model;
 use Course;
 use \User;
 use SimpleORMap;
-use Xyng\Yuoshi\Api\Authority\PackageAuthority;
+use Xyng\Yuoshi\Authority\PackageAuthority;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
 
@@ -13,6 +13,8 @@ use Xyng\Yuoshi\Helper\QueryField;
  * @package Xyng\Yuoshi\Model
  *
  * @property string $course_id
+ * @property string $title
+ * @property string $slug
  * @property Course $course
  * @property Tasks[] $tasks
  *

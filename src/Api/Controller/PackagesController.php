@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Valitron\Validator;
-use Xyng\Yuoshi\Api\Authority\PackageAuthority;
+use Xyng\Yuoshi\Authority\PackageAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;

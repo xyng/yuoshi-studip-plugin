@@ -1,5 +1,5 @@
 <?php
-namespace Xyng\Yuoshi\Schema;
+namespace Xyng\Yuoshi\Api\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 

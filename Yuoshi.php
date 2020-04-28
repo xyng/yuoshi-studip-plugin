@@ -162,16 +162,16 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     public function registerSchemas()
     {
         return [
-            \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Schema\UserPackageProgress::class,
-            \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Schema\Packages::class,
-            \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Schema\Tasks::class,
-            \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Schema\Contents::class,
-            \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Schema\Quests::class,
-            \Xyng\Yuoshi\Model\TaskContentQuestAnswers::class => \Xyng\Yuoshi\Schema\Answers::class,
-            \Xyng\Yuoshi\Model\UserTaskSolutions::class => \Xyng\Yuoshi\Schema\TaskSolutions::class,
-            \Xyng\Yuoshi\Model\UserTaskContentSolutions::class => \Xyng\Yuoshi\Schema\TaskContentSolutions::class,
-            \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions::class => \Xyng\Yuoshi\Schema\TaskContentQuestSolutions::class,
-            \Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers::class => \Xyng\Yuoshi\Schema\TaskContentQuestSolutionAnswers::class,
+            \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Api\Schema\UserPackageProgress::class,
+            \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
+            \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,
+            \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Api\Schema\Contents::class,
+            \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Api\Schema\Quests::class,
+            \Xyng\Yuoshi\Model\TaskContentQuestAnswers::class => \Xyng\Yuoshi\Api\Schema\Answers::class,
+            \Xyng\Yuoshi\Model\UserTaskSolutions::class => \Xyng\Yuoshi\Api\Schema\TaskSolutions::class,
+            \Xyng\Yuoshi\Model\UserTaskContentSolutions::class => \Xyng\Yuoshi\Api\Schema\TaskContentSolutions::class,
+            \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions::class => \Xyng\Yuoshi\Api\Schema\TaskContentQuestSolutions::class,
+            \Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers::class => \Xyng\Yuoshi\Api\Schema\TaskContentQuestSolutionAnswers::class,
         ];
     }
 
