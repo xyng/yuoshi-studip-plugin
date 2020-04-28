@@ -26,7 +26,8 @@ class UserTaskContentSolutions extends BaseModel {
         $config['has_many']['quest_solutions'] = [
             'on_store' => true,
             'class_name' => UserTaskContentQuestSolutions::class,
-            'assoc_foreign_key' => 'content_solution_id'
+            'assoc_foreign_key' => 'content_solution_id',
+            'on_delete' => true,
         ];
 
         $config['belongs_to']['content'] = [

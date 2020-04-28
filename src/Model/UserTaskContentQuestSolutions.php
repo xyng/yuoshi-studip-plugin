@@ -30,7 +30,8 @@ class UserTaskContentQuestSolutions extends BaseModel {
         $config['has_many']['answers'] = [
             'on_store' => true,
             'class_name' => UserTaskContentQuestSolutionAnswers::class,
-            'assoc_foreign_key' => 'quest_solution_id'
+            'assoc_foreign_key' => 'quest_solution_id',
+            'on_delete' => true,
         ];
 
         parent::configure($config);

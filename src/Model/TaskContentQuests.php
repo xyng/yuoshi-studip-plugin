@@ -25,7 +25,14 @@ class TaskContentQuests extends BaseModel {
         $config['has_many']['answers'] = [
             'on_store' => true,
             'class_name' => TaskContentQuestAnswers::class,
-            'assoc_foreign_key' => 'quest_id'
+            'assoc_foreign_key' => 'quest_id',
+            'on_delete' => true,
+        ];
+
+        $config['has_many']['quest_solutions'] = [
+            'class_name' => UserTaskContentQuestSolutions::class,
+            'assoc_foreign_key' => 'quest_id',
+            'on_delete' => true,
         ];
 
         $config['belongs_to']['content'] = [

@@ -26,13 +26,15 @@ class Tasks extends BaseModel {
         $config['has_many']['contents'] = [
             'on_store' => true,
             'class_name' => TaskContents::class,
-            'assoc_foreign_key' => 'task_id'
+            'assoc_foreign_key' => 'task_id',
+            'on_delete' => true,
         ];
 
         $config['has_many']['solutions'] = [
             'on_store' => true,
             'class_name' => UserTaskSolutions::class,
-            'assoc_foreign_key' => 'task_id'
+            'assoc_foreign_key' => 'task_id',
+            'on_delete' => true,
         ];
 
         parent::configure($config);

@@ -21,6 +21,12 @@ class TaskContentQuestAnswers extends BaseModel {
             'foreign_key' => 'quest_id'
         ];
 
+        $config['has_many']['answer_solutions'] = [
+            'class_name' => UserTaskContentQuestSolutionAnswers::class,
+            'assoc_foreign_key' => 'answer_id',
+            'on_delete' => true,
+        ];
+
         parent::configure($config);
     }
 }
