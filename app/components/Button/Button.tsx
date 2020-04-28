@@ -5,15 +5,16 @@ import Styles from "./Button.module.css"
 const Button: React.FC<
     JSX.IntrinsicElements["button"] & {
         fixMargin?: boolean
+        small?: boolean
     }
-> = ({ fixMargin, className, children, type, ...rest }) => {
+> = ({ fixMargin, small, className, children, type, ...rest }) => {
     return (
         <button
             {...rest}
             type={type || "button"}
-            className={`button ${fixMargin ? Styles.marginFix : ""} ${
-                className || ""
-            }`}
+            className={`button ${small ? Styles.small : ""} ${
+                fixMargin ? Styles.marginFix : ""
+            } ${className || ""}`}
         >
             {children}
         </button>

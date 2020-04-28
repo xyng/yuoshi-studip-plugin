@@ -2,3 +2,7 @@
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
+
+.small {
+    min-width: 0 !important;
+}

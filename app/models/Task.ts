@@ -9,7 +9,7 @@ import TaskTypeName = NSTaskAdapter.TaskTypeName
 type Attributes = {
     title: string
     kind: TaskTypeName
-    sequence: number
+    sort: number
     description: string
     credits: string | number
     is_training: string
@@ -19,7 +19,7 @@ export default class Task extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = [
         "title",
         "kind",
-        "sequence",
+        "sort",
         "description",
         "credits",
         "is_training",
@@ -48,8 +48,8 @@ export default class Task extends AppModelWithDate<Attributes> {
         return this.getAttribute("kind")
     }
 
-    public getSequence(): number {
-        return this.getAttribute("sequence")
+    public getSort(): number {
+        return this.getAttribute("sort")
     }
 
     public getDescription(): string | undefined {
@@ -76,8 +76,8 @@ export default class Task extends AppModelWithDate<Attributes> {
         return this.setAttribute("kind", type)
     }
 
-    public setSequence(sequence: number): void {
-        return this.setAttribute("sequence", sequence)
+    public setSort(sort: number): void {
+        return this.setAttribute("sort", sort)
     }
 
     public setDescription(description: string | undefined): void {

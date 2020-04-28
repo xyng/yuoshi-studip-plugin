@@ -59,13 +59,12 @@ export function ensureSequenceForKey<T>(
     return ret
 }
 
-export function updateEntity<T extends Identifiable, TKey extends keyof T>(
-    id: string,
-    key: TKey,
-    value: SetterFn<T[TKey]>
-) {
+export function updateEntityWithIdFn<
+    T extends Identifiable,
+    TKey extends keyof T
+>(checkIdFn: (otherEntity: T) => boolean, key: TKey, value: SetterFn<T[TKey]>) {
     return (entities: T[]): T[] => {
-        const index = entities.findIndex((entity) => entity.id === id)
+        const index = entities.findIndex(checkIdFn)
 
         if (index === -1) {
             return entities
@@ -83,6 +82,14 @@ export function updateEntity<T extends Identifiable, TKey extends keyof T>(
             ...entities.slice(index + 1),
         ]
     }
+}
+
+export function updateEntity<T extends Identifiable, TKey extends keyof T>(
+    id: string,
+    key: TKey,
+    value: SetterFn<T[TKey]>
+) {
+    return updateEntityWithIdFn((entity) => entity.id === id, key, value)
 }
 
 export function updateEntityAndSort<T extends IdentifiableSortable>(

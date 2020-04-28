@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useMemo } from "react"
 import useSWR from "swr/esm/use-swr"
 import { PluralResponse } from "coloquent"
+import { responseInterface } from "swr"
 
 import Package from "../models/Package"
 import updateModelList from "../helpers/updateModelList"
@@ -14,6 +15,7 @@ interface PackagesContextInterface {
         reload?: boolean
     ) => void | Promise<void>
     reloadPackages: () => Promise<boolean>
+    mutate: responseInterface<Package[], any>["mutate"]
 }
 const PackagesContext = createContext<PackagesContextInterface | null>(null)
 
@@ -67,9 +69,12 @@ export const PackagesContextProvider: React.FC<{
     )
 
     const ctx = {
-        packages: data as Package[],
+        packages: (data as Package[]).sort((a, b) => {
+            return a.getSort() - b.getSort()
+        }),
         updatePackage,
         reloadPackages: revalidate,
+        mutate,
     }
 
     return (

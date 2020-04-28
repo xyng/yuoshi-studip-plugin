@@ -9,6 +9,8 @@ import {
 import { CurrentTaskContextProvider } from "../../contexts/CurrentTaskContext"
 import EditTask from "../Task/EditTask"
 import CreateTask from "../Task/CreateTask"
+import Task from "../../models/Task"
+import Button from "../../components/Button/Button"
 
 const EditTaskContent = React.lazy(() =>
     import("../Task/EditTaskContent/EditTaskContent")
@@ -55,6 +57,7 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
                 <caption>Aufgaben</caption>
                 <thead>
                     <tr>
+                        <th>Position</th>
                         <th>Titel</th>
                         <th>Typ</th>
                         <th>Punkte</th>
@@ -81,7 +84,7 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
 }
 
 const RenderTaskTableContent: React.FC = () => {
-    const { tasks, reloadTasks } = useTasksContext()
+    const { tasks, reloadTasks, mutate } = useTasksContext()
 
     const onRemove = useCallback(
         (id?: string) => async () => {
@@ -101,14 +104,94 @@ const RenderTaskTableContent: React.FC = () => {
         [tasks, reloadTasks]
     )
 
+    const moveTask = useCallback(
+        async (taskId: string, direction: number) => {
+            const taskIndex = tasks.findIndex((p) => p.getApiId() === taskId)
+
+            if (taskIndex === -1) {
+                return
+            }
+
+            if (
+                (taskIndex === 0 && direction < 0) ||
+                (taskIndex === tasks.length - 1 && direction > 0)
+            ) {
+                return
+            }
+
+            await mutate((tasks) => {
+                let current = 0
+                return tasks
+                    .map((taskItem, index) => {
+                        taskItem = taskItem.clone<Task>()
+
+                        if (index === taskIndex) {
+                            taskItem.setSort(taskItem.getSort() + direction)
+                        }
+
+                        return taskItem
+                    })
+                    .sort((a, b) => {
+                        return a.getSort() - b.getSort()
+                    })
+                    .map((p) => {
+                        p.setSort(current++)
+                        p.save()
+
+                        return p
+                    })
+            }, true)
+        },
+        [tasks, mutate]
+    )
+
+    const taskUp = useCallback(
+        (taskId: string) => async () => {
+            await moveTask(taskId, -2)
+        },
+        [moveTask]
+    )
+
+    const taskDown = useCallback(
+        (taskId: string) => async () => {
+            await moveTask(taskId, 2)
+        },
+        [moveTask]
+    )
+
     return (
         <>
             {tasks &&
                 tasks.map((task) => {
                     return (
                         <tr key={`task-${task.getApiId()}`}>
+                            <td>
+                                <span className="pr">{task.getSort() + 1}</span>
+                                {tasks.length > 1 && (
+                                    <>
+                                        <Button
+                                            fixMargin
+                                            small
+                                            onClick={taskUp(
+                                                task.getApiId() as string
+                                            )}
+                                        >
+                                            &uarr;
+                                        </Button>
+                                        <Button
+                                            fixMargin
+                                            small
+                                            onClick={taskDown(
+                                                task.getApiId() as string
+                                            )}
+                                        >
+                                            &darr;
+                                        </Button>
+                                    </>
+                                )}
+                            </td>
                             <td>{task.getTitle()}</td>
-                            <td>{task.getType()}</td>
+                            <td>{Task.taskTypes[task.getType()]}</td>
                             <td>{task.getCredits()}</td>
                             <td>{task.getModified().toLocaleString()}</td>
                             <td>

@@ -18,7 +18,9 @@ const Progress: React.FC<{
                     }}
                 />
             </div>
-            <span className={Style.text}>{percent}%</span>
+            <span className={Style.text}>
+                {Math.round(percent + Number.EPSILON)}%
+            </span>
         </div>
     )
 }

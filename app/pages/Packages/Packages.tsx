@@ -7,6 +7,8 @@ import {
     usePackagesContext,
 } from "../../contexts/PackagesContext"
 import Progress from "../../components/Progress/Progress"
+import Package from "../../models/Package"
+import Button from "../../components/Button/Button"
 
 import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
@@ -51,6 +53,7 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
                 <caption>Pakete</caption>
                 <thead>
                     <tr>
+                        <th>Position</th>
                         <th>Name</th>
                         <th>Kursfortschritt</th>
                         <th>Letzte Aktualisierung</th>
@@ -76,7 +79,7 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
 }
 
 const RenderPackageTableData: React.FC = () => {
-    const { packages, reloadPackages } = usePackagesContext()
+    const { packages, reloadPackages, mutate } = usePackagesContext()
 
     const onRemove = useCallback(
         (id?: string) => async () => {
@@ -96,11 +99,97 @@ const RenderPackageTableData: React.FC = () => {
         [packages, reloadPackages]
     )
 
+    const movePackage = useCallback(
+        async (packageId: string, direction: number) => {
+            const packageIndex = packages.findIndex(
+                (p) => p.getApiId() === packageId
+            )
+
+            if (packageIndex === -1) {
+                return
+            }
+
+            if (
+                (packageIndex === 0 && direction < 0) ||
+                (packageIndex === packages.length - 1 && direction > 0)
+            ) {
+                return
+            }
+
+            await mutate((packages) => {
+                let current = 0
+                return packages
+                    .map((packageItem, index) => {
+                        packageItem = packageItem.clone<Package>()
+
+                        if (index === packageIndex) {
+                            packageItem.setSort(
+                                packageItem.getSort() + direction
+                            )
+                        }
+
+                        return packageItem
+                    })
+                    .sort((a, b) => {
+                        return a.getSort() - b.getSort()
+                    })
+                    .map((p) => {
+                        p.setSort(current++)
+                        p.save()
+
+                        return p
+                    })
+            }, true)
+        },
+        [packages, mutate]
+    )
+
+    const packageUp = useCallback(
+        (packageId: string) => async () => {
+            await movePackage(packageId, -2)
+        },
+        [movePackage]
+    )
+
+    const packageDown = useCallback(
+        (packageId: string) => async () => {
+            await movePackage(packageId, 2)
+        },
+        [movePackage]
+    )
+
     return (
         <>
             {packages.map((packageItem) => {
                 return (
                     <tr key={packageItem.getApiId()}>
+                        <td>
+                            <span className="pr">
+                                {packageItem.getSort() + 1}
+                            </span>
+                            {packages.length > 1 && (
+                                <>
+                                    <Button
+                                        fixMargin
+                                        small
+                                        onClick={packageUp(
+                                            packageItem.getApiId() as string
+                                        )}
+                                    >
+                                        &uarr;
+                                    </Button>
+                                    <Button
+                                        fixMargin
+                                        small
+                                        onClick={packageDown(
+                                            packageItem.getApiId() as string
+                                        )}
+                                    >
+                                        &darr;
+                                    </Button>
+                                </>
+                            )}
+                        </td>
                         <td>
                             <Link to={`${packageItem.getApiId()}/tasks`}>
                                 {packageItem.getTitle()}

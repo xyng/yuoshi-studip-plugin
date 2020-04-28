@@ -23,20 +23,28 @@ class PackagesController extends JsonApiController
 {
     use ValidationTrait;
 
-    protected $allowedFilteringParameters = ['course'];
+    protected $allowedFilteringParameters = ['course', 'sort'];
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $course_id = $args['id'] ?? null;
 
+        $filters = $this->getQueryParameters()->getFilteringParameters();
         if (!$course_id) {
-            $filters = $this->getQueryParameters()->getFilteringParameters();
             $course_id = $filters['course'] ?? null;
         }
 
+        $conditions = [];
+        if ($sort = ($filters['sort'] ?? null)) {
+            $conditions['sort'] = $sort;
+        }
+
         $user = $this->getUser($request);
-        $packages = PackageAuthority::findFiltered([$course_id], $user);
+        $packages = PackageAuthority::findFiltered([$course_id], $user, [], [
+            'conditions' => $conditions,
+            'order' => 'yuoshi_packages.sort ASC'
+        ]);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -67,7 +75,7 @@ class PackagesController extends JsonApiController
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
-        $attributes = $data->getAttributes(['title', 'slug']);
+        $attributes = $data->getAttributes(['title', 'slug', 'sort']);
 
         /** @var Course|null $course */
         $course = Course::find($data->getRelation('course')['data']['id'] ?? null);
@@ -81,6 +89,7 @@ class PackagesController extends JsonApiController
         }
 
         $package = Packages::build($attributes);
+        $package->sort = Packages::nextSort($course->id);
         $package->course_id = $course->id;
 
         if (!$package->store()) {
@@ -115,6 +124,11 @@ class PackagesController extends JsonApiController
             $package->slug = $slug;
         }
 
+        $sort = $data->getAttribute('sort');
+        if ($sort !== null) {
+            $package->sort = $sort;
+        }
+
         if ($package->isDirty() && !$package->store()) {
             throw new InternalServerError("could not update package");
         }
@@ -145,7 +159,8 @@ class PackagesController extends JsonApiController
     {
         $validator
             ->rule('required', 'data.attributes.title')
-            ->rule('required', 'data.attributes.slug');
+            ->rule('required', 'data.attributes.slug')
+            ->rule('numeric', 'data.attributes.sort');
 
         if ($new) {
             $validator

@@ -24,6 +24,24 @@ export abstract class AppModel<T extends {}> extends Model {
             this.setAttribute(key as string, value)
         }
     }
+
+    public clone<C extends AppModel<T>>() {
+        const clone = new (this.constructor as any)() as C
+
+        clone.setApiId(this.getApiId())
+
+        const attrs = this.getAttributes()
+        Object.entries(attrs).forEach(([key, val]) => {
+            clone.setAttribute(key, val)
+        })
+
+        const rel = this.getRelations()
+        Object.entries(rel).forEach(([key, val]) => {
+            clone.setRelation(key, val)
+        })
+
+        return clone
+    }
 }
 
 export abstract class AppModelWithDate<T extends {}> extends AppModel<T> {

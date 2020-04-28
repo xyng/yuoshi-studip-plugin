@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext } from "react"
 import { PluralResponse } from "coloquent"
-import useSWR from "swr"
+import useSWR, { responseInterface } from "swr"
 
 import Task from "../models/Task"
 import updateModelList from "../helpers/updateModelList"
@@ -11,6 +11,7 @@ interface TasksContextInterface {
     tasks: Task[]
     updateTask: (updated: Task, reload?: boolean) => Promise<void>
     reloadTasks: () => Promise<boolean>
+    mutate: responseInterface<Task[], any>["mutate"]
 }
 const TasksContext = createContext<TasksContextInterface | null>(null)
 
@@ -49,9 +50,12 @@ export const TasksContextProvider: React.FC = ({ children }) => {
     )
 
     const ctx = {
-        tasks: data as Task[],
+        tasks: (data as Task[]).sort((a, b) => {
+            return a.getSort() - b.getSort()
+        }),
         updateTask,
         reloadTasks: revalidate,
+        mutate,
     }
 
     return <TasksContext.Provider value={ctx}>{children}</TasksContext.Provider>

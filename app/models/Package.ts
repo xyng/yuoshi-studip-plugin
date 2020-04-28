@@ -9,9 +9,14 @@ import PackageProgress from "./PackageProgress"
 type Attributes = {
     title: string
     slug: string
+    sort: number
 }
 export default class Package extends AppModelWithDate<Attributes> {
-    protected readonly accessible: Array<keyof Attributes> = ["title", "slug"]
+    protected readonly accessible: Array<keyof Attributes> = [
+        "title",
+        "slug",
+        "sort",
+    ]
     protected jsonApiType: string = "packages"
 
     getTitle(): string {
@@ -22,12 +27,20 @@ export default class Package extends AppModelWithDate<Attributes> {
         return this.getAttribute("slug")
     }
 
+    getSort(): number {
+        return this.getAttribute("sort")
+    }
+
     setTitle(title: string) {
         return this.setAttribute("title", title)
     }
 
     setSlug(slug: string) {
         return this.setAttribute("slug", slug)
+    }
+
+    setSort(sort: number) {
+        return this.setAttribute("sort", sort)
     }
 
     setCourse(course: Course) {

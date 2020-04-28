@@ -15,6 +15,7 @@ use Xyng\Yuoshi\Helper\QueryField;
  * @property string $course_id
  * @property string $title
  * @property string $slug
+ * @property int $sort
  * @property Course $course
  * @property Tasks[] $tasks
  *
@@ -40,6 +41,21 @@ class Packages extends BaseModel {
 
     // TODO: check in db if this package is playable by user.
     public $playable = true;
+
+    public static function nextSort(string $course_id) {
+        $db_table = static::config('db_table');
+        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `course_id` = :courseId GROUP BY `coursE_id`");
+        $maxSortStmt->execute([
+            'courseId' => $course_id,
+        ]);
+
+        $maxSort = $maxSortStmt->fetch();
+        if ($maxSort === false) {
+            return 0;
+        }
+
+        return ((int) $maxSort['max_sort']) + 1;
+    }
 
     /**
      * @param User $user
