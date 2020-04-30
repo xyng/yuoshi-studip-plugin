@@ -22,15 +22,32 @@ You can also compile this plugin yourself. You need the following packages to ac
 
 - [yarn](https://yarnpkg.com)
 - [php](https://php.net) (at least Version 7.2.)
-  - Additional Extensions: `php-dom` (depending on your system, you may have to install more. This list references to a standard installation of Ubuntu.)
+  - Required Extensions:
+  - ext-phar
+  - ext-json
+  - ext-mbstring
+  - ext-openssl
+  - ext-ctype
+  - ext-dom
+  - (depending on your system, most of them may already be installed.)
 - [composer](https://getcomposer.org)
 - `make` (should probably already be on your system)
+- `zip` (should probably already be on your system)
 
 *Copy* the file `.webpack.env.example` to `.webpack.env`. Adjust values as needed.
 Please not that the variable `STUDIP_URL` is ignored for production builds. 
 
 If you are all set, simply run `make`. After it finishes, you will find a file called `yuoshi.zip` in the project-root.
 Use this file to install the plugin in your Stud.IP-Instance.
+
+### Building with the Dockerfile
+You do not need to have the aforementioned packages when you are using docker to build.
+Note that this does require you to have docker installed and set up. Furthermore, this is only applicable to production
+builds - the development environment has to run on your machine for the time being.
+
+Steps:
+1. Build the image with the `docker/build/Dockerfile`. Run something like: `docker build ./docker/build -t yuoshi_build_env`
+2. Use the created Docker-Image to run the make-process: `docker run --rm yuoshi_build_env make`
 
 ## Contributing
 To contribute to this project, you need the same packages installed as for compiling for production as well as the `.webpack.env`-File (see above).
