@@ -1,16 +1,14 @@
 import React, { ChangeEventHandler, useCallback } from "react"
-import { RouteComponentProps, Link } from "@reach/router"
+import { Link, RouteComponentProps } from "@reach/router"
 import { Model } from "coloquent"
 import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
 
 import Package from "../../models/Package"
-import Quest from "../../models/Quest"
 import Task from "../../models/Task"
-import Answer from "../../models/Answer"
 import Content from "../../models/Content"
 import { usePackagesContext } from "../../contexts/PackagesContext"
 import { useCourseContext } from "../../contexts/CourseContext"
-
+import contentTransform from "../../helpers/importContentTransformers"
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 async function saveAndGetModelOrFail<T extends Model>(model: T): Promise<T> {
@@ -23,76 +21,44 @@ async function saveAndGetModelOrFail<T extends Model>(model: T): Promise<T> {
     return res
 }
 
-//TODO Vscode
-const contentTransform: {
-    [key in TaskTypeName]: (data: any) => Promise<Content[]>
-} = {
-    [TaskTypeName.MEMORY]: async function (content) {
-        return []
-    },
-    [TaskTypeName.CARD]: async function (content) {
-        return []
-    },
-    [TaskTypeName.CLOZE]: async function (content) {
-        return []
-    },
-    [TaskTypeName.DRAG]: async function (content) {
-        return []
-    },
-    [TaskTypeName.MULTI]: async function (data) {
-        const { content: contents } = data
-        if (!(contents instanceof Array)) {
-            throw new Error("invalid data given")
-        }
+function getTaskType(type: string): TaskTypeName {
+    switch (type) {
+        case "multi":
+            return TaskTypeName.MULTI
+        // TODO: add missing types
+        default:
+            throw new Error(`unknown task type: ${type}`)
+    }
+}
 
-        const contentModel = new Content()
+async function createTasks(tasks: any[], currentPackage: Package) {
+    return Promise.all(
+        tasks.map(async (data: any) => {
+            const task = new Task()
+            task.patch(data)
 
-        const quests = contents.map((content, index) => {
-            const question = new Quest()
-            question.patch({
-                name: content.question,
-                question: content.question,
-                multiple: !!content.multi,
-                require_order: false,
-                custom_answer: false,
-                sort: index++,
+            // disable description for now as it may be too long for database
+            task.patch({
+                description: "",
             })
+            task.setPackage(currentPackage)
 
-            const answers = content.answerSet
-                .map((answer: string, index: number) => {
-                    const answerModel = new Answer()
-                    answerModel.patch({
-                        content: answer,
-                        sort: index,
-                        is_correct: true, //TODO
-                    })
+            const savedTask = await saveAndGetModelOrFail(task)
 
-                    return answerModel
-                })
-                .filter(Boolean)
+            const taskType = getTaskType(data.kind)
+            const savedContents = contentTransform[taskType](data).map(
+                (content) => {
+                    content.setTask(savedTask)
 
-            question.setAnswers(answers)
+                    return saveContentWithRelations(content)
+                }
+            )
 
-            return question
+            task.setContents(await Promise.all(savedContents))
+
+            return savedTask
         })
-
-        contentModel.patch({
-            title: data.title,
-            content: data.description,
-        })
-        contentModel.setQuests(await Promise.all(quests))
-
-        return [contentModel]
-    },
-    [TaskTypeName.SURVEY]: async function (content) {
-        return []
-    },
-    [TaskTypeName.TAG]: async function (content) {
-        return []
-    },
-    [TaskTypeName.TRAINING]: async function (content) {
-        return []
-    },
+    )
 }
 
 const saveContentWithRelations = async (content: Content): Promise<Content> => {
@@ -131,61 +97,15 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
             newPackage.patch(values)
             newPackage.setCourse(course)
 
-            const updated = saveAndGetModelOrFail(newPackage)
+            const savedPackage = await saveAndGetModelOrFail(newPackage)
 
             await mutatePackages((packages) => {
-                return [...packages, newPackage]
+                return [...packages, savedPackage]
             })
 
-            return updated
+            return savedPackage
         },
         [course, mutatePackages]
-    )
-
-    const createContents = useCallback(async function (data: any, task: Task) {
-        let contents: Content[] | null = null
-
-        switch (data.kind) {
-            case "multi":
-                contents = await contentTransform.multi(data)
-                break
-        }
-
-        if (!contents) {
-            throw new Error(`no contents created for type ${data.kind}`)
-        }
-
-        return Promise.all(
-            contents.map((content) => {
-                content.setTask(task)
-
-                return saveContentWithRelations(content)
-            })
-        )
-    }, [])
-
-    const createTasks = useCallback(
-        function (tasks: any[], currentPackage: Package) {
-            return Promise.all(
-                tasks.map(async (values: any) => {
-                    const task = new Task()
-                    task.patch(values)
-
-                    // disable description for now as it may be too long
-                    task.patch({
-                        description: "",
-                    })
-                    task.setPackage(currentPackage)
-
-                    const updated = await saveAndGetModelOrFail(task)
-
-                    task.setContents(await createContents(values, updated))
-
-                    return updated
-                })
-            )
-        },
-        [createContents]
     )
 
     const onImport = useCallback<ChangeEventHandler<HTMLInputElement>>(
@@ -220,7 +140,7 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
                 await createTasks(json.tasks, packageItem)
             }
         },
-        [createPackage, createTasks]
+        [createPackage]
     )
 
     return (
