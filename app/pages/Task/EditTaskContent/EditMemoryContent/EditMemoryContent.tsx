@@ -5,7 +5,7 @@ import { SubmitHandler } from "@unform/core"
 import { EditTaskContentView } from "../EditTaskContent"
 import { uniqueId } from "../../../../helpers/uniqueId"
 import { ensureSequenceForKey } from "../../../../helpers/listHelpers"
-import { QuizAnswer } from "../useEditTaskContent"
+import { QuizAnswer, useEditTaskContext } from "../useEditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
 import Button from "../../../../components/Button/Button"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
@@ -50,16 +50,16 @@ const MemoryContentSchema = Yup.object().shape({
 
 type MemoryContentData = Yup.InferType<typeof MemoryContentSchema>
 
-const EditMemoryContent: EditTaskContentView = ({ editTaskContext }) => {
+const EditMemoryContent: EditTaskContentView = () => {
     const {
         task,
         contents,
         setContents,
         createQuest,
         onModifyAndSave,
-    } = editTaskContext
+    } = useEditTaskContext()
 
-    const { firstContent } = useGlobalContent(editTaskContext)
+    const { firstContent } = useGlobalContent()
 
     useEffect(() => {
         if (contents.length) {

@@ -61,10 +61,8 @@ function handleChangeEvent(element: Element) {
     }
 }
 
-export const useEditTaskContext = (
-    currentTaskContext: ReturnType<typeof useCurrentTaskContext>
-) => {
-    const { task, updateTask } = currentTaskContext
+export const useEditTaskContext = () => {
+    const { task, updateTask } = useCurrentTaskContext()
     const [contents, setContents] = useState<QuizContent[]>([])
     const [isSaving, setIsSaving] = useState(false)
 

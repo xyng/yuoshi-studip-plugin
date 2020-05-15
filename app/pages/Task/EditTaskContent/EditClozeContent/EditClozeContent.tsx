@@ -12,6 +12,7 @@ import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import Button from "../../../../components/Button/Button"
 import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
+import { useEditTaskContext } from "../useEditTaskContent"
 
 import Styles from "./EditClozeContent.module.css"
 
@@ -26,7 +27,7 @@ const ClozeContentSchema = Yup.object().shape({
 })
 type ClozeContentData = Yup.InferType<typeof ClozeContentSchema>
 
-const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
+const EditClozeContent: EditTaskContentView = () => {
     const {
         task,
         contents,
@@ -34,7 +35,7 @@ const EditClozeContent: EditTaskContentView = ({ editTaskContext }) => {
         removeContent,
         onContentInputChange,
         onModifyAndSave,
-    } = editTaskContext
+    } = useEditTaskContext()
 
     const contentsWithParts = useMemo(() => {
         return contents.map((content) => {

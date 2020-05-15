@@ -8,6 +8,7 @@ import TextArea from "../../../../components/Form/Textarea"
 import Button from "../../../../components/Button/Button"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import Styles from "../EditQuizContent/EditQuizContent.module.css"
+import { useEditTaskContext } from "../useEditTaskContent"
 
 const CardContentSchema = Yup.object().shape({
     contents: Yup.array().of(
@@ -20,7 +21,7 @@ const CardContentSchema = Yup.object().shape({
 })
 type CardContentData = Yup.InferType<typeof CardContentSchema>
 
-const EditCardContent: EditTaskContentView = ({ editTaskContext }) => {
+const EditCardContent: EditTaskContentView = () => {
     const {
         task,
         contents,
@@ -28,7 +29,7 @@ const EditCardContent: EditTaskContentView = ({ editTaskContext }) => {
         removeContent,
         onModifyAndSave,
         onContentInputChange,
-    } = editTaskContext
+    } = useEditTaskContext()
 
     const onSubmit = useCallback<SubmitHandler<CardContentData>>(
         async (value) => {

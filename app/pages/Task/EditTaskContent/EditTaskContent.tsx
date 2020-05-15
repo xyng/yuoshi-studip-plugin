@@ -3,8 +3,6 @@ import { Link, RouteComponentProps } from "@reach/router"
 import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
 import { useCurrentTaskContext } from "contexts/CurrentTaskContext"
 
-import { useEditTaskContext } from "./useEditTaskContent"
-
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 const EditQuizContent = React.lazy(() =>
@@ -26,33 +24,28 @@ const EditClozeContent = React.lazy(() =>
     import("./EditClozeContent/EditClozeContent")
 )
 
-export type EditTaskContentView<T = {}> = React.FC<
-    {
-        editTaskContext: ReturnType<typeof useEditTaskContext>
-    } & T
->
+export type EditTaskContentView<T = {}> = React.FC<T>
 
 const RenderTaskViews: React.FC = () => {
     const currentTaskContext = useCurrentTaskContext()
-    const editTaskContext = useEditTaskContext(currentTaskContext)
 
     const { task } = currentTaskContext
 
     switch (task.getType()) {
         case TaskTypeName.DRAG:
-            return <EditDragContent editTaskContext={editTaskContext} />
+            return <EditDragContent />
         case TaskTypeName.CARD:
-            return <EditCardContent editTaskContext={editTaskContext} />
+            return <EditCardContent />
         case TaskTypeName.MULTI:
         case TaskTypeName.SURVEY:
         case TaskTypeName.TRAINING:
-            return <EditQuizContent editTaskContext={editTaskContext} />
+            return <EditQuizContent />
         case TaskTypeName.MEMORY:
-            return <EditMemoryContent editTaskContext={editTaskContext} />
+            return <EditMemoryContent />
         case TaskTypeName.TAG:
-            return <EditTagContent editTaskContext={editTaskContext} />
+            return <EditTagContent />
         case TaskTypeName.CLOZE:
-            return <EditClozeContent editTaskContext={editTaskContext} />
+            return <EditClozeContent />
         default:
             return null
     }

@@ -15,6 +15,7 @@ import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import { findOrFail } from "../../../../helpers/listHelpers"
 import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
+import { useEditTaskContext } from "../useEditTaskContent"
 
 import Styles from "./EditDragContent.module.css"
 
@@ -46,7 +47,7 @@ const DragContentSchema = Yup.object().shape({
 })
 type DragContentData = Yup.InferType<typeof DragContentSchema>
 
-const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
+const EditDragContent: EditTaskContentView = () => {
     const {
         task,
         contents,
@@ -62,9 +63,9 @@ const EditDragContent: EditTaskContentView = ({ editTaskContext }) => {
         onQuestDown,
         onAnswerUp,
         onAnswerDown,
-    } = editTaskContext
+    } = useEditTaskContext()
 
-    const { firstContent } = useGlobalContent(editTaskContext)
+    const { firstContent } = useGlobalContent()
 
     const [requireOrder, setRequireOrder] = useState<boolean>()
 

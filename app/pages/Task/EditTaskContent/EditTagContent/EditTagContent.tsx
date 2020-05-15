@@ -9,6 +9,7 @@ import Button from "../../../../components/Button/Button"
 import Input from "../../../../components/Form/Input"
 import { findOrFail } from "../../../../helpers/listHelpers"
 import TextArea from "../../../../components/Form/Textarea"
+import { useEditTaskContext } from "../useEditTaskContent"
 import Styles from "../EditQuizContent/EditQuizContent.module.css"
 
 const TagContentSchema = Yup.object().shape({
@@ -37,7 +38,7 @@ const TagContentSchema = Yup.object().shape({
 })
 type TagContentData = Yup.InferType<typeof TagContentSchema>
 
-const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
+const EditTagContent: EditTaskContentView = () => {
     const {
         task,
         contents,
@@ -46,7 +47,7 @@ const EditTagContent: EditTaskContentView = ({ editTaskContext }) => {
         createAnswer,
         removeAnswer,
         onModifyAndSave,
-    } = editTaskContext
+    } = useEditTaskContext()
 
     const createTagContent = useCallback(() => {
         return createContent({
