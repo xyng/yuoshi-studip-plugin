@@ -1,16 +1,21 @@
-import React, { ComponentProps, useCallback, useMemo } from "react"
+import React, { useCallback, useMemo } from "react"
 import * as Yup from "yup"
 import { SubmitHandler } from "@unform/core"
 
 import { EditTaskContentView } from "../EditTaskContent"
 import Button from "../../../../components/Button/Button"
-import { QuizAnswer, QuizContent, QuizQuest } from "../useEditTaskContent"
+import {
+    QuizAnswer,
+    QuizContent,
+    QuizQuest,
+    useEditTaskContext,
+} from "../useEditTaskContent"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import Input from "../../../../components/Form/Input"
 
 import Styles from "./EditQuizContent.module.css"
 
-type EditTaskContext = ComponentProps<EditTaskContentView>["editTaskContext"]
+type EditTaskContext = ReturnType<typeof useEditTaskContext>
 
 type getInputName = (append: string) => string
 
@@ -26,9 +31,8 @@ const RenderAnswerForm: React.FC<{
     answer: QuizAnswer
     index: number
     getInputName: getInputName
-    editTaskContext: EditTaskContext
-}> = ({ content, quest, answer, getInputName, editTaskContext, index }) => {
-    const { onAnswerUp, onAnswerDown, removeAnswer } = editTaskContext
+}> = ({ content, quest, answer, getInputName, index }) => {
+    const { onAnswerUp, onAnswerDown, removeAnswer } = useEditTaskContext()
 
     const getAnswerInputName = useCallback<getInputName>(
         (append) => {
@@ -109,14 +113,13 @@ const RenderQuestForm: React.FC<{
     quest: QuizQuest
     index: number
     getInputName: getInputName
-    editTaskContext: EditTaskContext
-}> = ({ content, quest, index, getInputName, editTaskContext }) => {
+}> = ({ content, quest, index, getInputName }) => {
     const {
         onQuestUp,
         onQuestDown,
         removeQuest,
         createAnswer,
-    } = editTaskContext
+    } = useEditTaskContext()
 
     const getQuestInputName = useCallback<getInputName>(
         (append) => {
@@ -203,7 +206,6 @@ const RenderQuestForm: React.FC<{
                             quest={quest}
                             answer={answer}
                             index={index}
-                            editTaskContext={editTaskContext}
                             key={`quiz-answer-${answer.id}`}
                             getInputName={getQuestInputName}
                         />
@@ -223,9 +225,8 @@ const RenderQuestForm: React.FC<{
 const RenderContentForm: React.FC<{
     index: number
     content: QuizContent
-    editTaskContext: EditTaskContext
-}> = ({ index, content, editTaskContext }) => {
-    const { createQuest, removeContent } = editTaskContext
+}> = ({ index, content }) => {
+    const { createQuest, removeContent } = useEditTaskContext()
 
     const getInputName = useCallback<getInputName>(
         (append) => {
@@ -270,7 +271,6 @@ const RenderContentForm: React.FC<{
                         index={index}
                         content={content}
                         quest={quest}
-                        editTaskContext={editTaskContext}
                         getInputName={getInputName}
                         key={`quiz-quest-${quest.id}`}
                     />
@@ -344,8 +344,8 @@ export const handleFormSubmit = (
     )
 }
 
-const EditQuizContent: EditTaskContentView = ({ editTaskContext }) => {
-    const { contents, createContent, onModifyAndSave } = editTaskContext
+const EditQuizContent: EditTaskContentView = () => {
+    const { contents, createContent, onModifyAndSave } = useEditTaskContext()
 
     const onSubmit = useMemo<QuizFormSubmitHandler>(
         () => handleFormSubmit(onModifyAndSave),
@@ -368,7 +368,6 @@ const EditQuizContent: EditTaskContentView = ({ editTaskContext }) => {
                     <RenderContentForm
                         index={index}
                         content={content}
-                        editTaskContext={editTaskContext}
                         key={`quiz-content-${content.id}`}
                     />
                 ))}

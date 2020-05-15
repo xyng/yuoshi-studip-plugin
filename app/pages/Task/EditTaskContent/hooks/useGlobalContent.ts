@@ -8,10 +8,8 @@ import {
 
 import { useEditTaskContext } from "../useEditTaskContent"
 
-const useGlobalContent = (
-    editTaskContext: ReturnType<typeof useEditTaskContext>
-) => {
-    const { createContent, contents, setContents } = editTaskContext
+const useGlobalContent = () => {
+    const { createContent, contents, setContents } = useEditTaskContext()
 
     const { defaultTitle, defaultText } = useMemo(() => {
         if (!contents.length) {
