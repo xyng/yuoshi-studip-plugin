@@ -15,7 +15,6 @@ import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import { findOrFail } from "../../../../helpers/listHelpers"
 import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
-import { useEditTaskContext } from "../useEditTaskContent"
 
 import Styles from "./EditDragContent.module.css"
 
@@ -63,9 +62,8 @@ const EditDragContent: EditTaskContentView = () => {
         onQuestDown,
         onAnswerUp,
         onAnswerDown,
-    } = useEditTaskContext()
-
-    const { firstContent } = useGlobalContent()
+        firstContent,
+    } = useGlobalContent()
 
     const [requireOrder, setRequireOrder] = useState<boolean>()
 
