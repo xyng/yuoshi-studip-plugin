@@ -161,6 +161,7 @@ const EditMemoryContent: EditTaskContentView = () => {
                             return {
                                 ...origQuest,
                                 name: quest.name,
+                                question: quest.name,
                                 answers: quest.answers.map((answer) => {
                                     const origAnswer = origQuest.answers.find(
                                         (a) => a.id === answer.id
