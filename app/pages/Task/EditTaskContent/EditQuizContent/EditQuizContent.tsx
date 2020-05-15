@@ -314,6 +314,7 @@ export const handleFormSubmit = (
             }
 
             return {
+                ...localContent,
                 ...content,
                 quests: content.quests.map((quest) => {
                     const localQuest = localContent.quests.find(
@@ -323,6 +324,7 @@ export const handleFormSubmit = (
                         throw new Error("data integrity problem")
                     }
                     return {
+                        ...localQuest,
                         ...quest,
                         sort: localQuest.sort,
                         answers: quest.answers.map((answer) => {
@@ -333,6 +335,7 @@ export const handleFormSubmit = (
                                 throw new Error("data integrity problem")
                             }
                             return {
+                                ...localAnswer,
                                 ...answer,
                                 sort: localAnswer.sort,
                             }
