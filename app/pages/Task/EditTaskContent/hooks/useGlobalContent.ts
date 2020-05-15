@@ -9,12 +9,20 @@ import {
 import { useEditTaskContext } from "../useEditTaskContent"
 
 const useGlobalContent = () => {
-    const { createContent, contents, setContents } = useEditTaskContext()
+    const editTaskContext = useEditTaskContext()
+    const { createContent, contents, setContents } = editTaskContext
+
+    useEffect(() => {
+        console.log(contents)
+        if (contents.length > 0) {
+            return
+        }
+
+        createContent()()
+    }, [contents, createContent])
 
     const { defaultTitle, defaultText } = useMemo(() => {
         if (!contents.length) {
-            createContent()()
-
             return {
                 defaultTitle: "",
                 defaultText: "",
@@ -26,7 +34,7 @@ const useGlobalContent = () => {
             defaultTitle: content.title,
             defaultText: content.content,
         }
-    }, [contents, createContent])
+    }, [contents])
 
     const [contentTitle, setContentTitle] = useState(defaultTitle)
     const [contentText, setContentText] = useState(defaultText)
@@ -64,6 +72,7 @@ const useGlobalContent = () => {
     }, [contents])
 
     return {
+        ...editTaskContext,
         contentTitle,
         contentText,
         changeContentTitle,

@@ -5,7 +5,7 @@ import { SubmitHandler } from "@unform/core"
 import { EditTaskContentView } from "../EditTaskContent"
 import { uniqueId } from "../../../../helpers/uniqueId"
 import { ensureSequenceForKey } from "../../../../helpers/listHelpers"
-import { QuizAnswer, useEditTaskContext } from "../useEditTaskContent"
+import { QuizAnswer } from "../useEditTaskContent"
 import useGlobalContent from "../hooks/useGlobalContent"
 import Button from "../../../../components/Button/Button"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
@@ -57,9 +57,8 @@ const EditMemoryContent: EditTaskContentView = () => {
         setContents,
         createQuest,
         onModifyAndSave,
-    } = useEditTaskContext()
-
-    const { firstContent } = useGlobalContent()
+        firstContent,
+    } = useGlobalContent()
 
     useEffect(() => {
         if (contents.length) {
