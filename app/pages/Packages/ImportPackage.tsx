@@ -25,7 +25,17 @@ function getTaskType(type: string): TaskTypeName {
     switch (type) {
         case "multi":
             return TaskTypeName.MULTI
+        case "memory":
+            return TaskTypeName.MEMORY
+        case "drag":
+            return TaskTypeName.DRAG
+        case "cloze":
+            return TaskTypeName.CLOZE
+        case "tag":
+            return TaskTypeName.TAG
+
         // TODO: add missing types
+
         default:
             throw new Error(`unknown task type: ${type}`)
     }
