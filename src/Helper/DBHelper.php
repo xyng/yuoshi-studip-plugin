@@ -37,7 +37,7 @@ class DBHelper {
         foreach ($conditions as $field => $condition) {
             $lastItem = --$numItems == 0;
 
-            if (is_numeric($field) && is_array($condition) || strtolower($field) == 'or' || strtolower($field) == 'and') {
+            if (is_numeric($field) && is_array($condition) || (is_string($field) && (strtolower($field) == 'or' || strtolower($field) == 'and'))) {
                 $keyword = strtolower($field) == 'or' ? " OR " : " AND ";
 
                 if (!is_array($condition)) {
@@ -72,7 +72,7 @@ class DBHelper {
 
             $special_conditions = ['or', 'and'];
             if (!($split[1] ?? false)) {
-                if (in_array(strtolower($condition), $special_conditions)) {
+                if (is_string($condition) && in_array(strtolower($condition), $special_conditions)) {
                     $comp = "";
                 } else {
                     $comp = "=";
@@ -80,7 +80,7 @@ class DBHelper {
             } else {
                 $comp = trim($split[1] ?? '=');
                 $comp_whitelist = ['=', '>=', '<=', '>', '<', '!=', 'in', 'not in', 'is null', 'is not null'];
-                if (!in_array(strtolower($comp), $comp_whitelist)) {
+                if (!is_string($comp) && !in_array(strtolower($comp), $comp_whitelist)) {
                     throw new \InvalidArgumentException('unknown sql comparison "' . htmlspecialchars($comp) . '"');
                 }
             }
