@@ -8,7 +8,7 @@
         }
     ],
     "scripts": {
-        "zip": "zip -r yuoshi.zip controllers dist sql src vendor views Yuoshi.php plugin.manifest"
+        "zip": "zip -r yuoshi.zip migrations controllers dist sql src vendor views Yuoshi.php plugin.manifest"
     },
     "autoload": {
         "psr-4": {
