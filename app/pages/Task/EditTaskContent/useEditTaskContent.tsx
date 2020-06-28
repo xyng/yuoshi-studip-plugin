@@ -1,3 +1,4 @@
+import React, { createContext, useContext } from "react"
 import { ChangeEventHandler, useCallback, useEffect, useState } from "react"
 
 import {
@@ -61,7 +62,31 @@ function handleChangeEvent(element: Element) {
     }
 }
 
+const EditTaskContext = createContext<ReturnType<typeof useEditTask> | null>(
+    null
+)
+
+export const EditTaskContentProvider: React.FC = ({ children }) => {
+    const value = useEditTask()
+
+    return (
+        <EditTaskContext.Provider value={value}>
+            {children}
+        </EditTaskContext.Provider>
+    )
+}
+
 export const useEditTaskContext = () => {
+    const ctx = useContext(EditTaskContext)
+
+    if (ctx === null) {
+        throw new Error("No EditTaskContextProvider available.")
+    }
+
+    return ctx
+}
+
+const useEditTask = () => {
     const { task, updateTask } = useCurrentTaskContext()
     const [contents, setContents] = useState<QuizContent[]>([])
     const [isSaving, setIsSaving] = useState(false)
