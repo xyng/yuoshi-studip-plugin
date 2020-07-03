@@ -168,5 +168,5 @@ class PackagesController extends JsonApiController
         }
 
         return $validator;
-    }
+    }    
 }

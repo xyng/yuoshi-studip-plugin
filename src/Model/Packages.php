@@ -28,7 +28,9 @@ class Packages extends BaseModel {
         $config['has_many']['tasks'] = [
             'class_name' => Tasks::class,
             'assoc_func' => 'findByPackage_id',
+            'assoc_foreign_key' => 'package_id',
             'on_delete' => true,
+            'on_store' => true,
         ];
 
         $config['belongs_to']['course'] = [
