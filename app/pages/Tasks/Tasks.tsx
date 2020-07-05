@@ -53,6 +53,56 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="create">
                 Neue Aufgabe
             </Link>
+            <button
+                className="button"
+                onClick={() => {
+                    // generate export url
+                    const url = new URL(window.location.href)
+                    url.search = ""
+                    url.hash = ""
+                    url.pathname =
+                        "plugins.php/argonautsplugin/packages/export/" +
+                        currentPackage.getApiId()
+
+                    // create xhr request
+                    var xhr = new XMLHttpRequest()
+                    xhr.open("GET", url.href)
+                    xhr.withCredentials = true
+
+                    // handle response from xhr request
+                    xhr.onreadystatechange = function () {
+                        // check response status
+                        if (this.readyState === 4 && this.status === 200) {
+                            // get json from responseText
+                            let json = JSON.parse(this.responseText)
+                            let filename = json.package.title
+
+                            // generate downloadable blob from json
+                            let blob = new Blob([JSON.stringify(json)], {
+                                type: "application/json",
+                            })
+                            // create temporary download anchor
+                            let a = document.createElement("a")
+                            document.body.append(a)
+                            // set download url
+                            let url = window.URL.createObjectURL(blob)
+                            a.href = url
+                            // set filename
+                            a.download = filename + ".json"
+                            // start download
+                            a.click()
+
+                            // remove download anchor
+                            document.body.removeChild(a)
+                            window.URL.revokeObjectURL(url)
+                        }
+                    }
+                    // send actual download request
+                    xhr.send("")
+                }}
+            >
+                Paket exportieren
+            </button>
             <table className="default">
                 <caption>Aufgaben</caption>
                 <thead>
