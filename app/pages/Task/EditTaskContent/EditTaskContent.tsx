@@ -3,6 +3,8 @@ import { Link, RouteComponentProps } from "@reach/router"
 import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
 import { useCurrentTaskContext } from "contexts/CurrentTaskContext"
 
+import { EditTaskContentProvider } from "./useEditTaskContent"
+
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
 const EditQuizContent = React.lazy(() =>
@@ -57,7 +59,9 @@ const EditTaskContent: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="../../">
                 Zurück
             </Link>
-            <RenderTaskViews />
+            <EditTaskContentProvider>
+                <RenderTaskViews />
+            </EditTaskContentProvider>
         </div>
     )
 }

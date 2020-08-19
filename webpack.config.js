@@ -107,10 +107,11 @@ module.exports = {
             filename: 'css/[name].[hash].css',
             chunkFilename: 'css/[id].[hash].css',
         }),
-        new EnvironmentPlugin([
-            'NODE_ENV',
-            'PLUGIN_URL_PATH'
-        ]),
+        new EnvironmentPlugin({
+            'NODE_ENV': process.env.NODE_ENV,
+            'PLUGIN_PATH': env.PLUGIN_PATH,
+            'API_PATH': env.API_PATH,
+        }),
     ],
     devtool: "source-map",
     watch: !prod,
