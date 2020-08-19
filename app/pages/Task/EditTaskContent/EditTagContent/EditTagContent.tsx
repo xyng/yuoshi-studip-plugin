@@ -11,6 +11,7 @@ import { findOrFail } from "../../../../helpers/listHelpers"
 import TextArea from "../../../../components/Form/Textarea"
 import { useEditTaskContext } from "../useEditTaskContent"
 import Styles from "../EditQuizContent/EditQuizContent.module.css"
+import QuillInput from "../../../../components/Form/QuillInput"
 
 const TagContentSchema = Yup.object().shape({
     contents: Yup.array().of(
@@ -136,7 +137,7 @@ const EditTagContent: EditTaskContentView = () => {
             onSubmit={onSubmit}
             className="default"
         >
-            <h1>Memory Aufgabe: {task.getTitle()}</h1>
+            <h1>Tag Aufgabe: {task.getTitle()}</h1>
 
             <Button type="submit">Speichern</Button>
 
@@ -177,10 +178,7 @@ const EditTagContent: EditTaskContentView = () => {
                                 name={`${contentPath}.title`}
                                 type="text"
                             />
-                            <TextArea
-                                label="Text"
-                                name={`${contentPath}.content`}
-                            />
+                            <QuillInput name={`${contentPath}.content`} />
 
                             {/* content always has at least one quest (probably exactly one */}
                             <Button onClick={createTag(content.id)}>
