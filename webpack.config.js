@@ -109,7 +109,8 @@ module.exports = {
         }),
         new EnvironmentPlugin([
             'NODE_ENV',
-            'PLUGIN_URL_PATH'
+            'PLUGIN_PATH',
+            'API_PATH',
         ]),
     ],
     devtool: "source-map",

@@ -8,7 +8,7 @@ export abstract class AppModel<T extends {}> extends Model {
         const url = new URL(window.location.href)
         url.search = ""
         url.hash = ""
-        url.pathname = "plugins.php/argonautsplugin"
+        url.pathname = process.env.API_PATH
 
         return url.href
     }
