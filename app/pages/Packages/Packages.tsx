@@ -191,7 +191,7 @@ const RenderPackageTableData: React.FC = () => {
                             )}
                         </td>
                         <td>
-                            <Link to={`${packageItem.getApiId()}/tasks`}>
+                            <Link to={`${packageItem.getApiId()}/edit`}>
                                 {packageItem.getTitle()}
                             </Link>
                         </td>
@@ -209,9 +209,9 @@ const RenderPackageTableData: React.FC = () => {
                         <td>
                             <Link
                                 className="button"
-                                to={`${packageItem.getApiId()}/edit`}
+                                to={`${packageItem.getApiId()}/tasks`}
                             >
-                                Bearbeiten
+                                Aufgaben bearbeiten
                             </Link>
                             <button
                                 className="button"
