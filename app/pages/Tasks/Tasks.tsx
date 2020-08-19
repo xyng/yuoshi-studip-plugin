@@ -190,17 +190,15 @@ const RenderTaskTableContent: React.FC = () => {
                                     </>
                                 )}
                             </td>
-                            <td>{task.getTitle()}</td>
+                            <td>
+                                <Link to={`${task.getApiId()}/meta`}>
+                                    {task.getTitle()}
+                                </Link>
+                            </td>
                             <td>{Task.taskTypes[task.getType()]}</td>
                             <td>{task.getCredits()}</td>
                             <td>{task.getModified().toLocaleString()}</td>
                             <td>
-                                <Link
-                                    className="button"
-                                    to={`${task.getApiId()}/meta`}
-                                >
-                                    Metadaten Bearbeiten
-                                </Link>
                                 <Link
                                     className="button"
                                     to={`${task.getApiId()}/edit`}
