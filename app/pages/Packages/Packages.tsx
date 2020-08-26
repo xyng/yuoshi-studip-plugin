@@ -93,8 +93,14 @@ const RenderPackageTableData: React.FC = () => {
                 return
             }
 
-            await entity.delete()
-            await reloadPackages()
+            if (
+                window.confirm(
+                    "Möchten Sie wirklich das Paket wirklich löschen?"
+                )
+            ) {
+                await entity.delete()
+                await reloadPackages()
+            }
         },
         [packages, reloadPackages]
     )

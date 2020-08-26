@@ -97,9 +97,14 @@ const RenderTaskTableContent: React.FC = () => {
             if (!entity) {
                 return
             }
-
-            await entity.delete()
-            await reloadTasks()
+            if (
+                window.confirm(
+                    "Möchten Sie wirklich die Aufgabe wirklich löschen?"
+                )
+            ) {
+                await entity.delete()
+                await reloadTasks()
+            }
         },
         [tasks, reloadTasks]
     )
@@ -203,7 +208,7 @@ const RenderTaskTableContent: React.FC = () => {
                                     className="button"
                                     to={`${task.getApiId()}/edit`}
                                 >
-                                    Inhalte bearbeiten
+                                    Aufgabe bearbeiten
                                 </Link>
                                 <button
                                     className="button"
