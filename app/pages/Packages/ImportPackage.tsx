@@ -6,7 +6,7 @@ import { useCourseContext } from "../../contexts/CourseContext"
 
 import PackageForm, { PackageFormSubmitHandler } from "./PackageForm"
 
-const CreatePackage: React.FC<RouteComponentProps> = () => {
+const ImportPackage: React.FC<RouteComponentProps> = () => {
     const { course } = useCourseContext()
     const { reloadPackages } = usePackagesContext()
 
@@ -82,4 +82,4 @@ const CreatePackage: React.FC<RouteComponentProps> = () => {
     )
 }
 
-export default CreatePackage
+export default ImportPackage
