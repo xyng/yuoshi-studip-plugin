@@ -12,6 +12,7 @@ import Button from "../../components/Button/Button"
 
 import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
+import ImportPackage from "./ImportPackage"
 
 const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
@@ -21,6 +22,7 @@ const Packages: React.FC<RouteComponentProps> = () => {
             <Router basepath="/packages">
                 <PackagesIndex path="/" />
                 <CreatePackage path="create" />
+                <ImportPackage path="import" />
                 <PackageSubRoute path=":packageId/*" />
             </Router>
         </PackagesContextProvider>
@@ -48,6 +50,9 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
             </Link>
             <Link className="button" to="create">
                 Neues Paket
+            </Link>
+            <Link className="button" to="import">
+                Paket importieren
             </Link>
             <table className="default">
                 <caption>Pakete</caption>
