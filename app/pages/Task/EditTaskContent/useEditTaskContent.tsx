@@ -416,9 +416,7 @@ const useEditTask = () => {
                 return
             }
 
-            if (window.confirm("Wollen sie diesen Inhalt wirklich löschen?")) {
-                setContents(removeEntity(id))
-            }
+            setContents(removeEntity(id))
         },
         [isSaving]
     )

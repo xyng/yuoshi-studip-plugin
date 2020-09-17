@@ -8,6 +8,7 @@ import { useTasksContext } from "../../contexts/TasksContext"
 import TaskForm, { TaskFormSubmitHandler } from "./TaskForm"
 
 const CreateTask: React.FC<RouteComponentProps> = (props) => {
+    const { navigate } = props
     const { currentPackage } = useCurrentPackageContext()
     const { reloadTasks } = useTasksContext()
 
@@ -24,8 +25,8 @@ const CreateTask: React.FC<RouteComponentProps> = (props) => {
 
             await reloadTasks()
 
-            if (props !== undefined && props.navigate !== undefined) {
-                props.navigate("../" + task.getApiId() + "/edit")
+            if (props !== undefined && navigate !== undefined) {
+                navigate("../" + task.getApiId() + "/edit")
             }
         },
         [reloadTasks, currentPackage]

@@ -97,14 +97,9 @@ const RenderTaskTableContent: React.FC = () => {
             if (!entity) {
                 return
             }
-            if (
-                window.confirm(
-                    "Möchten Sie wirklich die Aufgabe wirklich löschen?"
-                )
-            ) {
-                await entity.delete()
-                await reloadTasks()
-            }
+
+            await entity.delete()
+            await reloadTasks()
         },
         [tasks, reloadTasks]
     )
