@@ -162,7 +162,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     /**
      * @inheritDoc
      */
-    public function registerSchemas()
+    public function registerSchemas(): array
     {
         return [
             \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Api\Schema\UserPackageProgress::class,

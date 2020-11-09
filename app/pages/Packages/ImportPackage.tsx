@@ -14,47 +14,58 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
 
     const onSubmit = useCallback<PackageFormSubmitHandler>(
         async (values) => {
-            if (json === null) {
+            if (!json) {
                 return
             }
-            // Cause WHY WOULD THAT BE NULL!
-            let newJson: any = json
-            newJson.package.title = values.title
-            newJson.package.slug = values.slug
 
+            // create API url
             const url = new URL(window.location.href)
             url.search = ""
             url.hash = ""
-            url.pathname =
-                "plugins.php/argonautsplugin/packages/import/" +
-                course.getApiId()
+            url.pathname = "jsonapi.php/v1/packages/import/" + course.getApiId()
 
-            console.log(url.href)
-            let xhr = new XMLHttpRequest()
-            xhr.open("POST", url.href)
-            xhr.withCredentials = true
+            // create formData object and its content
+            const newJson: any = json
+            newJson.package.title = values.title
+            newJson.package.slug = values.slug
 
-            xhr.onreadystatechange = function () {
-                if (this.readyState === 4) {
-                    if (this.status === 200) {
-                        console.log("OK")
-                    }
-                }
-            }
-
-            let blob = new Blob([JSON.stringify(newJson)], {
+            const blob = new Blob([JSON.stringify(newJson)], {
                 type: "application/json",
             })
-
-            let formData = new FormData()
+            const formData = new FormData()
             formData.append("file", blob)
 
-            xhr.send(formData)
+            // post formData to server
+            console.log("testy")
+
+            try {
+                const res = await fetch(url.href, {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData,
+                })
+                if (res.status >= 400) {
+                    console.log(res.status)
+                }
+            } catch (e) {
+                console.log(e)
+            }
+
+            // wenn response-body benötigt wird
+            // await res.json() // oder .text() wenn es plaintext-inhalt ist
 
             await reloadPackages()
         },
         [course, json, reloadPackages]
     )
+
+    const onChange = useCallback(async (event) => {
+        const reader = new FileReader()
+        reader.onload = (event: any) => {
+            setJson(JSON.parse(event.target.result))
+        }
+        reader.readAsText(event.target.files[0])
+    }, [])
 
     return (
         <>
@@ -67,14 +78,7 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
                 type="file"
                 id="fileUpload"
                 accept="application/json"
-                onChange={function (e: any) {
-                    let reader = new FileReader()
-                    reader.onload = (e: any) => {
-                        let json = JSON.parse(e.target.result)
-                        setJson(json)
-                    }
-                    reader.readAsText(e.target.files[0])
-                }}
+                onChange={onChange}
             />
 
             <PackageForm onSubmit={onSubmit} />
