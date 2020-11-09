@@ -2,6 +2,7 @@
 
 use JsonApi\Contracts\JsonApiPlugin;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
+use Xyng\Yuoshi\Api\Controller\PackageImportController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestsController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestSolutionsController;
@@ -92,6 +93,8 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
 
         $app->get('/packages', PackagesController::class . ':index');
         $app->post('/packages', PackagesController::class . ':create');
+        $app->get('/packages/export/{package_id}', PackageImportController::class . ':export');
+        $app->post('/packages/import/{course_id}', PackageImportController::class . ':import');
         $app->get('/packages/{id}', PackagesController::class . ':show');
         $app->patch('/packages/{id}', PackagesController::class . ':update');
         $app->delete('/packages/{package_id}', PackagesController::class . ':delete');

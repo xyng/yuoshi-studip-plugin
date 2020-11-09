@@ -1,157 +1,71 @@
-import React, { ChangeEventHandler, useCallback } from "react"
-import { Link, RouteComponentProps } from "@reach/router"
-import { Model } from "coloquent"
-import { NSTaskAdapter } from "@xyng/yuoshi-backend-adapter"
+import React, { useCallback, useState } from "react"
+import { RouteComponentProps, Link } from "@reach/router"
 
-import Package from "../../models/Package"
-import Task from "../../models/Task"
-import Content from "../../models/Content"
 import { usePackagesContext } from "../../contexts/PackagesContext"
 import { useCourseContext } from "../../contexts/CourseContext"
-import contentTransform from "../../helpers/importContentTransformers"
-import TaskTypeName = NSTaskAdapter.TaskTypeName
 
-async function saveAndGetModelOrFail<T extends Model>(model: T): Promise<T> {
-    const res = (await model.save()).getModel() as T | null
-
-    if (!res) {
-        throw new Error("could not save model.")
-    }
-
-    return res
-}
-
-function getTaskType(type: string): TaskTypeName {
-    switch (type) {
-        case "multi":
-            return TaskTypeName.MULTI
-        case "memory":
-            return TaskTypeName.MEMORY
-        case "drag":
-            return TaskTypeName.DRAG
-        case "cloze":
-            return TaskTypeName.CLOZE
-        case "tag":
-            return TaskTypeName.TAG
-
-        // TODO: add missing types
-
-        default:
-            throw new Error(`unknown task type: ${type}`)
-    }
-}
-
-async function createTasks(tasks: any[], currentPackage: Package) {
-    return Promise.all(
-        tasks.map(async (data: any) => {
-            const task = new Task()
-            task.patch(data)
-
-            // disable description for now as it may be too long for database
-            task.patch({
-                description: "",
-            })
-            task.setPackage(currentPackage)
-
-            const savedTask = await saveAndGetModelOrFail(task)
-
-            const taskType = getTaskType(data.kind)
-            const savedContents = contentTransform[taskType](data).map(
-                (content) => {
-                    content.setTask(savedTask)
-
-                    return saveContentWithRelations(content)
-                }
-            )
-
-            task.setContents(await Promise.all(savedContents))
-
-            return savedTask
-        })
-    )
-}
-
-const saveContentWithRelations = async (content: Content): Promise<Content> => {
-    const savedContent = await saveAndGetModelOrFail(content)
-
-    const savedQuests = content.getQuests().map(async (quest) => {
-        quest.setContent(savedContent)
-        const savedQuest = await saveAndGetModelOrFail(quest)
-
-        savedQuest.setAnswers(
-            await Promise.all(
-                quest.getAnswers().map((answer) => {
-                    answer.setQuest(savedQuest)
-
-                    return saveAndGetModelOrFail(answer)
-                })
-            )
-        )
-
-        return savedQuest
-    })
-    savedContent.setQuests(await Promise.all(savedQuests))
-
-    return savedContent
-}
+import PackageForm, { PackageFormSubmitHandler } from "./PackageForm"
 
 const ImportPackage: React.FC<RouteComponentProps> = () => {
-    const { mutate: mutatePackages } = usePackagesContext()
     const { course } = useCourseContext()
+    const { reloadPackages } = usePackagesContext()
 
-    const createPackage = useCallback(
-        async function (title: string, slug: string) {
-            const values = { title, slug }
+    const [json, setJson] = useState(null)
 
-            const newPackage = new Package()
-            newPackage.patch(values)
-            newPackage.setCourse(course)
+    const onSubmit = useCallback<PackageFormSubmitHandler>(
+        async (values) => {
+            if (!json) {
+                return
+            }
 
-            const savedPackage = await saveAndGetModelOrFail(newPackage)
+            // create API url
+            const url = new URL(window.location.href)
+            url.search = ""
+            url.hash = ""
+            url.pathname = "jsonapi.php/v1/packages/import/" + course.getApiId()
 
-            await mutatePackages((packages) => {
-                return [...packages, savedPackage]
+            // create formData object and its content
+            const newJson: any = json
+            newJson.package.title = values.title
+            newJson.package.slug = values.slug
+
+            const blob = new Blob([JSON.stringify(newJson)], {
+                type: "application/json",
             })
+            const formData = new FormData()
+            formData.append("file", blob)
 
-            return savedPackage
-        },
-        [course, mutatePackages]
-    )
+            // post formData to server
+            console.log("testy")
 
-    const onImport = useCallback<ChangeEventHandler<HTMLInputElement>>(
-        async function (e) {
-            if (e.target.files == null) {
-                return false
-            }
-
-            for (const file of e.target.files) {
-                const fileContent = new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader()
-
-                    reader.onload = (event) => {
-                        resolve((event.target?.result || "") as string)
-                    }
-                    reader.onerror = reject
-                    reader.onabort = reject
-
-                    reader.readAsText(file)
+            try {
+                const res = await fetch(url.href, {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData,
                 })
-
-                const json = JSON.parse(await fileContent)
-
-                const title = json.tasks[0].package
-                const packageItem = await createPackage(
-                    title,
-                    title.toLowerCase()
-                )
-
-                // we don't have to update the tasks cache as
-                // that cannot exist for tasks of a new package.
-                await createTasks(json.tasks, packageItem)
+                if (res.status >= 400) {
+                    console.log(res.status)
+                }
+            } catch (e) {
+                console.log(e)
             }
+
+            // wenn response-body benötigt wird
+            // await res.json() // oder .text() wenn es plaintext-inhalt ist
+
+            await reloadPackages()
         },
-        [createPackage]
+        [course, json, reloadPackages]
     )
+
+    const onChange = useCallback(async (event) => {
+        const reader = new FileReader()
+        reader.onload = (event: any) => {
+            setJson(JSON.parse(event.target.result))
+        }
+        reader.readAsText(event.target.files[0])
+    }, [])
 
     return (
         <>
@@ -159,12 +73,15 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
                 Zurück
             </Link>
             <h1>Neues Paket</h1>
+
             <input
-                className="button"
                 type="file"
-                onChange={onImport}
-                multiple
+                id="fileUpload"
+                accept="application/json"
+                onChange={onChange}
             />
+
+            <PackageForm onSubmit={onSubmit} />
         </>
     )
 }
