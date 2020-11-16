@@ -1,6 +1,5 @@
 <?php
 
-use JsonApi\Contracts\JsonApiPlugin;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
 use Xyng\Yuoshi\Api\Controller\PackageImportController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
@@ -11,7 +10,7 @@ use Xyng\Yuoshi\Api\Controller\TaskContentSolutionsController;
 use Xyng\Yuoshi\Api\Controller\TasksController;
 use Xyng\Yuoshi\Api\Controller\TaskSolutionsController;
 
-class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonApiPlugin {
+class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     public function __construct() {
         parent::__construct();
 
