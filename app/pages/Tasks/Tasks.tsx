@@ -12,8 +12,8 @@ import CreateTask from "../Task/CreateTask"
 import Task from "../../models/Task"
 import Button from "../../components/Button/Button"
 
-const EditTaskContent = React.lazy(
-    () => import("../Task/EditTaskContent/EditTaskContent")
+const EditTaskContent = React.lazy(() =>
+    import("../Task/EditTaskContent/EditTaskContent")
 )
 
 const Tasks: React.FC<RouteComponentProps> = () => {
