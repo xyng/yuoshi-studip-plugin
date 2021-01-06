@@ -56,6 +56,9 @@ const contentTransform: {
     [TaskTypeName.CARD]: function (content) {
         return []
     },
+    [TaskTypeName.TEXT]: function (content) {
+        return []
+    },
     [TaskTypeName.CLOZE]: function (data) {
         const { content: contents } = data
         if (!(contents instanceof Array)) {

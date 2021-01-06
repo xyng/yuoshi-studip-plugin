@@ -10,9 +10,12 @@ use Xyng\Yuoshi\Api\Controller\TaskContentsController;
 use Xyng\Yuoshi\Api\Controller\TaskContentSolutionsController;
 use Xyng\Yuoshi\Api\Controller\TasksController;
 use Xyng\Yuoshi\Api\Controller\TaskSolutionsController;
+use Xyng\Yuoshi\Api\Controller\StationController;
 
-class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonApiPlugin {
-    public function __construct() {
+class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonApiPlugin
+{
+    public function __construct()
+    {
         parent::__construct();
 
         // Enable this when changing tables.
@@ -36,7 +39,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return object   template object to render or NULL
      */
-    function getInfoTemplate($course_id)
+    public function getInfoTemplate($course_id)
     {
         // TODO: Implement getInfoTemplate() method.
     }
@@ -57,7 +60,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return object   navigation item to render or NULL
      */
-    function getIconNavigation($course_id, $last_visit, $user_id)
+    public function getIconNavigation($course_id, $last_visit, $user_id)
     {
         // TODO: Implement getIconNavigation() method.
     }
@@ -76,7 +79,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return array    navigation item to render or NULL
      */
-    function getTabNavigation($course_id)
+    public function getTabNavigation($course_id)
     {
         return [
             'yuoshi' => new Navigation(_('yUOShi'), PluginEngine::getURL($this, array(), 'index'))
@@ -98,8 +101,14 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/packages/{id}', PackagesController::class . ':show');
         $app->patch('/packages/{id}', PackagesController::class . ':update');
         $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
+
         $app->get('/packages/{id}/tasks', TasksController::class . ':index');
         $app->get('/packages/{id}/nextTask', TasksController::class . ':nextTask');
+
+
+        $app->get('/packages/{id}/stations', PackagesController::class . ':show');
+        $app->get('/stations/{id}/tasks', StationController::class . ':show');
+
 
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
@@ -193,12 +202,14 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $dispatcher->dispatch($unconsumedPath);
     }
 
-    public static function onEnable($pluginId) {
+    public static function onEnable($pluginId)
+    {
         // enable nobody role by default
         \RolePersistence::assignPluginRoles($pluginId, array(7));
     }
 
-    private function loadAssets($keys = []) {
+    private function loadAssets($keys = [])
+    {
         // get webpack manifest
         $path = __DIR__ . DIRECTORY_SEPARATOR . 'dist' . DIRECTORY_SEPARATOR . 'manifest.json';
         $json = file_get_contents($path);

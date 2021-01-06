@@ -21,12 +21,14 @@ use Xyng\Yuoshi\Helper\QueryField;
  *
  * @method static Packages find(string $id)
  */
-class Packages extends BaseModel {
-    protected static function configure($config = []) {
+class Packages extends BaseModel
+{
+    protected static function configure($config = [])
+    {
         $config['db_table'] = 'yuoshi_packages';
 
-        $config['has_many']['tasks'] = [
-            'class_name' => Tasks::class,
+        $config['has_many']['stations'] = [
+            'class_name' => Stations::class,
             'assoc_func' => 'findByPackage_id',
             'assoc_foreign_key' => 'package_id',
             'on_delete' => true,
