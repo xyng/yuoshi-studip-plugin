@@ -38,6 +38,7 @@ export default class Task extends AppModelWithDate<Attributes> {
         [TaskTypeName.SURVEY]: "Umfrage",
         [TaskTypeName.TAG]: "Text markieren",
         [TaskTypeName.TRAINING]: "Quiz",
+        [TaskTypeName.TEXT]: "Text",
     }
 
     public getTitle(): string {

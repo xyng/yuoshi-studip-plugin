@@ -236,6 +236,9 @@ const contentTransform: {
     [TaskTypeName.TRAINING]: function (content) {
         return []
     },
+    [TaskTypeName.TEXT]: function (content) {
+        return []
+    },
 }
 
 export default contentTransform
