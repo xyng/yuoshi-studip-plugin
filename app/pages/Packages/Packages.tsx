@@ -14,7 +14,7 @@ import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
 import ImportPackage from "./ImportPackage"
 
-const Tasks = React.lazy(() => import("../Tasks/Tasks"))
+const Station = React.lazy(() => import("../Stations/Station"))
 
 const Packages: React.FC<RouteComponentProps> = () => {
     return (
@@ -32,11 +32,13 @@ const Packages: React.FC<RouteComponentProps> = () => {
 const PackageSubRoute: React.FC<RouteComponentProps<{
     packageId: string
 }>> = ({ packageId }) => {
+    console.log("ever")
+
     return (
         <CurrentPackageContextProvider currentPackage={packageId}>
             <Router>
                 <EditPackage path="edit" />
-                <Tasks path="tasks/*" />
+                <Station path="stations/*" />
             </Router>
         </CurrentPackageContextProvider>
     )
@@ -196,7 +198,7 @@ const RenderPackageTableData: React.FC = () => {
                             )}
                         </td>
                         <td>
-                            <Link to={`${packageItem.getApiId()}/tasks`}>
+                            <Link to={`${packageItem.getApiId()}/stations`}>
                                 {packageItem.getTitle()}
                             </Link>
                         </td>

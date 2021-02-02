@@ -23,7 +23,7 @@ class StationController extends JsonApiController
 {
     use ValidationTrait;
 
-    protected $allowedFilteringParameters = ['station', 'sort'];
+    protected $allowedFilteringParameters = ['package', 'sort'];
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
 
@@ -33,7 +33,7 @@ class StationController extends JsonApiController
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
         if (!$station_id) {
-            $station_id = $filters['course'] ?? null;
+            $station_id = $filters['package'] ?? null;
         }
 
         $conditions = [];

@@ -17,7 +17,7 @@ export default class Station extends AppModelWithDate<Attributes> {
         "slug",
         "sort",
     ]
-    protected jsonApiType: string = "packages"
+    protected jsonApiType: string = "stations"
 
     getTitle(): string {
         return this.getAttribute("title")

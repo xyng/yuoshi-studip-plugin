@@ -27,10 +27,12 @@ class PackagesController extends JsonApiController
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $course_id = $args['id'] ?? null;
-
+       
         $filters = $this->getQueryParameters()->getFilteringParameters();
+  
         if (!$course_id) {
             $course_id = $filters['course'] ?? null;
         }
@@ -54,7 +56,8 @@ class PackagesController extends JsonApiController
         );
     }
 
-    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $id = $args['id'] ?? null;
 
         if (!$id) {
@@ -72,7 +75,8 @@ class PackagesController extends JsonApiController
         return $this->getContentResponse($package);
     }
 
-    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
         $attributes = $data->getAttributes(['title', 'slug', 'sort']);
@@ -99,7 +103,8 @@ class PackagesController extends JsonApiController
         return $this->getContentResponse($package);
     }
 
-    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $package_id = $args['id'] ?? null;
 
         if ($package_id === null) {
@@ -136,7 +141,8 @@ class PackagesController extends JsonApiController
         return $this->getContentResponse($package);
     }
 
-    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $package_id = $args['package_id'] ?? null;
 
         if (!$package_id) {
@@ -168,5 +174,5 @@ class PackagesController extends JsonApiController
         }
 
         return $validator;
-    }    
+    }
 }

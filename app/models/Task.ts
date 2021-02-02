@@ -3,6 +3,7 @@ import { ToManyRelation, ToOneRelation } from "coloquent"
 
 import { AppModelWithDate } from "./AppModel"
 import Package from "./Package"
+import Station from "./Station"
 import Content from "./Content"
 import TaskTypeName = NSTaskAdapter.TaskTypeName
 
@@ -103,6 +104,14 @@ export default class Task extends AppModelWithDate<Attributes> {
 
     public package(): ToOneRelation {
         return this.hasOne(Package, "package")
+    }
+
+    public setStation(station: Station) {
+        return this.setRelation("station", station)
+    }
+
+    public station(): ToOneRelation {
+        return this.hasOne(Station, "station")
     }
 
     public contents(): ToManyRelation {

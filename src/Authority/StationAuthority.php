@@ -5,28 +5,28 @@ use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
-use Xyng\Yuoshi\Model\Packages;
+use Xyng\Yuoshi\Model\Stations;
 
-class PackageAuthority implements AuthorityInterface
+class StationAuthority implements AuthorityInterface
 {
-    public static function canEditPackage(User $user, Stations $station)
+    public static function canEditStation(User $user, Station $station)
     {
         return $GLOBALS['perm']->have_studip_perm('dozent', $station->course_id, $user->id);
     }
 
-    public static function canSeePackage(User $user, Stations $station)
+    public static function canSeeStation(User $user, Station $station)
     {
         return $GLOBALS['perm']->have_studip_perm('user', $station->station_id, $user->id);
     }
 
-    public static function filterByUsersCourses()
+    public static function filterByUsersPackages()
     {
         return "INNER JOIN seminar_user on (seminar_user.Seminar_id = yuoshi_stations.package_id and seminar_user.user_id = :user_id)";
     }
 
     public static function getFilter(): string
     {
-        return static::filterByUsersCourses();
+        return static::filterByUsersPackages();
     }
 
     /**
