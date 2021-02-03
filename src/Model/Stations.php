@@ -47,12 +47,12 @@ class Stations extends BaseModel
     // TODO: check in db if this package is playable by user.
     public $playable = true;
 
-    public static function nextSort(string $course_id)
+    public static function nextSort(string $package_id)
     {
         $db_table = static::config('db_table');
-        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `course_id` = :courseId GROUP BY `coursE_id`");
+        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `package_id` = :packageId GROUP BY `package_id`");
         $maxSortStmt->execute([
-            'courseId' => $course_id,
+            'packageId' => $package_id,
         ]);
 
         $maxSort = $maxSortStmt->fetch();

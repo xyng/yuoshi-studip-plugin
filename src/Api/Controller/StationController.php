@@ -29,11 +29,11 @@ class StationController extends JsonApiController
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $station_id = $args['id'] ?? null;
+        $package_id = $args['id'] ?? null;
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
-        if (!$station_id) {
-            $station_id = $filters['package'] ?? null;
+        if (!$package_id) {
+            $package_id = $filters['package'] ?? null;
         }
 
         $conditions = [];
@@ -42,10 +42,11 @@ class StationController extends JsonApiController
         }
 
         $user = $this->getUser($request);
-        $stations = StationAuthority::findFiltered([$course_id], $user, [], [
+        $stations = StationAuthority::findFiltered([$package_id], $user, [], [
             'conditions' => $conditions,
             'order' => 'yuoshi_stations.sort ASC'
         ]);
+
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 

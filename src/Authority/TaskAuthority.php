@@ -10,8 +10,9 @@ class TaskAuthority implements AuthorityInterface
 {
     public static function filterByUsersPackages(): string
     {
-        $packageJoin = PackageAuthority::filterByUsersCourses();
-        return "INNER JOIN yuoshi_packages on (yuoshi_stations.id = yuoshi_tasks.station_id) " . $packageJoin;
+        $stationJoin = StationAuthority::filterByUsersPackages();
+        
+        return "INNER JOIN yuoshi_stations on (yuoshi_stations.id = yuoshi_tasks.station_id) " . $stationJoin;
     }
 
     public static function getFilter(): string

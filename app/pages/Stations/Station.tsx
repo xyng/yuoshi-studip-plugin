@@ -1,7 +1,10 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
-import { CurrentPackageContextProvider } from "../../contexts/CurrentPackageContext"
+import {
+    CurrentPackageContextProvider,
+    useCurrentPackageContext,
+} from "../../contexts/CurrentPackageContext"
 import {
     StationContextProvider,
     useStationContext,
@@ -39,6 +42,8 @@ const StationSubRoute: React.FC<RouteComponentProps<{
 }
 
 const StationsIndex: React.FC<RouteComponentProps> = () => {
+    const { currentPackage } = useCurrentPackageContext()
+
     return (
         <>
             <Link className="button" to="/">
@@ -157,10 +162,10 @@ const RenderStationTableData: React.FC = () => {
         },
         [moveStation]
     )
-    console.log(station)
 
     return (
         <>
+            <p> yo</p>
             {station.map((stationItem) => {
                 return (
                     <tr key={stationItem.getApiId()}>

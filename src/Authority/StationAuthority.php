@@ -21,7 +21,8 @@ class StationAuthority implements AuthorityInterface
 
     public static function filterByUsersPackages()
     {
-        return "INNER JOIN seminar_user on (seminar_user.Seminar_id = yuoshi_stations.package_id and seminar_user.user_id = :user_id)";
+        $packageJoin = PackageAuthority::filterByUsersCourses();
+        return "INNER JOIN yuoshi_packages on (yuoshi_packages.id = yuoshi_stations.package_id) " . $packageJoin;
     }
 
     public static function getFilter(): string
@@ -32,12 +33,24 @@ class StationAuthority implements AuthorityInterface
     /**
      * @inheritDoc
      */
+    // public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
+    // {
+    //     return Stations::findWithQuery(
+    //         AuthorityHelper::getFilterQuery(static::getFilter(), 'seminar_user.Seminar_id', $ids, $user, $perms, $conditions)
+    //     );
+    // }
+
+
+    /**
+     * @inheritDoc
+     */
     public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return Stations::findWithQuery(
-            AuthorityHelper::getFilterQuery(static::getFilter(), 'seminar_user.Seminar_id', $ids, $user, $perms, $conditions)
+            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_stations.package_id', $ids, $user, $perms, $conditions)
         );
     }
+
 
     /**
      * @inheritDoc
