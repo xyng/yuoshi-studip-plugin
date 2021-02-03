@@ -1,10 +1,7 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
-import {
-    CurrentPackageContextProvider,
-    useCurrentPackageContext,
-} from "../../contexts/CurrentPackageContext"
+import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
 import {
     StationContextProvider,
     useStationContext,
@@ -18,7 +15,7 @@ const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 const Stations: React.FC<RouteComponentProps> = () => {
     return (
         <StationContextProvider>
-            <Router basepath="/station">
+            <Router>
                 <StationsIndex path="/" />
                 {/* <CreatePackage path="create" />
                 <ImportPackage path="import" /> */}
@@ -32,17 +29,17 @@ const StationSubRoute: React.FC<RouteComponentProps<{
     stationId: string
 }>> = ({ stationId }) => {
     return (
-        <CurrentPackageContextProvider currentPackage={stationId}>
+        <CurrentStationContextProvider stationId={stationId}>
             <Router>
                 {/* <EditPackage path="edit" /> */}
                 <Tasks path="tasks/*" />
             </Router>
-        </CurrentPackageContextProvider>
+        </CurrentStationContextProvider>
     )
 }
 
 const StationsIndex: React.FC<RouteComponentProps> = () => {
-    const { currentPackage } = useCurrentPackageContext()
+    console.log("aaa")
 
     return (
         <>
@@ -165,7 +162,6 @@ const RenderStationTableData: React.FC = () => {
 
     return (
         <>
-            <p> yo</p>
             {station.map((stationItem) => {
                 return (
                     <tr key={stationItem.getApiId()}>

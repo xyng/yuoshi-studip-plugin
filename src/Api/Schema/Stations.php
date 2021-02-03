@@ -52,20 +52,7 @@ class Stations extends SchemaProvider
             $tasks = $resource->tasks;
         }
 
-        $packageTotalProgress = null;
-        if ($includeRelationships['packageTotalProgress']) {
-            /** @var User $user */
-            $user = $this->getDiContainer()->get('studip-current-user');
-            $packageTotalProgress = $resource->getProgress($user, false);
-        }
-
-        $packageUserProgress = null;
-        if ($includeRelationships['packageUserProgress']) {
-            /** @var User $user */
-            $user = $this->getDiContainer()->get('studip-current-user');
-            $packageUserProgress = $resource->getProgress($user, true);
-        }
-
+    
         return [
             'tasks' => [
                 self::DATA => $tasks,
@@ -73,12 +60,6 @@ class Stations extends SchemaProvider
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'tasks')
                 ],
-            ],
-            'packageUserProgress' => [
-                self::DATA => $packageUserProgress,
-            ],
-            'packageTotalProgress' => [
-                self::DATA => $packageTotalProgress,
             ]
         ];
     }

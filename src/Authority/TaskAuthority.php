@@ -26,7 +26,7 @@ class TaskAuthority implements AuthorityInterface
     public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return Tasks::findWithQuery(
-            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_packages.id', $ids, $user, $perms, $conditions)
+            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_stations.id', $ids, $user, $perms, $conditions)
         );
     }
 

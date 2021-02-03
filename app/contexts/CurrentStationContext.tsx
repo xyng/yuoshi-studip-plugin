@@ -25,7 +25,7 @@ export const useCurrentStationContext = () => {
 
 const fetchStation = async (stationId: string) => {
     const station = (
-        await Station.with("contents.quests.answers").find(stationId)
+        await Station.with("station").find(stationId)
     ).getData() as Station | null
 
     if (!station) {

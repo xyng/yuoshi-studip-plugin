@@ -23,9 +23,9 @@ class StationController extends JsonApiController
 {
     use ValidationTrait;
 
-    protected $allowedFilteringParameters = ['package', 'sort'];
+    protected $allowedFilteringParameters = ['package', 'sort', 'station'];
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
+    protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user', 'station', 'package'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {

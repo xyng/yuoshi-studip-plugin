@@ -106,6 +106,8 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/packages/{id}/nextTask', TasksController::class . ':nextTask');
 
         $app->get('/stations', StationController::class . ':index');
+        $app->get('/stations/{id}', StationController::class . ':show');
+
         $app->get('/packages/{id}/stations', StationController::class . ':index');
         $app->get('/stations/{id}/tasks', StationController::class . ':show');
 
@@ -176,6 +178,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         return [
             \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Api\Schema\UserPackageProgress::class,
             \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
+            \Xyng\Yuoshi\Model\Stations::class => \Xyng\Yuoshi\Api\Schema\Stations::class,
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,
             \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Api\Schema\Contents::class,
             \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Api\Schema\Quests::class,
