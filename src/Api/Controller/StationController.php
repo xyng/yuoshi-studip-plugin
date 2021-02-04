@@ -1,17 +1,18 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
-use Course;
 use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
-use JsonApi\Routes\Courses\Authority as CourseAuthority;
+// use JsonApi\Routes\Packages\Authority as PackageAuthority;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Valitron\Validator;
 use Xyng\Yuoshi\Authority\StationAuthority;
+use Xyng\Yuoshi\Authority\PackageAuthority;
+
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
@@ -81,20 +82,23 @@ class StationController extends JsonApiController
         $data = new JsonApiDataHelper($validated);
         $attributes = $data->getAttributes(['title', 'slug', 'sort']);
 
-        /** @var Package|null $package */
-        $package = (Package::find($data->id) ?? null);
+        $package_id = $data->getRelation('package')['data']['id'] ?? null;
 
-        if ($course == null) {
+
+        /** @var Package|null $package */
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+
+        if ($package == null) {
             throw new RecordNotFoundException();
         }
 
-        if (!CourseAuthority::canEditCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
+        if (!PackageAuthority::canEditPackage($this->getUser($request), $package)) {
             throw new AuthorizationFailedException();
         }
 
         $station = stations::build($attributes);
-        $station->sort = stations::nextSort($course->id);
-        $station->course_id = $course->id;
+        $station->sort = stations::nextSort($package->id);
+        $station->package_id = $package->id;
 
         if (!$station->store()) {
             throw new InternalServerError("could not save station");
@@ -170,7 +174,7 @@ class StationController extends JsonApiController
 
         if ($new) {
             $validator
-                ->rule('required', 'data.relationships.course.data.id');
+                ->rule('required', 'data.relationships.package.data.id');
         }
 
         return $validator;

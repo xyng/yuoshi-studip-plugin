@@ -17,8 +17,6 @@ const EditTaskContent = React.lazy(() =>
 )
 
 const Tasks: React.FC<RouteComponentProps> = () => {
-    console.log("EVER?????")
-
     return (
         <TasksContextProvider>
             <Router>

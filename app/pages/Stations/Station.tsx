@@ -10,6 +10,8 @@ import Progress from "../../components/Progress/Progress"
 import Station from "../../models/Station"
 import Button from "../../components/Button/Button"
 
+import CreateStation from "./CreateStation"
+
 const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
 const Stations: React.FC<RouteComponentProps> = () => {
@@ -19,6 +21,7 @@ const Stations: React.FC<RouteComponentProps> = () => {
                 <StationsIndex path="/" />
                 {/* <CreatePackage path="create" />
                 <ImportPackage path="import" /> */}
+                <CreateStation path="create" />
                 <StationSubRoute path=":stationId/*" />
             </Router>
         </StationContextProvider>
@@ -32,6 +35,7 @@ const StationSubRoute: React.FC<RouteComponentProps<{
         <CurrentStationContextProvider stationId={stationId}>
             <Router>
                 {/* <EditPackage path="edit" /> */}
+
                 <Tasks path="tasks/*" />
             </Router>
         </CurrentStationContextProvider>
@@ -39,8 +43,6 @@ const StationSubRoute: React.FC<RouteComponentProps<{
 }
 
 const StationsIndex: React.FC<RouteComponentProps> = () => {
-    console.log("aaa")
-
     return (
         <>
             <Link className="button" to="/">
@@ -49,9 +51,7 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="create">
                 Neue Station
             </Link>
-            <Link className="button" to="import">
-                Station importieren
-            </Link>
+
             <table className="default">
                 <caption>Stationen</caption>
                 <thead>

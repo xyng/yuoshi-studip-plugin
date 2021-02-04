@@ -13,7 +13,6 @@ const useGlobalContent = () => {
     const { createContent, contents, setContents } = editTaskContext
 
     useEffect(() => {
-        console.log(contents)
         if (contents.length > 0) {
             return
         }

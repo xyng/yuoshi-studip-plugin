@@ -32,8 +32,6 @@ const Packages: React.FC<RouteComponentProps> = () => {
 const PackageSubRoute: React.FC<RouteComponentProps<{
     packageId: string
 }>> = ({ packageId }) => {
-    console.log("ever")
-
     return (
         <CurrentPackageContextProvider currentPackage={packageId}>
             <Router>

@@ -36,7 +36,6 @@ const ImportPackage: React.FC<RouteComponentProps> = () => {
             formData.append("file", blob)
 
             // post formData to server
-            console.log("testy")
 
             try {
                 const res = await fetch(url.href, {

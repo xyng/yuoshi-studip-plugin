@@ -144,7 +144,7 @@ class TasksController extends JsonApiController
     {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
-
+        
         $station_id = $data->getRelation('station')['data']['id'] ?? null;
 
         if (!$station_id) {
