@@ -90,7 +90,7 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
                 console.log(e)
             }
         },
-        [station]
+        [currentPackage]
     )
 
     return (

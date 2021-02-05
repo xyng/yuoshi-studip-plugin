@@ -32,7 +32,10 @@ const CreateStation: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <Link className="button" to="/stations">
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.getApiId()}/stations`}
+            >
                 Zurück
             </Link>
             <h1>Neue Station</h1>
