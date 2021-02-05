@@ -81,9 +81,7 @@ class StationController extends JsonApiController
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
         $attributes = $data->getAttributes(['title', 'slug', 'sort']);
-
         $package_id = $data->getRelation('package')['data']['id'] ?? null;
-
 
         /** @var Package|null $package */
         $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));

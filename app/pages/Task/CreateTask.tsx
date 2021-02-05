@@ -1,21 +1,21 @@
 import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
 
-import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
+import { useCurrentStationContext } from "../../contexts/CurrentStationContext"
 import Task from "../../models/Task"
 import { useTasksContext } from "../../contexts/TasksContext"
 
 import TaskForm, { TaskFormSubmitHandler } from "./TaskForm"
 
 const CreateTask: React.FC<RouteComponentProps> = () => {
-    const { currentPackage } = useCurrentPackageContext()
+    const { station } = useCurrentStationContext()
     const { reloadTasks } = useTasksContext()
 
     const onSubmit = useCallback<TaskFormSubmitHandler>(
         async (values) => {
             const task = new Task()
             task.patch(values)
-            task.setPackage(currentPackage)
+            task.setStation(station)
 
             const updated = (await task.save()).getModel()
             if (!updated) {
@@ -24,14 +24,14 @@ const CreateTask: React.FC<RouteComponentProps> = () => {
 
             await reloadTasks()
         },
-        [reloadTasks, currentPackage]
+        [reloadTasks, station]
     )
 
     return (
         <>
             <Link
                 className="button"
-                to={`/packages/${currentPackage.getApiId()}/tasks`}
+                to={`/stations/${station.getApiId()}/tasks`}
             >
                 Zurück
             </Link>

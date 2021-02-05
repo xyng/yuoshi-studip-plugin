@@ -45,7 +45,7 @@ const StationSubRoute: React.FC<RouteComponentProps<{
 const StationsIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
-            <Link className="button" to="/">
+            <Link className="button" to="/packages">
                 Zurück
             </Link>
             <Link className="button" to="create">

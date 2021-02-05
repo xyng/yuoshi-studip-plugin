@@ -2,6 +2,7 @@
 namespace Xyng\Yuoshi\Model;
 
 use SimpleORMap;
+use Xyng\Yuoshi\Model\Stations;
 
 /**
  * Class Tasks
@@ -10,7 +11,7 @@ use SimpleORMap;
  * @property string $title
  * @property string $kind
  * @property number $credits
- * @property Station $station
+ * @property Stations $station
  * @property \SimpleORMapCollection|TaskContents[] $contents
  */
 class Tasks extends BaseModel

@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
+import { useCurrentStationContext } from "../../contexts/CurrentStationContext"
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
 import {
     TasksContextProvider,
@@ -42,6 +43,7 @@ const TaskSubRoute: React.FC<RouteComponentProps<{
 }
 
 const TasksIndex: React.FC<RouteComponentProps> = () => {
+    const { station } = useCurrentStationContext()
     const { currentPackage } = useCurrentPackageContext()
 
     const onClick = useCallback(
@@ -88,13 +90,16 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
                 console.log(e)
             }
         },
-        [currentPackage]
+        [station]
     )
 
     return (
         <>
-            <h1>Paket: {currentPackage.getTitle()}</h1>
-            <Link className="button" to="/packages">
+            <h1>Station: {station.getTitle()}</h1>
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.getApiId()}/stations`}
+            >
                 Zurück
             </Link>
             <Link className="button" to="create">
