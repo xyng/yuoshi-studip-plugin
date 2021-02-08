@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `yuoshi_stations` (
 
 CREATE TABLE IF NOT EXISTS `yuoshi_tasks` (
   `id` varchar(32) NOT NULL,
-  `package_id` varchar(32) NOT NULL,
+  `station_id` varchar(32) NOT NULL,
   `sort` int(4) NOT NULL,
   `is_training` tinyint(1) NOT NULL DEFAULT 0,
   `image` varchar(255) DEFAULT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS `yuoshi_tasks` (
   `chdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `package_id` (`package_id`),
-  CONSTRAINT `yuoshi_tasks_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `yuoshi_packages` (`id`) ON DELETE CASCADE
+  KEY `station_id` (`station_id`),
+  CONSTRAINT `yuoshi_tasks_ibfk_1` FOREIGN KEY (`station_id`) REFERENCES `yuoshi_stations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `yuoshi_task_contents` (
