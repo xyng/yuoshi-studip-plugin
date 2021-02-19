@@ -10,6 +10,9 @@ import TaskTypeName = NSTaskAdapter.TaskTypeName
 const EditQuizContent = React.lazy(() =>
     import("./EditQuizContent/EditQuizContent")
 )
+const EditSurveyContent = React.lazy(() =>
+    import("./EditSurveyContent/EditSurveyContent")
+)
 const EditDragContent = React.lazy(() =>
     import("./EditDragContent/EditDragContent")
 )
@@ -39,9 +42,10 @@ const RenderTaskViews: React.FC = () => {
         case TaskTypeName.CARD:
             return <EditCardContent />
         case TaskTypeName.MULTI:
-        case TaskTypeName.SURVEY:
         case TaskTypeName.TRAINING:
             return <EditQuizContent />
+        case TaskTypeName.SURVEY:
+            return <EditSurveyContent />
         case TaskTypeName.MEMORY:
             return <EditMemoryContent />
         case TaskTypeName.TAG:

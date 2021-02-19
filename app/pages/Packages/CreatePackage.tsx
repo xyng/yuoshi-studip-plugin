@@ -7,7 +7,8 @@ import { useCourseContext } from "../../contexts/CourseContext"
 
 import PackageForm, { PackageFormSubmitHandler } from "./PackageForm"
 
-const CreatePackage: React.FC<RouteComponentProps> = () => {
+const CreatePackage: React.FC<RouteComponentProps> = (props) => {
+    const { navigate } = props
     const { course } = useCourseContext()
     const { reloadPackages } = usePackagesContext()
 
@@ -24,6 +25,10 @@ const CreatePackage: React.FC<RouteComponentProps> = () => {
             }
 
             await reloadPackages()
+
+            if (props !== undefined && navigate !== undefined) {
+                navigate("../" + newPackage.getApiId() + "/tasks")
+            }
         },
         [course, reloadPackages]
     )

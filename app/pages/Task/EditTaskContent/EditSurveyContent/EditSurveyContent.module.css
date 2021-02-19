@@ -1,0 +1,54 @@
+.container {
+    @apply max-w-screen-md
+}
+
+.content {
+    @apply rounded shadow-lg text-gray-700 mb-8
+}
+
+.toggleContent {
+    @apply flex w-full bg-indigo-100 p-6 box-border rounded-lg items-center;
+
+    &:focus {
+        @apply outline-none shadow-outline;
+    }
+}
+.toggleContentButton {
+    @apply ml-auto mr-0;
+}
+
+.content[open] .toggleContent {
+    @apply rounded-b-none;
+}
+
+.contentMain {
+    @apply p-8 pt-0
+}
+
+.quest {
+    @apply rounded shadow-lg text-gray-700
+}
+
+.answer {
+    @apply bg-indigo-100 p-6 my-4 box-border rounded-lg
+}
+
+.header {
+    @apply flex items-center my-4
+}
+
+.answerHeader {
+    @apply header mt-0
+}
+
+.answerHeaderText {
+    @apply text-2xl font-bold;
+}
+
+.headerButtons {
+    @apply ml-auto mr-0
+}
+
+.heading {
+    @apply block text-3xl font-bold my-4;
+}
