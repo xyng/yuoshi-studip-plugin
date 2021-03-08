@@ -134,7 +134,7 @@ class Stations extends BaseModel
                 'yuoshi_stations.id',
                 'yuoshi_user_task_solutions.user_id',
             ] : [
-                'yuoshi_packages.id'
+                'yuoshi_stations.id'
             ]
         ];
 
