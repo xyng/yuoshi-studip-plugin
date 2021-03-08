@@ -44,9 +44,6 @@ class Stations extends BaseModel
         parent::configure($config);
     }
 
-    // TODO: check in db if this package is playable by user.
-    public $playable = true;
-
     public static function nextSort(string $package_id)
     {
         $db_table = static::config('db_table');

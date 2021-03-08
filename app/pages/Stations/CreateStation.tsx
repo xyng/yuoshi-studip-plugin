@@ -13,16 +13,13 @@ const CreateStation: React.FC<RouteComponentProps> = () => {
 
     const onSubmit = useCallback<StationFormSubmitHandler>(
         async (values) => {
-            console.log("submit")
-
             const newStation = new Station()
             newStation.patch(values)
             newStation.setPackage(currentPackage)
 
             const updated = (await newStation.save()).getModel()
             if (!updated) {
-                // TODO: handle error
-                return
+                throw new Error("Wasn't able to update station")
             }
 
             await reloadStations()

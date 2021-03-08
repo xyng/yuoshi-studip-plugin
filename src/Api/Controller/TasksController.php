@@ -57,7 +57,7 @@ class TasksController extends JsonApiController
         }
 
         if (!$station_ids) {
-            throw new \InvalidArgumentException("Cannot select Station without station filter.");
+            throw new \InvalidArgumentException("Cannot select Tasks without station filter.");
         }
 
         $tasks = TaskAuthority::findFiltered($station_ids, $this->getUser($request), [], $where);

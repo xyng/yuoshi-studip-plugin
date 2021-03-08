@@ -5,9 +5,7 @@ import useSWR, { responseInterface } from "swr"
 import Station from "../models/Station"
 import updateModelList from "../helpers/updateModelList"
 
-import { useCurrentStationContext } from "./CurrentStationContext"
 import { useCurrentPackageContext } from "./CurrentPackageContext"
-// TODO check reloadTasks and compare to reloadStation
 interface StationContextInterface {
     station: Station[]
     updateStation: (updated: Station, reload?: boolean) => Promise<void>
@@ -41,7 +39,7 @@ export const StationContextProvider: React.FC = ({ children }) => {
     const { currentPackage } = useCurrentPackageContext()
 
     const { data, mutate, revalidate } = useSWR(
-        () => [currentPackage.getApiId(), "packages/station"],
+        () => [currentPackage.getApiId(), "packages/stations"],
         fetchStationsForPackage,
         { suspense: true }
     )

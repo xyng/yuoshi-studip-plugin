@@ -30,9 +30,9 @@ class PackagesController extends JsonApiController
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $course_id = $args['id'] ?? null;
-       
+
         $filters = $this->getQueryParameters()->getFilteringParameters();
-  
+
         if (!$course_id) {
             $course_id = $filters['course'] ?? null;
         }

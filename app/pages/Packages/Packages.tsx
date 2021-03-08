@@ -14,7 +14,7 @@ import EditPackage from "./EditPackage"
 import CreatePackage from "./CreatePackage"
 import ImportPackage from "./ImportPackage"
 
-const Station = React.lazy(() => import("../Stations/Station"))
+const Station = React.lazy(() => import("../Stations/Stations"))
 
 const Packages: React.FC<RouteComponentProps> = () => {
     return (
