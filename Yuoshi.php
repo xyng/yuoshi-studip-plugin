@@ -103,7 +103,6 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
 
         $app->get('/packages/{id}/tasks', TasksController::class . ':index');
-        $app->get('/packages/{id}/nextTask', TasksController::class . ':nextTask');
 
         $app->get('/stations', StationController::class . ':index');
         $app->get('/stations/{id}', StationController::class . ':show');
@@ -112,8 +111,9 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/packages/{id}/stations', StationController::class . ':index');
         $app->post('/packages/{id}/stations', StationController::class . ':create');
         $app->post('/stations', StationController::class . ':create');
+        $app->get('/stations/{id}/tasks', TasksController::class . ':index');
+        $app->get('/stations/{id}/nextTask', TasksController::class . ':nextTask');
 
-        $app->get('/stations/{id}/tasks', StationController::class . ':show');
         
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
