@@ -19,8 +19,7 @@ const Stations: React.FC<RouteComponentProps> = () => {
         <StationContextProvider>
             <Router>
                 <StationsIndex path="/" />
-                {/* <CreatePackage path="create" />
-                <ImportPackage path="import" /> */}
+
                 <CreateStation path="create" />
                 <StationSubRoute path=":stationId/*" />
             </Router>
@@ -34,8 +33,6 @@ const StationSubRoute: React.FC<RouteComponentProps<{
     return (
         <CurrentStationContextProvider stationId={stationId}>
             <Router>
-                {/* <EditPackage path="edit" /> */}
-
                 <Tasks path="tasks/*" />
             </Router>
         </CurrentStationContextProvider>

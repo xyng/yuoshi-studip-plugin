@@ -44,9 +44,6 @@ class Stations extends BaseModel
         parent::configure($config);
     }
 
-    // TODO: check in db if this package is playable by user.
-    public $playable = true;
-
     public static function nextSort(string $package_id)
     {
         $db_table = static::config('db_table');
@@ -126,15 +123,15 @@ class Stations extends BaseModel
                 ],
             ],
             'conditions' => [
-                'yuoshi_packages.id' => $this->id,
+                'yuoshi_stations.id' => $this->id,
             ] + ($byUsers ? [
                 'Students.user_id is not null'
             ] : []),
             'group' => $byUsers ? [
-                'yuoshi_packages.id',
+                'yuoshi_stations.id',
                 'yuoshi_user_task_solutions.user_id',
             ] : [
-                'yuoshi_packages.id'
+                'yuoshi_stations.id'
             ]
         ];
 

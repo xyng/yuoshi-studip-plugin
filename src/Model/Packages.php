@@ -94,7 +94,7 @@ class Packages extends BaseModel
                     'table' => 'yuoshi_tasks',
                     'alias' => 'TotalTasks',
                     'on' => [
-                        'yuoshi_packages.id' => new QueryField('TotalTasks.station_id')
+                        'yuoshi_stations.id' => new QueryField('TotalTasks.station_id')
                     ]
                 ],
                 [
@@ -102,7 +102,7 @@ class Packages extends BaseModel
                     'type' => 'left',
                     'table' => 'yuoshi_tasks',
                     'on' => [
-                        'yuoshi_packages.id' => new QueryField('yuoshi_tasks.station_id')
+                        'yuoshi_stations.id' => new QueryField('yuoshi_tasks.station_id')
                     ]
                 ],
                 [

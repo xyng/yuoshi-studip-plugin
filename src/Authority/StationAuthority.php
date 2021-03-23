@@ -33,24 +33,12 @@ class StationAuthority implements AuthorityInterface
     /**
      * @inheritDoc
      */
-    // public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
-    // {
-    //     return Stations::findWithQuery(
-    //         AuthorityHelper::getFilterQuery(static::getFilter(), 'seminar_user.Seminar_id', $ids, $user, $perms, $conditions)
-    //     );
-    // }
-
-
-    /**
-     * @inheritDoc
-     */
     public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return Stations::findWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_stations.package_id', $ids, $user, $perms, $conditions)
         );
     }
-
 
     /**
      * @inheritDoc

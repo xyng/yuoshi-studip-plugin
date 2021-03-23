@@ -92,13 +92,16 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     public function registerAuthenticatedRoutes(\Slim\App $app)
     {
         $app->get('/courses/{id}/packages', PackagesController::class . ':index');
-        $app->post('/courses/{id}/packages', PackagesController::class . ':create');
 
         $app->get('/packages', PackagesController::class . ':index');
-        $app->post('/packages', PackagesController::class . ':create');
-        $app->get('/packages/export/{package_id}', PackageImportController::class . ':export');
-        $app->post('/packages/import/{course_id}', PackageImportController::class . ':import');
         $app->get('/packages/{id}', PackagesController::class . ':show');
+        $app->get('/packages/export/{package_id}', PackageImportController::class . ':export');
+        $app->get('/packages/{id}/tasks', TasksController::class . ':index');
+        $app->get('/packages/{id}/nextTask', TasksController::class . ':nextTask');
+        $app->get('/packages/{id}/stations', StationController::class . ':index');
+        $app->post('/packages', PackagesController::class . ':create');
+        $app->post('/packages/import/{course_id}', PackageImportController::class . ':import');
+        $app->post('/courses/{id}/packages', PackagesController::class . ':create');
         $app->patch('/packages/{id}', PackagesController::class . ':update');
         $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
 
@@ -106,10 +109,9 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
 
         $app->get('/stations', StationController::class . ':index');
         $app->get('/stations/{id}', StationController::class . ':show');
-        $app->delete('/stations/{station_id}', StationController::class . ':delete');
+        $app->get('/stations/{id}/tasks', StationController::class . ':show');
 
-        $app->get('/packages/{id}/stations', StationController::class . ':index');
-        $app->post('/packages/{id}/stations', StationController::class . ':create');
+        $app->delete('/stations/{station_id}', StationController::class . ':delete');
         $app->post('/stations', StationController::class . ':create');
         $app->get('/stations/{id}/tasks', TasksController::class . ':index');
         $app->get('/stations/{id}/nextTask', TasksController::class . ':nextTask');
@@ -125,7 +127,6 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
         $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/tasks/{task_id}/current_task_solution', TaskSolutionsController::class . ':getCurrentSolution');
-
         $app->get('/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':show');
         $app->patch('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':update');
