@@ -26,7 +26,7 @@ class StationController extends JsonApiController
 
     protected $allowedFilteringParameters = ['package', 'sort', 'station'];
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user', 'station', 'package'];
+    protected $allowedIncludePaths = ['stationTotalProgress', 'stationUserProgress', 'stationUserProgress.user', 'station', 'package'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {

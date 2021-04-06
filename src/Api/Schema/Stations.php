@@ -40,7 +40,7 @@ class Stations extends SchemaProvider
     }
 
     /**
-     * @param \Xyng\Yuoshi\Model\Packages $resource
+     * @param \Xyng\Yuoshi\Model\Stations $resource
      * @param bool $isPrimary
      * @param array $includeRelationships
      * @return array
@@ -52,7 +52,20 @@ class Stations extends SchemaProvider
             $tasks = $resource->tasks;
         }
 
-    
+        $stationTotalProgress = null;
+        if ($includeRelationships['stationTotalProgress']) {
+            /** @var User $user */
+            $user = $this->getDiContainer()->get('studip-current-user');
+            $stationTotalProgress = $resource->getProgress($user, false);
+        }
+
+        $stationUserProgress = null;
+        if ($includeRelationships['stationUserProgress']) {
+            /** @var User $user */
+            $user = $this->getDiContainer()->get('studip-current-user');
+            $stationUserProgress = $resource->getProgress($user, true);
+        }
+
         return [
             'tasks' => [
                 self::DATA => $tasks,
@@ -60,6 +73,12 @@ class Stations extends SchemaProvider
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'tasks')
                 ],
+            ],
+            'stationUserProgress' => [
+                self::DATA => $stationUserProgress,
+            ],
+            'stationTotalProgress' => [
+                self::DATA => $stationTotalProgress,
             ]
         ];
     }

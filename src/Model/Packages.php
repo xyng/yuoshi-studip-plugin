@@ -76,6 +76,13 @@ class Packages extends BaseModel
                     ]
                 ],
                 [
+                    'type' => 'left',
+                    'table' => 'yuoshi_stations',
+                    'on' => [
+                        'yuoshi_stations.package_id' => new QueryField('yuoshi_packages.id'),
+                    ],
+                ],
+                [
                     // we have two joins on the tasks table.
                     // this join is not used by the other joins so we can get
                     // the total task count
@@ -83,14 +90,7 @@ class Packages extends BaseModel
                     'table' => 'yuoshi_tasks',
                     'alias' => 'TotalTasks',
                     'on' => [
-                        'yuoshi_stations_id' => new QueryField('TotalTasks.station_id')
-                    ]
-                ],
-                [
-                    'type' => 'left',
-                    'table' => 'yuoshi_stations',
-                    'on' => [
-                        'yuoshi_stations.id' => new QueryField('yuoshi_stations.id')
+                        'yuoshi_stations.id' => new QueryField('TotalTasks.station_id')
                     ]
                 ],
                 [
@@ -149,6 +149,7 @@ class Packages extends BaseModel
             ]
         );
     }
+
     public function getAllPackages()
     {
         return Packages::findBySQL('1');

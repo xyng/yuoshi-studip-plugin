@@ -2,10 +2,8 @@
 namespace Xyng\Yuoshi\Model;
 
 use Course;
-use Packages;
 use \User;
-use SimpleORMap;
-use Xyng\Yuoshi\Authority\StationsAuthority;
+use Xyng\Yuoshi\Authority\StationAuthority;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
 
@@ -37,7 +35,7 @@ class Stations extends BaseModel
         ];
 
         $config['belongs_to']['package'] = [
-            'class_name' => Package::class,
+            'class_name' => Packages::class,
             'foreign_key' => 'package_id'
         ];
 
@@ -63,7 +61,7 @@ class Stations extends BaseModel
     /**
      * @param User $user
      * @param bool $byUsers
-     * @return UserPackageProgress|null|UserPackageProgress[]
+     * @return UserStationProgress|null|UserStationProgress[]
      */
     public function getProgress(User $user, bool $byUsers = false)
     {
@@ -71,7 +69,7 @@ class Stations extends BaseModel
 
         $studentJoinConditions = [];
 
-        $isDozent = PermissionHelper::getPerm()->have_studip_perm('dozent', $this->course_id, $user->id);
+        $isDozent = PermissionHelper::getPerm()->have_studip_perm('dozent', $this->package->course_id, $user->id);
         if (!$isDozent) {
             $studentJoinConditions['Students.user_id'] = $user->id;
         }
@@ -79,7 +77,7 @@ class Stations extends BaseModel
         $query = [
             'joins' => [
                 [
-                    'sql' => PackageAuthority::getFilter(),
+                    'sql' => StationAuthority::getFilter(),
                     'params' => [
                         'user_id' => $user->id,
                     ]
@@ -92,7 +90,7 @@ class Stations extends BaseModel
                     'table' => 'yuoshi_tasks',
                     'alias' => 'TotalTasks',
                     'on' => [
-                        'yuoshi_packages.id' => new QueryField('TotalTasks.package_id')
+                        'yuoshi_stations.id' => new QueryField('TotalTasks.station_id')
                     ]
                 ],
                 [
@@ -138,20 +136,26 @@ class Stations extends BaseModel
         $progressCount = '(' . $solvedTaskCount . '* 100) / (count(distinct `TotalTasks`.`id`) * count(distinct `yuoshi_user_task_solutions`.`user_id`))';
 
         if (!$byUsers) {
-            return UserPackageProgress::findOneWithQuery(
+            /** @var UserStationProgress|null $result */
+            $result = UserStationProgress::findOneWithQuery(
                 $query,
                 [
                     'progress' => $progressCount,
                 ]
             );
+
+            return $result;
         }
 
-        return UserPackageProgress::findWithQuery(
+        /** @var UserStationProgress[] $result */
+        $result = UserStationProgress::findWithQuery(
             $query,
             [
                 'progress' => $progressCount,
                 'user_id' => 'yuoshi_user_task_solutions.user_id'
             ]
         );
+
+        return $result;
     }
 }

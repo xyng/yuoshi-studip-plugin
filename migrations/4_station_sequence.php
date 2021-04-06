@@ -11,6 +11,6 @@ class StationSequence extends Migration
     public function down()
     {
         $db = DBManager::get();
-        $db->exec("ALTER TABLE `studip`.`yuoshi_stations` ADD COLUMN `sort`");
+        $db->exec("ALTER TABLE `studip`.`yuoshi_stations` DROP COLUMN `sort`");
     }
 }

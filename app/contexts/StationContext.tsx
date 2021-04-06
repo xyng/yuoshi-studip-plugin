@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo } from "react"
+import React, { createContext, useCallback, useContext } from "react"
 import { PluralResponse } from "coloquent"
 import useSWR, { responseInterface } from "swr"
 
@@ -24,15 +24,20 @@ export const useStationContext = () => {
     return ctx
 }
 
-const fetchStationsForPackage = async (
+const fetchStationsForPackage = (byUser: boolean) => async (
     packageId: string
 ): Promise<Station[]> => {
-    const packageItem = (await Station.where(
-        "package",
-        packageId
-    ).get()) as PluralResponse
+    let query = Station.where("package", packageId)
 
-    return packageItem.getData() as Station[]
+    if (byUser) {
+        query = query.with("stationUserProgress.user")
+    } else {
+        query = query.with("stationTotalProgress")
+    }
+
+    const stationItem = (await query.get()) as PluralResponse
+
+    return stationItem.getData() as Station[]
 }
 
 export const StationContextProvider: React.FC = ({ children }) => {
@@ -40,7 +45,7 @@ export const StationContextProvider: React.FC = ({ children }) => {
 
     const { data, mutate, revalidate } = useSWR(
         () => [currentPackage.getApiId(), "package/station"],
-        fetchStationsForPackage,
+        fetchStationsForPackage(false),
         { suspense: true }
     )
 

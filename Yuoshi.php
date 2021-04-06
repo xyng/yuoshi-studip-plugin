@@ -105,18 +105,14 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->patch('/packages/{id}', PackagesController::class . ':update');
         $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
 
-        $app->get('/packages/{id}/tasks', TasksController::class . ':index');
-
         $app->get('/stations', StationController::class . ':index');
         $app->get('/stations/{id}', StationController::class . ':show');
         $app->get('/stations/{id}/tasks', StationController::class . ':show');
 
         $app->delete('/stations/{station_id}', StationController::class . ':delete');
         $app->post('/stations', StationController::class . ':create');
-        $app->get('/stations/{id}/tasks', TasksController::class . ':index');
         $app->get('/stations/{id}/nextTask', TasksController::class . ':nextTask');
 
-        
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
         $app->get('/tasks/{id}', TasksController::class . ':show');
@@ -181,6 +177,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     {
         return [
             \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Api\Schema\UserPackageProgress::class,
+            \Xyng\Yuoshi\Model\UserStationProgress::class => \Xyng\Yuoshi\Api\Schema\UserStationProgress::class,
             \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
             \Xyng\Yuoshi\Model\Stations::class => \Xyng\Yuoshi\Api\Schema\Stations::class,
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,

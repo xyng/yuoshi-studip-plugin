@@ -55,6 +55,14 @@ export default class Station extends AppModelWithDate<Attributes> {
         return this.getRelation("tasks")
     }
 
+    stationTotalProgress(): ToOneRelation {
+        return this.hasOne(StationProgress, "stationTotalProgress")
+    }
+
+    getStationTotalProgress(): StationProgress {
+        return this.getRelation("stationTotalProgress")
+    }
+
     stationUserProgress(): ToManyRelation {
         return this.hasMany(StationProgress, "stationUserProgress")
     }
