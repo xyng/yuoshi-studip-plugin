@@ -201,14 +201,14 @@ const RenderPackageTableData: React.FC = () => {
                             </Link>
                         </td>
                         <td>
-                            <Progress
+                            {/* <Progress
                                 value={
                                     packageItem
                                         .getPackageTotalProgress()
                                         .getProgress() || 0
                                 }
                                 max={100}
-                            />
+                            /> */}
                         </td>
                         <td>{packageItem.getModified().toLocaleString()}</td>
                         <td>

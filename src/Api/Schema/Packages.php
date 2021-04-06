@@ -53,19 +53,19 @@ class Packages extends SchemaProvider
             $tasks = $resource->tasks;
         }
 
-        $packageTotalProgress = null;
-        if ($includeRelationships['packageTotalProgress']) {
-            /** @var User $user */
-            $user = $this->getDiContainer()->get('studip-current-user');
-            $packageTotalProgress = $resource->getProgress($user, false);
-        }
+        // $packageTotalProgress = null;
+        // if ($includeRelationships['packageTotalProgress']) {
+        //     /** @var User $user */
+        //     $user = $this->getDiContainer()->get('studip-current-user');
+        //     $packageTotalProgress = $resource->getProgress($user, false);
+        // }
 
-        $packageUserProgress = null;
-        if ($includeRelationships['packageUserProgress']) {
-            /** @var User $user */
-            $user = $this->getDiContainer()->get('studip-current-user');
-            $packageUserProgress = $resource->getProgress($user, true);
-        }
+        // $packageUserProgress = null;
+        // if ($includeRelationships['packageUserProgress']) {
+        //     /** @var User $user */
+        //     $user = $this->getDiContainer()->get('studip-current-user');
+        //     $packageUserProgress = $resource->getProgress($user, true);
+        // }
 
         return [
             'tasks' => [

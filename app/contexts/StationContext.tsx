@@ -39,7 +39,7 @@ export const StationContextProvider: React.FC = ({ children }) => {
     const { currentPackage } = useCurrentPackageContext()
 
     const { data, mutate, revalidate } = useSWR(
-        () => [currentPackage.getApiId(), "packages/stations"],
+        () => [currentPackage.getApiId(), "package/station"],
         fetchStationsForPackage,
         { suspense: true }
     )

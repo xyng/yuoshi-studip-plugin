@@ -26,7 +26,6 @@ class Packages extends BaseModel
     protected static function configure($config = [])
     {
         $config['db_table'] = 'yuoshi_packages';
-
         $config['has_many']['stations'] = [
             'class_name' => Stations::class,
             'assoc_func' => 'findByPackage_id',
@@ -34,18 +33,14 @@ class Packages extends BaseModel
             'on_delete' => true,
             'on_store' => true,
         ];
-
         $config['belongs_to']['course'] = [
             'class_name' => Course::class,
             'foreign_key' => 'course_id'
         ];
-
         parent::configure($config);
     }
-
     // TODO: check in db if this package is playable by user.
     public $playable = true;
-
     public static function nextSort(string $course_id)
     {
         $db_table = static::config('db_table');
@@ -53,15 +48,12 @@ class Packages extends BaseModel
         $maxSortStmt->execute([
             'courseId' => $course_id,
         ]);
-
         $maxSort = $maxSortStmt->fetch();
         if ($maxSort === false) {
             return 0;
         }
-
         return ((int) $maxSort['max_sort']) + 1;
     }
-
     /**
      * @param User $user
      * @param bool $byUsers
@@ -70,14 +62,11 @@ class Packages extends BaseModel
     public function getProgress(User $user, bool $byUsers = false)
     {
         $solvedTaskCount = 'count(distinct concat(`yuoshi_user_task_solutions`.`task_id`, `yuoshi_user_task_solutions`.`user_id`))';
-
         $studentJoinConditions = [];
-
         $isDozent = PermissionHelper::getPerm()->have_studip_perm('dozent', $this->course_id, $user->id);
         if (!$isDozent) {
             $studentJoinConditions['Students.user_id'] = $user->id;
         }
-
         $query = [
             'joins' => [
                 [
@@ -94,7 +83,14 @@ class Packages extends BaseModel
                     'table' => 'yuoshi_tasks',
                     'alias' => 'TotalTasks',
                     'on' => [
-                        'yuoshi_stations.id' => new QueryField('TotalTasks.station_id')
+                        'yuoshi_stations_id' => new QueryField('TotalTasks.station_id')
+                    ]
+                ],
+                [
+                    'type' => 'left',
+                    'table' => 'yuoshi_stations',
+                    'on' => [
+                        'yuoshi_stations.id' => new QueryField('yuoshi_stations.id')
                     ]
                 ],
                 [
@@ -102,7 +98,7 @@ class Packages extends BaseModel
                     'type' => 'left',
                     'table' => 'yuoshi_tasks',
                     'on' => [
-                        'yuoshi_stations.id' => new QueryField('yuoshi_tasks.station_id')
+                        'yuoshi_tasks.station_id' => new QueryField('yuoshi_tasks.station_id')
                     ]
                 ],
                 [
@@ -136,9 +132,7 @@ class Packages extends BaseModel
                 'yuoshi_packages.id'
             ]
         ];
-
         $progressCount = '(' . $solvedTaskCount . '* 100) / (count(distinct `TotalTasks`.`id`) * count(distinct `yuoshi_user_task_solutions`.`user_id`))';
-
         if (!$byUsers) {
             return UserPackageProgress::findOneWithQuery(
                 $query,
@@ -147,7 +141,6 @@ class Packages extends BaseModel
                 ]
             );
         }
-
         return UserPackageProgress::findWithQuery(
             $query,
             [

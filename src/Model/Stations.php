@@ -100,7 +100,7 @@ class Stations extends BaseModel
                     'type' => 'left',
                     'table' => 'yuoshi_tasks',
                     'on' => [
-                        'yuoshi_packages.id' => new QueryField('yuoshi_tasks.station_id')
+                        'yuoshi_stations.id' => new QueryField('yuoshi_tasks.station_id')
                     ]
                 ],
                 [
