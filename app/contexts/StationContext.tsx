@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext } from "react"
+import React, { createContext, useCallback, useContext, useMemo } from "react"
 import { PluralResponse } from "coloquent"
 import useSWR, { responseInterface } from "swr"
 
@@ -40,12 +40,22 @@ const fetchStationsForPackage = (byUser: boolean) => async (
     return stationItem.getData() as Station[]
 }
 
-export const StationContextProvider: React.FC = ({ children }) => {
+export const StationContextProvider: React.FC<{
+    byUser?: boolean
+}> = ({ children, byUser }) => {
     const { currentPackage } = useCurrentPackageContext()
+    const cacheKey = useMemo(
+        () => (byUser ? "package/stations_by_user" : "package/stations"),
+        [byUser]
+    )
+    const fetch = useMemo(() => fetchStationsForPackage(!!byUser), [byUser])
 
     const { data, mutate, revalidate } = useSWR(
-        () => [currentPackage.getApiId(), "package/station"],
-        fetchStationsForPackage(false),
+        () =>
+            currentPackage.getApiId()
+                ? [currentPackage.getApiId(), cacheKey]
+                : null,
+        fetch,
         { suspense: true }
     )
 
