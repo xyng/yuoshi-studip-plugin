@@ -156,4 +156,8 @@ class Packages extends BaseModel
             ]
         );
     }
+    public function getAllPackages()
+    {
+        return Packages::findBySQL('1');
+    }
 }

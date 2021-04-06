@@ -17,9 +17,9 @@ class StationTableAdd extends Migration
           ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 
         
-        $packages = \Xyng\Yuoshi\Model\Packages::getAllPackages();
+        $packages = Xyng\Yuoshi\Model\Packages::getAllPackages();
         foreach ($packages as &$package) {
-            $station = \Xyng\Yuoshi\Model\Stations::build(
+            $station = Xyng\Yuoshi\Model\Stations::build(
                 [
                     'title' => $package->title,
                     'slug' => $package->slug,
