@@ -55,6 +55,7 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
                     <tr>
                         <th>Position</th>
                         <th>Name</th>
+                        <th>Kursfortschritt</th>
                         <th>Letzte Aktualisierung</th>
                         <th>Aktionen</th>
                     </tr>
@@ -194,7 +195,16 @@ const RenderStationTableData: React.FC = () => {
                                 {stationItem.getTitle()}
                             </Link>
                         </td>
-
+                        <td>
+                            <Progress
+                                value={
+                                    stationItem
+                                        .getStationTotalProgress()
+                                        .getProgress() || 0
+                                }
+                                max={100}
+                            />
+                        </td>
                         <td>{stationItem.getModified().toLocaleString()}</td>
                         <td>
                             <Link
