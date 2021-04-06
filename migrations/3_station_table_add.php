@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
 class StationTableAdd extends Migration
 {
     public function up()
