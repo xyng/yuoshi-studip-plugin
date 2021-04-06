@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
+import { useCurrentStationContext } from "../../contexts/CurrentStationContext"
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
 import {
     TasksContextProvider,
@@ -12,8 +13,8 @@ import CreateTask from "../Task/CreateTask"
 import Task from "../../models/Task"
 import Button from "../../components/Button/Button"
 
-const EditTaskContent = React.lazy(
-    () => import("../Task/EditTaskContent/EditTaskContent")
+const EditTaskContent = React.lazy(() =>
+    import("../Task/EditTaskContent/EditTaskContent")
 )
 
 const Tasks: React.FC<RouteComponentProps> = () => {
@@ -42,6 +43,7 @@ const TaskSubRoute: React.FC<RouteComponentProps<{
 }
 
 const TasksIndex: React.FC<RouteComponentProps> = () => {
+    const { station } = useCurrentStationContext()
     const { currentPackage } = useCurrentPackageContext()
 
     const onClick = useCallback(
@@ -93,8 +95,11 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
 
     return (
         <>
-            <h1>Paket: {currentPackage.getTitle()}</h1>
-            <Link className="button" to="/packages">
+            <h1>Station: {station.getTitle()}</h1>
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.getApiId()}/stations`}
+            >
                 Zurück
             </Link>
             <Link className="button" to="create">

@@ -5,7 +5,7 @@ import useSWR, { responseInterface } from "swr"
 import Task from "../models/Task"
 import updateModelList from "../helpers/updateModelList"
 
-import { useCurrentPackageContext } from "./CurrentPackageContext"
+import { useCurrentStationContext } from "./CurrentStationContext"
 
 interface TasksContextInterface {
     tasks: Task[]
@@ -25,20 +25,20 @@ export const useTasksContext = () => {
     return ctx
 }
 
-const fetchTasksForPackage = async (packageId: string): Promise<Task[]> => {
-    const packageItem = (await Task.where(
-        "package",
-        packageId
+const fetchTasksForStations = async (stationId: string): Promise<Task[]> => {
+    const stationItem = (await Task.where(
+        "station",
+        stationId
     ).get()) as PluralResponse
 
-    return packageItem.getData() as Task[]
+    return stationItem.getData() as Task[]
 }
 
 export const TasksContextProvider: React.FC = ({ children }) => {
-    const { currentPackage } = useCurrentPackageContext()
+    const { station } = useCurrentStationContext()
     const { data, mutate, revalidate } = useSWR(
-        () => [currentPackage.getApiId(), "package/tasks"],
-        fetchTasksForPackage,
+        () => [station.getApiId(), "station/tasks"],
+        fetchTasksForStations,
         { suspense: true }
     )
 

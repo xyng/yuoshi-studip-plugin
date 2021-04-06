@@ -2,6 +2,7 @@
 namespace Xyng\Yuoshi\Model;
 
 use SimpleORMap;
+use Xyng\Yuoshi\Model\Stations;
 
 /**
  * Class Tasks
@@ -10,17 +11,19 @@ use SimpleORMap;
  * @property string $title
  * @property string $kind
  * @property number $credits
- * @property Packages $package
+ * @property Stations $station
  * @property \SimpleORMapCollection|TaskContents[] $contents
  */
-class Tasks extends BaseModel {
+class Tasks extends BaseModel
+{
     public static $types = ['card', 'cloze', 'drag', 'memory', 'multi', 'survey', 'tag', 'training'];
-    protected static function configure($config = []) {
+    protected static function configure($config = [])
+    {
         $config['db_table'] = 'yuoshi_tasks';
 
-        $config['belongs_to']['package'] = [
-            'class_name' => Packages::class,
-            'foreign_key' => 'package_id'
+        $config['belongs_to']['station'] = [
+            'class_name' => Stations::class,
+            'foreign_key' => 'station_id'
         ];
 
         $config['has_many']['contents'] = [

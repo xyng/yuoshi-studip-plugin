@@ -10,9 +10,12 @@ use Xyng\Yuoshi\Api\Controller\TaskContentsController;
 use Xyng\Yuoshi\Api\Controller\TaskContentSolutionsController;
 use Xyng\Yuoshi\Api\Controller\TasksController;
 use Xyng\Yuoshi\Api\Controller\TaskSolutionsController;
+use Xyng\Yuoshi\Api\Controller\StationController;
 
-class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonApiPlugin {
-    public function __construct() {
+class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonApiPlugin
+{
+    public function __construct()
+    {
         parent::__construct();
 
         // Enable this when changing tables.
@@ -36,7 +39,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return object   template object to render or NULL
      */
-    function getInfoTemplate($course_id)
+    public function getInfoTemplate($course_id)
     {
         // TODO: Implement getInfoTemplate() method.
     }
@@ -57,7 +60,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return object   navigation item to render or NULL
      */
-    function getIconNavigation($course_id, $last_visit, $user_id)
+    public function getIconNavigation($course_id, $last_visit, $user_id)
     {
         // TODO: Implement getIconNavigation() method.
     }
@@ -76,7 +79,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
      *
      * @return array    navigation item to render or NULL
      */
-    function getTabNavigation($course_id)
+    public function getTabNavigation($course_id)
     {
         return [
             'yuoshi' => new Navigation(_('yUOShi'), PluginEngine::getURL($this, array(), 'index'))
@@ -89,17 +92,26 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     public function registerAuthenticatedRoutes(\Slim\App $app)
     {
         $app->get('/courses/{id}/packages', PackagesController::class . ':index');
-        $app->post('/courses/{id}/packages', PackagesController::class . ':create');
 
         $app->get('/packages', PackagesController::class . ':index');
-        $app->post('/packages', PackagesController::class . ':create');
-        $app->get('/packages/export/{package_id}', PackageImportController::class . ':export');
-        $app->post('/packages/import/{course_id}', PackageImportController::class . ':import');
         $app->get('/packages/{id}', PackagesController::class . ':show');
-        $app->patch('/packages/{id}', PackagesController::class . ':update');
-        $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
+        $app->get('/packages/export/{package_id}', PackageImportController::class . ':export');
         $app->get('/packages/{id}/tasks', TasksController::class . ':index');
         $app->get('/packages/{id}/nextTask', TasksController::class . ':nextTask');
+        $app->get('/packages/{id}/stations', StationController::class . ':index');
+        $app->post('/packages', PackagesController::class . ':create');
+        $app->post('/packages/import/{course_id}', PackageImportController::class . ':import');
+        $app->post('/courses/{id}/packages', PackagesController::class . ':create');
+        $app->patch('/packages/{id}', PackagesController::class . ':update');
+        $app->delete('/packages/{package_id}', PackagesController::class . ':delete');
+
+        $app->get('/stations', StationController::class . ':index');
+        $app->get('/stations/{id}', StationController::class . ':show');
+        $app->get('/stations/{id}/tasks', StationController::class . ':show');
+
+        $app->delete('/stations/{station_id}', StationController::class . ':delete');
+        $app->post('/stations', StationController::class . ':create');
+        $app->get('/stations/{id}/nextTask', TasksController::class . ':nextTask');
 
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
@@ -111,7 +123,6 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
         $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/tasks/{task_id}/current_task_solution', TaskSolutionsController::class . ':getCurrentSolution');
-
         $app->get('/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':show');
         $app->patch('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':update');
@@ -166,7 +177,9 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
     {
         return [
             \Xyng\Yuoshi\Model\UserPackageProgress::class => \Xyng\Yuoshi\Api\Schema\UserPackageProgress::class,
+            \Xyng\Yuoshi\Model\UserStationProgress::class => \Xyng\Yuoshi\Api\Schema\UserStationProgress::class,
             \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
+            \Xyng\Yuoshi\Model\Stations::class => \Xyng\Yuoshi\Api\Schema\Stations::class,
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,
             \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Api\Schema\Contents::class,
             \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Api\Schema\Quests::class,
@@ -193,12 +206,14 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $dispatcher->dispatch($unconsumedPath);
     }
 
-    public static function onEnable($pluginId) {
+    public static function onEnable($pluginId)
+    {
         // enable nobody role by default
         \RolePersistence::assignPluginRoles($pluginId, array(7));
     }
 
-    private function loadAssets($keys = []) {
+    private function loadAssets($keys = [])
+    {
         // get webpack manifest
         $path = __DIR__ . DIRECTORY_SEPARATOR . 'dist' . DIRECTORY_SEPARATOR . 'manifest.json';
         $json = file_get_contents($path);

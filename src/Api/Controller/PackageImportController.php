@@ -8,15 +8,14 @@ use Xyng\Yuoshi\Authority\PackageAuthority;
 use Xyng\Yuoshi\Model\Packages;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 
-class PackageImportController extends NonJsonApiController 
+class PackageImportController extends NonJsonApiController
 {
     public function import(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $course_id = $args['course_id'] ?? null;
 
         $file = $request->getUploadedFiles()["file"] ?? null;
-        if(!$file)
-        {
+        if (!$file) {
             throw new \JsonApi\Errors\BadRequestException();
         }
         $stream = $file->getStream();
@@ -27,7 +26,7 @@ class PackageImportController extends NonJsonApiController
         $package->store();
     }
 
-    public function export(ServerRequestInterface $request, ResponseInterface $response, $args) 
+    public function export(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $package_id = $args['package_id'] ?? null;
 
@@ -41,39 +40,45 @@ class PackageImportController extends NonJsonApiController
         $export = [];
 
         $export["package"] = $package->toArrayRecursive([
-            "title", 
-            "slug", 
-            "sort", 
-            "tasks" => [
+            "title",
+            "slug",
+            "sort",
+            "stations" => [
                 "title",
+                "slug",
                 "sort",
-                "is_training",
-                "image",
-                "kind",
-                "description",
-                "credits",
-                "contents" => [
-                    "intro",
-                    "outro",
+                "tasks" => [
                     "title",
-                    "content",
-                    "quests" => [
-                        "name",
-                        "image",
-                        "prephrase",
-                        "question",
-                        "multiple",
-                        "sort",
-                        "require_order",
-                        "custom_answer",
-                        "answers" => [
-                            "content",
-                            "is_correct",
-                            "sort"
+                    "sort",
+                    "is_training",
+                    "image",
+                    "kind",
+                    "description",
+                    "credits",
+                    "contents" => [
+                        "intro",
+                        "outro",
+                        "title",
+                        "content",
+                        "quests" => [
+                            "name",
+                            "image",
+                            "prephrase",
+                            "question",
+                            "multiple",
+                            "sort",
+                            "require_order",
+                            "custom_answer",
+                            "answers" => [
+                                "content",
+                                "is_correct",
+                                "sort"
+                            ]
                         ]
                     ]
                 ]
-            ]
+            ],
+            
         ]);
         $stream = $response->getBody();
         $stream->write(json_encode($export));
@@ -81,6 +86,5 @@ class PackageImportController extends NonJsonApiController
             ->withBody($stream)
             ->withAddedHeader('Content-Disposition', 'attachment; filename="yuoshi_export.json"')
             ->withAddedHeader("Content-Type", "application/json");
-
     }
 }

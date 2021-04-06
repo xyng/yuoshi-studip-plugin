@@ -2,23 +2,22 @@ import { ToManyRelation } from "coloquent"
 import { ToOneRelation } from "coloquent/dist/relation/ToOneRelation"
 
 import { AppModelWithDate } from "./AppModel"
-import Course from "./Course"
-import Station from "./Station"
+import Packages from "./Package"
 import Task from "./Task"
-import PackageProgress from "./PackageProgress"
+import StationProgress from "./StationProgress"
 
 type Attributes = {
     title: string
     slug: string
     sort: number
 }
-export default class Package extends AppModelWithDate<Attributes> {
+export default class Station extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = [
         "title",
         "slug",
         "sort",
     ]
-    protected jsonApiType: string = "packages"
+    protected jsonApiType: string = "stations"
 
     getTitle(): string {
         return this.getAttribute("title")
@@ -44,12 +43,8 @@ export default class Package extends AppModelWithDate<Attributes> {
         return this.setAttribute("sort", sort)
     }
 
-    setCourse(course: Course) {
-        return this.setRelation("course", course)
-    }
-
-    setStation(station: Station) {
-        return this.setRelation("stations", station)
+    setPackage(packages: Packages) {
+        return this.setRelation("package", packages)
     }
 
     tasks(): ToManyRelation {
@@ -60,23 +55,19 @@ export default class Package extends AppModelWithDate<Attributes> {
         return this.getRelation("tasks")
     }
 
-    getStations(): Station[] {
-        return this.getRelation("stations")
+    stationTotalProgress(): ToOneRelation {
+        return this.hasOne(StationProgress, "stationTotalProgress")
     }
 
-    packageTotalProgress(): ToOneRelation {
-        return this.hasOne(PackageProgress, "packageTotalProgress")
+    getStationTotalProgress(): StationProgress {
+        return this.getRelation("stationTotalProgress")
     }
 
-    getPackageTotalProgress(): PackageProgress {
-        return this.getRelation("packageTotalProgress")
+    stationUserProgress(): ToManyRelation {
+        return this.hasMany(StationProgress, "stationUserProgress")
     }
 
-    packageUserProgress(): ToManyRelation {
-        return this.hasMany(PackageProgress, "packageUserProgress")
-    }
-
-    getPackageUserProgress(): PackageProgress[] {
-        return this.getRelation("packageUserProgress")
+    geStationUserProgress(): StationProgress[] {
+        return this.getRelation("stationUserProgress")
     }
 }

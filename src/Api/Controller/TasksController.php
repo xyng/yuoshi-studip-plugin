@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use User;
 use Valitron\Validator;
 use Xyng\Yuoshi\Authority\PackageAuthority;
+use Xyng\Yuoshi\Authority\StationAuthority;
 use Xyng\Yuoshi\Authority\TaskAuthority;
 use Xyng\Yuoshi\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Exception\ValidationException;
@@ -32,20 +33,21 @@ class TasksController extends JsonApiController
     use ValidationTrait;
 
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedFilteringParameters = ['sort', 'package'];
+    protected $allowedFilteringParameters = ['sort', 'station'];
     protected $allowedIncludePaths = [
         'contents',
         'contents.quests',
         'contents.quests.answers'
     ];
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $package_id = $args['id'] ?? null;
-        $package_ids = $package_id ? [$package_id] : [];
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $station_id = $args['id'] ?? null;
+        $station_ids = $station_id ? [$station_id] : [];
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
-        if (!$package_ids) {
-            $package_ids = explode(',', $filters['package'] ?? '');
+        if (!$station_ids) {
+            $station_ids = explode(',', $filters['station'] ?? '');
         }
         $sort = $filters['sort'] ?? null;
 
@@ -54,11 +56,11 @@ class TasksController extends JsonApiController
             $where['sort'] = $sort;
         }
 
-        if (!$package_ids) {
-            throw new \InvalidArgumentException("Cannot select Tasks without package filter.");
+        if (!$station_ids) {
+            throw new \InvalidArgumentException("Cannot select Tasks without station filter.");
         }
 
-        $tasks = TaskAuthority::findFiltered($package_ids, $this->getUser($request), [], $where);
+        $tasks = TaskAuthority::findFiltered($station_ids, $this->getUser($request), [], $where);
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
@@ -68,11 +70,12 @@ class TasksController extends JsonApiController
         );
     }
 
-    public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         /** @var User $user */
         $user = $this->getUser($request);
 
-        ['id' => $package_id] = $args;
+        ['id' => $station_id] = $args;
 
         /** @var Tasks|null $task */
         $task = Tasks::findOneWithQuery([
@@ -90,7 +93,7 @@ class TasksController extends JsonApiController
             ],
             'conditions' => [
                 'Solutions.id IS NULL',
-                'yuoshi_tasks.package_id' => $package_id,
+                'yuoshi_tasks.station_id' => $station_id,
             ],
             'order' => [
                 '`yuoshi_tasks`.`sort` ASC'
@@ -119,7 +122,8 @@ class TasksController extends JsonApiController
         return $this->getContentResponse($task);
     }
 
-    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $task_id = $args['id'] ?? null;
 
         if (!$task_id) {
@@ -135,20 +139,21 @@ class TasksController extends JsonApiController
         return $this->getContentResponse($task);
     }
 
-    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
+        
+        $station_id = $data->getRelation('station')['data']['id'] ?? null;
 
-        $package_id = $data->getRelation('package')['data']['id'] ?? null;
-
-        if (!$package_id) {
+        if (!$station_id) {
             throw new RecordNotFoundException();
         }
 
-        /** @var Packages|null $package */
-        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+        /** @var Station|null $station */
+        $station = StationAuthority::findOneFiltered($station_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
-        if ($package == null) {
+        if ($station == null) {
             throw new RecordNotFoundException();
         }
 
@@ -163,7 +168,7 @@ class TasksController extends JsonApiController
             [
                 'sort' => 0,
                 'is_training' => $data->getAttribute('kind') == 'training',
-                'package_id' => $package_id,
+                'station_id' => $station_id,
             ]
         );
 
@@ -174,7 +179,8 @@ class TasksController extends JsonApiController
         return $this->getContentResponse($task);
     }
 
-    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $task_id = $args['id'] ?? null;
 
         if ($task_id === null) {
@@ -199,13 +205,14 @@ class TasksController extends JsonApiController
         // TODO: handle image
 
         if ($task->isDirty() && !$task->store()) {
-            throw new InternalServerError("could not update package");
+            throw new InternalServerError("could not update station");
         }
 
         return $this->getContentResponse($task);
     }
 
-    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $task_id = $args['task_id'] ?? null;
 
         if (!$task_id) {
@@ -228,7 +235,7 @@ class TasksController extends JsonApiController
     {
         if ($new) {
             $validator
-                ->rule('required', 'data.relationships.package.data.id')
+                ->rule('required', 'data.relationships.station.data.id')
                 ->rule('required', 'data.attributes.title')
                 ->rule('required', 'data.attributes.kind')
                 ->rule('required', 'data.attributes.credits');

@@ -1,40 +1,40 @@
 <?php
 namespace Xyng\Yuoshi\Api\Controller;
 
-use Course;
 use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
-use JsonApi\Routes\Courses\Authority as CourseAuthority;
+// use JsonApi\Routes\Packages\Authority as PackageAuthority;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Valitron\Validator;
+use Xyng\Yuoshi\Authority\StationAuthority;
 use Xyng\Yuoshi\Authority\PackageAuthority;
+
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
-use Xyng\Yuoshi\Model\Packages;
+use Xyng\Yuoshi\Model\stations;
 
-class PackagesController extends JsonApiController
+class StationController extends JsonApiController
 {
     use ValidationTrait;
 
-    protected $allowedFilteringParameters = ['course', 'sort'];
+    protected $allowedFilteringParameters = ['package', 'sort', 'station'];
     protected $allowedPagingParameters = ['offset', 'limit'];
-    protected $allowedIncludePaths = ['packageTotalProgress', 'packageUserProgress', 'packageUserProgress.user'];
+    protected $allowedIncludePaths = ['stationTotalProgress', 'stationUserProgress', 'stationUserProgress.user', 'station', 'package'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $course_id = $args['id'] ?? null;
+        $package_id = $args['id'] ?? null;
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
-
-        if (!$course_id) {
-            $course_id = $filters['course'] ?? null;
+        if (!$package_id) {
+            $package_id = $filters['package'] ?? null;
         }
 
         $conditions = [];
@@ -43,16 +43,17 @@ class PackagesController extends JsonApiController
         }
 
         $user = $this->getUser($request);
-        $packages = PackageAuthority::findFiltered([$course_id], $user, [], [
+        $stations = StationAuthority::findFiltered([$package_id], $user, [], [
             'conditions' => $conditions,
-            'order' => 'yuoshi_packages.sort ASC'
+            'order' => 'yuoshi_stations.sort ASC'
         ]);
+
 
         list($offset, $limit) = $this->getOffsetAndLimit();
 
         return $this->getPaginatedContentResponse(
-            array_slice($packages, $offset, $limit),
-            count($packages)
+            array_slice($stations, $offset, $limit),
+            count($stations)
         );
     }
 
@@ -66,13 +67,13 @@ class PackagesController extends JsonApiController
         }
 
         $user = $this->getUser($request);
-        $package = PackageAuthority::findOneFiltered($id, $user);
+        $station = StationAuthority::findOneFiltered($id, $user);
 
-        if (!$package) {
+        if (!$station) {
             throw new RecordNotFoundException();
         }
 
-        return $this->getContentResponse($package);
+        return $this->getContentResponse($station);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -80,40 +81,41 @@ class PackagesController extends JsonApiController
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
         $attributes = $data->getAttributes(['title', 'slug', 'sort']);
+        $package_id = $data->getRelation('package')['data']['id'] ?? null;
 
-        /** @var Course|null $course */
-        $course = Course::find($data->getRelation('course')['data']['id'] ?? null);
+        /** @var Package|null $package */
+        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
-        if ($course == null) {
+        if ($package == null) {
             throw new RecordNotFoundException();
         }
 
-        if (!CourseAuthority::canEditCourse($this->getUser($request), $course, CourseAuthority::SCOPE_BASIC)) {
+        if (!PackageAuthority::canEditPackage($this->getUser($request), $package)) {
             throw new AuthorizationFailedException();
         }
 
-        $package = Packages::build($attributes);
-        $package->sort = Packages::nextSort($course->id);
-        $package->course_id = $course->id;
+        $station = stations::build($attributes);
+        $station->sort = stations::nextSort($package->id);
+        $station->package_id = $package->id;
 
-        if (!$package->store()) {
-            throw new InternalServerError("could not save package");
+        if (!$station->store()) {
+            throw new InternalServerError("could not save station");
         }
 
-        return $this->getContentResponse($package);
+        return $this->getContentResponse($station);
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $package_id = $args['id'] ?? null;
+        $station_id = $args['id'] ?? null;
 
-        if ($package_id === null) {
+        if ($station_id === null) {
             throw new RecordNotFoundException();
         }
 
-        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+        $station = StationAuthority::findOneFiltered($station_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
-        if (!$package) {
+        if (!$station) {
             throw new RecordNotFoundException();
         }
 
@@ -122,36 +124,36 @@ class PackagesController extends JsonApiController
         $data = new JsonApiDataHelper($validated);
 
         if ($title = $data->getAttribute('title')) {
-            $package->title = $title;
+            $station->title = $title;
         }
 
         if ($slug = $data->getAttribute('slug')) {
-            $package->slug = $slug;
+            $station->slug = $slug;
         }
 
         $sort = $data->getAttribute('sort');
         if ($sort !== null) {
-            $package->sort = $sort;
+            $station->sort = $sort;
         }
 
-        if ($package->isDirty() && !$package->store()) {
+        if ($station->isDirty() && !$station->store()) {
             throw new InternalServerError("could not update package");
         }
 
-        return $this->getContentResponse($package);
+        return $this->getContentResponse($station);
     }
 
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $package_id = $args['package_id'] ?? null;
+        $station_id = $args['station_id'] ?? null;
 
-        if (!$package_id) {
+        if (!$station_id) {
             throw new RecordNotFoundException();
         }
 
-        $package = PackageAuthority::findOneFiltered($package_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+        $station = StationAuthority::findOneFiltered($station_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
 
-        if (!$package->delete()) {
+        if (!$station->delete()) {
             throw new InternalServerError("could not delete entity");
         }
 
@@ -170,7 +172,7 @@ class PackagesController extends JsonApiController
 
         if ($new) {
             $validator
-                ->rule('required', 'data.relationships.course.data.id');
+                ->rule('required', 'data.relationships.package.data.id');
         }
 
         return $validator;
