@@ -35,6 +35,10 @@ class TasksController extends JsonApiController
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['sort', 'station'];
     protected $allowedIncludePaths = [
+        'solutions',
+        'solutions.content_solutions',
+        'solutions.content_solutions.quest_solutions',
+        'solutions.content_solutions.quest_solutions.answers',
         'contents',
         'contents.quests',
         'contents.quests.answers'
@@ -70,6 +74,60 @@ class TasksController extends JsonApiController
         );
     }
 
+    public function prevTask(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        /** @var User $user */
+        $user = $this->getUser($request);
+        [
+            'current_task_id' => $current_task_id
+        ] = $args;
+        $task = Tasks::findOneWithQuery(
+            [
+                'joins' => [
+                    [
+                        'type' => 'inner',
+                        'table' => 'yuoshi_tasks',
+                        'alias' => 'CurrentTasks',
+                        'on' => [
+                            'CurrentTasks.sort >' => new QueryField('yuoshi_tasks.sort'),
+                            // 'CurrentTasks.id !=' => new QueryField('yuoshi_tasks.id'),
+                            'CurrentTasks.station_id' => new QueryField('yuoshi_tasks.station_id'),
+                        ],
+                    ],
+                ],
+                'conditions' => [
+                    'CurrentTasks.id' => $current_task_id
+                ],
+                'order' => [
+                    '`yuoshi_tasks`.`sort` DESC'
+                ]
+            ]
+        );
+
+        if (!$task) {
+            throw new RecordNotFoundException("task not found");
+        }
+
+        // check if there is a solution for this task
+        $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
+            'yuoshi_user_task_solutions.user_id' => $user->id,
+        ]);
+
+        if (!$solution) {
+            // create new task solution so we can track answer time
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+            ]);
+
+            if (!$solution->store()) {
+                throw new InternalServerError('could not persist entity');
+            }
+        }
+
+        return $this->getContentResponse($task);
+    }
+
     public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         /** @var User $user */
@@ -79,20 +137,8 @@ class TasksController extends JsonApiController
 
         /** @var Tasks|null $task */
         $task = Tasks::findOneWithQuery([
-            'joins' => [
-                [
-                    'type' => 'left',
-                    'table' => 'yuoshi_user_task_solutions',
-                    'alias' => 'Solutions',
-                    'on' => [
-                        'Solutions.task_id' => new QueryField('yuoshi_tasks.id'),
-                        'Solutions.user_id' => $user->id,
-                        'Solutions.finished IS NOT NULL'
-                    ],
-                ]
-            ],
+            
             'conditions' => [
-                'Solutions.id IS NULL',
                 'yuoshi_tasks.station_id' => $station_id,
             ],
             'order' => [
@@ -103,7 +149,6 @@ class TasksController extends JsonApiController
         if ($task) {
             // check if there is a solution for this task
             $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
-                'yuoshi_user_task_solutions.finished is null',
                 'yuoshi_user_task_solutions.user_id' => $user->id,
             ]);
             if (!$solution) {

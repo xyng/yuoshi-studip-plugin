@@ -3,6 +3,8 @@ namespace Xyng\Yuoshi\Api\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 use Neomerx\JsonApi\Document\Link;
+use Xyng\Yuoshi\Helper\PermissionHelper;
+use TaskSolutions;
 
 class Tasks extends SchemaProvider
 {
@@ -43,12 +45,24 @@ class Tasks extends SchemaProvider
             $contents = $resource->contents;
         }
 
+        $solutions = null;
+        if ($includeRelationships['solutions'] ?? null) {
+            $solutions = $resource->getSolutionForUser(PermissionHelper::getUser()->id);
+        }
+
         return [
             'contents' => [
                 self::DATA => $contents,
                 self::SHOW_SELF => true,
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'contents')
+                ],
+            ],
+            'solutions' => [
+                self::DATA => $solutions,
+                self::SHOW_SELF => true,
+                self::LINKS => [
+                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'solutions')
                 ],
             ]
         ];

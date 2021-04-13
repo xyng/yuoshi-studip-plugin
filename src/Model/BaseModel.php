@@ -16,7 +16,8 @@ use Xyng\Yuoshi\Helper\DBHelper;
  * @property DateTime $chdate
  * @property DateTime $mkdate
  */
-class BaseModel extends SimpleORMap {
+class BaseModel extends SimpleORMap
+{
     protected $dateFields = ['mkdate', 'chdate'];
     const DB_TZ = "UTC";
     const TZ = "Europe/Berlin";
@@ -110,31 +111,38 @@ class BaseModel extends SimpleORMap {
         return $ret;
     }
 
-    public static function findWhere(array $conditions, array $fields = []) {
+    public static function findWhere(array $conditions, array $fields = [])
+    {
         ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
 
         return static::findBySQL($sql, $params, $fields);
     }
 
-    public static function findOneWhere(array $conditions, array $fields = []) {
+    public static function findOneWhere(array $conditions, array $fields = [])
+    {
         ['sql' => $sql, 'params' => $params] = DBHelper::traverseConditions($conditions);
 
         return static::findOneBySQL($sql, $params, $fields);
     }
 
-    public static function findWithQuery(array $query, array $fields = []) {
+    public static function findWithQuery(array $query, array $fields = [])
+    {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
 
         return static::findBySQL($sql, $params, $fields);
     }
 
-    public static function findOneWithQuery(array $query, array $fields = []) {
+    public static function findOneWithQuery(array $query, array $fields = [])
+    {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
+        // dd($sql, $params);
+        xdebug_break();
 
         return static::findOneBySQL($sql, $params, $fields);
     }
 
-    public static function countWithQuery(array $query) {
+    public static function countWithQuery(array $query)
+    {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
 
         return static::countBySQL($sql, $params);
@@ -168,7 +176,7 @@ class BaseModel extends SimpleORMap {
         $ret = array();
         $stmt = DBManager::get()->prepare($sql);
         $stmt->execute($params);
-        $stmt->setFetchMode(PDO::FETCH_INTO , $record);
+        $stmt->setFetchMode(PDO::FETCH_INTO, $record);
         $record->setNew(false);
         while ($record = $stmt->fetch()) {
             $record->applyCallbacks('after_initialize');
