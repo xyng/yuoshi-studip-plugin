@@ -23,6 +23,7 @@ class TaskContentSolutions extends SchemaProvider {
     {
         /** @var \Xyng\Yuoshi\Model\UserTaskContentSolutions $resource */
         return [
+            'content_id' => $resource->content_id,
             'value' => $resource->value ? $resource->value->getArrayCopy() : null,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
