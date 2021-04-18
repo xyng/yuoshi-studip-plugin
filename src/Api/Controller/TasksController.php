@@ -35,10 +35,6 @@ class TasksController extends JsonApiController
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['sort', 'station'];
     protected $allowedIncludePaths = [
-        'solutions',
-        'solutions.content_solutions',
-        'solutions.content_solutions.quest_solutions',
-        'solutions.content_solutions.quest_solutions.answers',
         'contents',
         'contents.quests',
         'contents.quests.answers'
