@@ -24,6 +24,7 @@ class TaskSolutionsController extends JsonApiController
 {
     use ValidationTrait;
 
+    protected $allowUnrecognizedParams = ['no_create'];
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['task', 'user'];
     protected $allowedIncludePaths = [
@@ -137,7 +138,8 @@ class TaskSolutionsController extends JsonApiController
             )
         );
 
-        if (!$solution) {
+        $noCreate = (bool) ($this->getQueryParameters()['noCreate'] ?? false);
+        if (!$solution && !$noCreate) {
             $solution = UserTaskSolutions::build([
                 'task_id' => $task->id,
                 'user_id' => $user->id,
