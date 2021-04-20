@@ -8,8 +8,9 @@ use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
 
-class TaskContentQuestSolutionAuthority implements AuthorityInterface {
-    static function getFilter(): string
+class TaskContentQuestSolutionAuthority implements AuthorityInterface
+{
+    public static function getFilter(): string
     {
         $tasksJoin = TaskContentSolutionAuthority::getFilter();
         return "INNER JOIN yuoshi_user_task_content_solutions on (yuoshi_user_task_content_quest_solutions.content_solution_id = yuoshi_user_task_content_solutions.id) " . $tasksJoin;
@@ -20,7 +21,7 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
      *
      * @return UserTaskContentQuestSolutions[]
      */
-    static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
+    public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return UserTaskContentQuestSolutions::findWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_content_solutions.id', $ids, $user, $perms, $conditions)
@@ -32,7 +33,7 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
      *
      * @return UserTaskContentQuestSolutions|null
      */
-    static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
+    public static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
     {
         return UserTaskContentQuestSolutions::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_user_task_content_quest_solutions.id', $id, $user, $perms, $conditions)
@@ -43,11 +44,12 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface {
      * @param UserTaskContentQuestSolutions[] $questSolutions
      * @return double|bool
      */
-    static function areQuestSolutionsDone($questSolutions) {
+    public static function areQuestSolutionsDone($questSolutions)
+    {
         // max 3 solution attempts per run
-        if (count($questSolutions) > 2) {
-            return true;
-        }
+        // if (count($questSolutions) > 2) {
+        //     return true;
+        // }
 
         foreach ($questSolutions as $questSolution) {
             if ($questSolution->is_correct || $questSolution->sent_solution) {

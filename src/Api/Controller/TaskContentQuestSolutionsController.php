@@ -34,12 +34,14 @@ use Xyng\Yuoshi\Model\UserTaskSolutions;
 use Xyng\Yuoshi\Api\Schema\TaskContentQuestSolutions;
 use Xyng\Yuoshi\Api\Schema\TaskSolutions;
 
-class TaskContentQuestSolutionsController extends JsonApiController {
+class TaskContentQuestSolutionsController extends JsonApiController
+{
     use ValidationTrait;
 
     protected $allowedPagingParameters = ['offset', 'limit'];
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $quest_solution_id = $args['quest_solution_id'] ?? null;
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
@@ -61,7 +63,8 @@ class TaskContentQuestSolutionsController extends JsonApiController {
         );
     }
 
-    protected function getSolution(ServerRequestInterface $request, ResponseInterface $response, $args): UserTaskContentQuestSolutions {
+    protected function getSolution(ServerRequestInterface $request, ResponseInterface $response, $args): UserTaskContentQuestSolutions
+    {
         $quest_solution_id = $args['quest_solution_id'] ?? null;
 
         if (!$quest_solution_id) {
@@ -77,13 +80,15 @@ class TaskContentQuestSolutionsController extends JsonApiController {
         return $solution;
     }
 
-    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $solution = $this->getSolution($request, $response, $args);
 
         return $this->getContentResponse($solution);
     }
 
-    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
 
@@ -144,10 +149,6 @@ class TaskContentQuestSolutionsController extends JsonApiController {
             ]
         ]);
 
-        if ($previousQuestSolutionAttempts > 2) {
-            throw new ConflictException();
-        }
-
         // check if the user has already seen the solution for this question in this run
         $sawSolution = (bool) UserTaskContentQuestSolutions::countWithQuery([
             'conditions' => [
@@ -165,7 +166,7 @@ class TaskContentQuestSolutionsController extends JsonApiController {
 
         if (!$quest->multiple) {
             // this quest only accepts one answer. we will take the first one.
-            $rawUserAnswers = array_slice($rawUserAnswers,0, 1);
+            $rawUserAnswers = array_slice($rawUserAnswers, 0, 1);
         }
 
         $sanitizer = HtmlSanitizerFactory::create();
@@ -248,22 +249,15 @@ class TaskContentQuestSolutionsController extends JsonApiController {
         return $this->getContentResponse($questSolution);
     }
 
-    public function requestSampleSolution(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function requestSampleSolution(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $quest_solution_id = $args['quest_solution_id'] ?? null;
 
-        $questSolution = TaskContentQuestSolutionAuthority::findOneFiltered($quest_solution_id, $this->getUser($request), [], [
-            'yuoshi_user_task_content_quest_solutions.sent_solution' => false
-        ]);
+        $questSolution = TaskContentQuestSolutionAuthority::findOneFiltered($quest_solution_id, $this->getUser($request), [], []);
 
         if (!$questSolution) {
             throw new RecordNotFoundException();
         }
-
-        // mark as "used"
-        $questSolution->sent_solution = true;
-        $questSolution->store();
-
-        TaskSolutionAuthority::checkAndMarkDone($questSolution->content_solution->task_solution);
 
         $answers = $questSolution->quest->answers;
         $answers->uasort(function (TaskContentQuestAnswers $a, TaskContentQuestAnswers $b) {
