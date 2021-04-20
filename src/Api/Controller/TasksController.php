@@ -76,7 +76,7 @@ class TasksController extends JsonApiController
         /** @var User $user */
         $user = $this->getUser($request);
         [
-            'current_task_id' => $current_task_id
+            'task_id' => $current_task_id
         ] = $args;
         $task = Tasks::findOneWithQuery(
             [
