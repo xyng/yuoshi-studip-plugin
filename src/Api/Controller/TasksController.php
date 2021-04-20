@@ -2,6 +2,7 @@
 namespace Xyng\Yuoshi\Api\Controller;
 
 use Course;
+use InvalidArgumentException;
 use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
@@ -75,7 +76,7 @@ class TasksController extends JsonApiController
         /** @var User $user */
         $user = $this->getUser($request);
         [
-            'current_task_id' => $current_task_id
+            'task_id' => $current_task_id
         ] = $args;
         $task = Tasks::findOneWithQuery(
             [
@@ -86,7 +87,6 @@ class TasksController extends JsonApiController
                         'alias' => 'CurrentTasks',
                         'on' => [
                             'CurrentTasks.sort >' => new QueryField('yuoshi_tasks.sort'),
-                            // 'CurrentTasks.id !=' => new QueryField('yuoshi_tasks.id'),
                             'CurrentTasks.station_id' => new QueryField('yuoshi_tasks.station_id'),
                         ],
                     ],
@@ -104,11 +104,101 @@ class TasksController extends JsonApiController
             throw new RecordNotFoundException("task not found");
         }
 
+        return $this->getContentResponse($task);
+    }
+
+    public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        /** @var User $user */
+        $user = $this->getUser($request);
+
+        $station_id = $args['id'] ?? null;
+        $task_id = $args['task_id'] ?? null;
+
+        if (!$station_id && !$task_id) {
+            throw new InvalidArgumentException('either station_id or task_id must be given');
+        }
+
+        $joins = [];
+        $conditions = [];
+        if ($task_id) {
+            $joins = [
+                [
+                    'type' => 'inner',
+                    'table' => 'yuoshi_tasks',
+                    'alias' => 'CurrentTasks',
+                    'on' => [
+                        'CurrentTasks.sort <' => new QueryField('yuoshi_tasks.sort'),
+                        'CurrentTasks.station_id' => new QueryField('yuoshi_tasks.station_id'),
+                    ],
+                ],
+            ];
+
+            $conditions =  [
+                'CurrentTasks.id' => $task_id,
+            ];
+
+            if ($station_id) {
+                $conditions['CurrentTasks.station_id'] = $station_id;
+            }
+        } else if ($station_id) {
+            $joins = [
+                [
+                    'type' => 'left',
+                    'table' => 'yuoshi_user_task_solutions',
+                    'conditions' => [
+                        'yuoshi_user_task_solutions.user_id' => $user->id,
+                        'yuoshi_user_task_solutions.task_id' => new QueryField('yuoshi_tasks.id'),
+                    ],
+                ],
+            ];
+
+            $conditions = [
+                'yuoshi_tasks.station_id' => $station_id,
+                'yuoshi_user_task_solutions.id IS NULL',
+            ];
+        }
+
+        /** @var Tasks|null $task */
+        $task = Tasks::findOneWithQuery([
+            'joins' => $joins,
+            'conditions' => $conditions,
+            'order' => [
+                '`yuoshi_tasks`.`sort` ASC'
+            ]
+        ]);
+
+        if (!$task) {
+            throw new RecordNotFoundException("task not found");
+        }
+
+        return $this->getContentResponse($task);
+    }
+
+    public function start(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /** @var User $user */
+        $user = $this->getUser($request);
+
+        ['task_id' => $task_id] = $args;
+
+        /** @var Tasks|null $task */
+        $task = Tasks::findOneWithQuery([
+            'conditions' => [
+                'yuoshi_tasks.id' => $task_id,
+            ],
+            'order' => [
+                '`yuoshi_tasks`.`sort` ASC'
+            ]
+        ]);
+
+        if (!$task) {
+            throw new RecordNotFoundException("task not found");
+        }
+
         // check if there is a solution for this task
         $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
             'yuoshi_user_task_solutions.user_id' => $user->id,
         ]);
-
         if (!$solution) {
             // create new task solution so we can track answer time
             $solution = UserTaskSolutions::build([
@@ -118,45 +208,6 @@ class TasksController extends JsonApiController
 
             if (!$solution->store()) {
                 throw new InternalServerError('could not persist entity');
-            }
-        }
-
-        return $this->getContentResponse($task);
-    }
-
-    public function nextTask(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        /** @var User $user */
-        $user = $this->getUser($request);
-
-        ['id' => $station_id] = $args;
-
-        /** @var Tasks|null $task */
-        $task = Tasks::findOneWithQuery([
-            
-            'conditions' => [
-                'yuoshi_tasks.station_id' => $station_id,
-            ],
-            'order' => [
-                '`yuoshi_tasks`.`sort` ASC'
-            ]
-        ]);
-
-        if ($task) {
-            // check if there is a solution for this task
-            $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
-                'yuoshi_user_task_solutions.user_id' => $user->id,
-            ]);
-            if (!$solution) {
-                // create new task solution so we can track answer time
-                $solution = UserTaskSolutions::build([
-                    'task_id' => $task->id,
-                    'user_id' => $user->id,
-                ]);
-
-                if (!$solution->store()) {
-                    throw new InternalServerError('could not persist entity');
-                }
             }
         }
 
@@ -184,7 +235,7 @@ class TasksController extends JsonApiController
     {
         $validated = $this->validate($request, true);
         $data = new JsonApiDataHelper($validated);
-        
+
         $station_id = $data->getRelation('station')['data']['id'] ?? null;
 
         if (!$station_id) {
