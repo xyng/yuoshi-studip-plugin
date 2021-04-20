@@ -44,7 +44,8 @@ class TaskSolutionsController extends JsonApiController
         'content_solutions.quest_solutions.answers.answer.quest',
     ];
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $task_id = $args['task_id'] ?? null;
 
         $filters = $this->getQueryParameters()->getFilteringParameters();
@@ -83,7 +84,8 @@ class TaskSolutionsController extends JsonApiController
         );
     }
 
-    protected function getSolution(ServerRequestInterface $request, ResponseInterface $response, $args, array $perms = [], array $conds = []): UserTaskSolutions {
+    protected function getSolution(ServerRequestInterface $request, ResponseInterface $response, $args, array $perms = [], array $conds = []): UserTaskSolutions
+    {
         $task_solution_id = $args['task_solution_id'] ?? null;
 
         if (!$task_solution_id) {
@@ -107,7 +109,8 @@ class TaskSolutionsController extends JsonApiController
      * @param $args
      * @return \JsonApi\JsonApiIntegration\Response
      */
-    public function getCurrentSolution(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function getCurrentSolution(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $task_id = $args['task_id'] ?? null;
 
         if (!$task_id) {
@@ -138,7 +141,7 @@ class TaskSolutionsController extends JsonApiController
             )
         );
 
-        $noCreate = (bool) ($this->getQueryParameters()['noCreate'] ?? false);
+        $noCreate = (bool) ($this->getQueryParameters()->getUnrecognizedParameters()['noCreate'] ?? false);
         if (!$solution && !$noCreate) {
             $solution = UserTaskSolutions::build([
                 'task_id' => $task->id,
@@ -153,7 +156,8 @@ class TaskSolutionsController extends JsonApiController
         return $this->getContentResponse($solution);
     }
 
-    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $solution = $this->getSolution($request, $response, $args);
 
         $cond = [];
@@ -166,7 +170,8 @@ class TaskSolutionsController extends JsonApiController
         return $this->getContentResponse($solution);
     }
 
-    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $solution = $this->getSolution($request, $response, $args, PermissionHelper::getMasters('dozent'));
 
         $validated = $this->validate($request);

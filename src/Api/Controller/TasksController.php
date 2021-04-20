@@ -141,7 +141,7 @@ class TasksController extends JsonApiController
             if ($station_id) {
                 $conditions['CurrentTasks.station_id'] = $station_id;
             }
-        } else if ($station_id) {
+        } elseif ($station_id) {
             $joins = [
                 [
                     'type' => 'left',
@@ -149,6 +149,7 @@ class TasksController extends JsonApiController
                     'on' => [
                         'yuoshi_user_task_solutions.user_id' => $user->id,
                         'yuoshi_user_task_solutions.task_id' => new QueryField('yuoshi_tasks.id'),
+                        'yuoshi_user_task_solutions.finished IS NOT NULL',
                     ],
                 ],
             ];
@@ -175,7 +176,8 @@ class TasksController extends JsonApiController
         return $this->getContentResponse($task);
     }
 
-    public function start(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function start(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         /** @var User $user */
         $user = $this->getUser($request);
 
