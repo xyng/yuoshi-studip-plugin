@@ -136,7 +136,7 @@ class BaseModel extends SimpleORMap
     {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
         // dd($sql, $params);
-        xdebug_break();
+        // xdebug_break();
 
         return static::findOneBySQL($sql, $params, $fields);
     }
