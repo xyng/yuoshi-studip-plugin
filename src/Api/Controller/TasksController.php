@@ -163,6 +163,45 @@ class TasksController extends JsonApiController
         return $this->getContentResponse($task);
     }
 
+    public function start(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /** @var User $user */
+        $user = $this->getUser($request);
+
+        ['task_id' => $task_id] = $args;
+
+        /** @var Tasks|null $task */
+        $task = Tasks::findOneWithQuery([
+            'conditions' => [
+                'yuoshi_tasks.id' => $task_id,
+            ],
+            'order' => [
+                '`yuoshi_tasks`.`sort` ASC'
+            ]
+        ]);
+
+        if (!$task) {
+            throw new RecordNotFoundException("task not found");
+        }
+
+        // check if there is a solution for this task
+        $solution = TaskSolutionAuthority::findFiltered([$task->id], $user, [], [
+            'yuoshi_user_task_solutions.user_id' => $user->id,
+        ]);
+        if (!$solution) {
+            // create new task solution so we can track answer time
+            $solution = UserTaskSolutions::build([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+            ]);
+
+            if (!$solution->store()) {
+                throw new InternalServerError('could not persist entity');
+            }
+        }
+
+        return $this->getContentResponse($task);
+    }
+
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $task_id = $args['id'] ?? null;
