@@ -146,7 +146,7 @@ class TasksController extends JsonApiController
                 [
                     'type' => 'left',
                     'table' => 'yuoshi_user_task_solutions',
-                    'conditions' => [
+                    'on' => [
                         'yuoshi_user_task_solutions.user_id' => $user->id,
                         'yuoshi_user_task_solutions.task_id' => new QueryField('yuoshi_tasks.id'),
                     ],
