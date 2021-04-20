@@ -87,7 +87,6 @@ class TasksController extends JsonApiController
                         'alias' => 'CurrentTasks',
                         'on' => [
                             'CurrentTasks.sort >' => new QueryField('yuoshi_tasks.sort'),
-                            // 'CurrentTasks.id !=' => new QueryField('yuoshi_tasks.id'),
                             'CurrentTasks.station_id' => new QueryField('yuoshi_tasks.station_id'),
                         ],
                     ],
@@ -130,7 +129,6 @@ class TasksController extends JsonApiController
                     'alias' => 'CurrentTasks',
                     'on' => [
                         'CurrentTasks.sort <' => new QueryField('yuoshi_tasks.sort'),
-                        // 'CurrentTasks.id !=' => new QueryField('yuoshi_tasks.id'),
                         'CurrentTasks.station_id' => new QueryField('yuoshi_tasks.station_id'),
                     ],
                 ],
