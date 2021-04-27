@@ -3,84 +3,84 @@ namespace Xyng\Yuoshi\Model;
 
 use Course;
 use \User;
-use SimpleORMap;
-use Xyng\Yuoshi\Authority\PackageAuthority;
+use Xyng\Yuoshi\Authority\StationAuthority;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
 
 /**
- * Class Packages
+ * Class Stations
  * @package Xyng\Yuoshi\Model
  *
- * @property string $course_id
+ * @property string $package_id
  * @property string $title
  * @property string $slug
  * @property int $sort
  * @property Course $course
  * @property Tasks[] $tasks
  *
- * @method static Packages find(string $id)
+ * @method static Stations find(string $id)
  */
-class Packages extends BaseModel
+class Stations extends BaseModel
 {
     protected static function configure($config = [])
     {
-        $config['db_table'] = 'yuoshi_packages';
-        $config['has_many']['stations'] = [
-            'class_name' => Stations::class,
-            'assoc_func' => 'findByPackage_id',
-            'assoc_foreign_key' => 'package_id',
+        $config['db_table'] = 'yuoshi_stations';
+
+        $config['has_many']['tasks'] = [
+            'class_name' => Tasks::class,
+            'assoc_func' => 'findByStation_id',
+            'assoc_foreign_key' => 'station_id',
             'on_delete' => true,
             'on_store' => true,
         ];
-        $config['belongs_to']['course'] = [
-            'class_name' => Course::class,
-            'foreign_key' => 'course_id'
+
+        $config['belongs_to']['package'] = [
+            'class_name' => Packages::class,
+            'foreign_key' => 'package_id'
         ];
+
         parent::configure($config);
     }
-    // TODO: check in db if this package is playable by user.
-    public $playable = true;
-    public static function nextSort(string $course_id)
+
+    public static function nextSort(string $package_id)
     {
         $db_table = static::config('db_table');
-        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `course_id` = :courseId GROUP BY `coursE_id`");
+        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `package_id` = :packageId GROUP BY `package_id`");
         $maxSortStmt->execute([
-            'courseId' => $course_id,
+            'packageId' => $package_id,
         ]);
+
         $maxSort = $maxSortStmt->fetch();
         if ($maxSort === false) {
             return 0;
         }
+
         return ((int) $maxSort['max_sort']) + 1;
     }
+
     /**
      * @param User $user
      * @param bool $byUsers
-     * @return UserPackageProgress|null|UserPackageProgress[]
+     * @return UserStationProgress|null|UserStationProgress[]
      */
     public function getProgress(User $user, bool $byUsers = false)
     {
         $solvedTaskCount = 'count(distinct concat(`yuoshi_user_task_solutions`.`task_id`, `yuoshi_user_task_solutions`.`user_id`))';
+
         $studentJoinConditions = [];
-        $isDozent = PermissionHelper::getPerm()->have_studip_perm('dozent', $this->course_id, $user->id);
+
+        $isDozent = PermissionHelper::getPerm()->have_studip_perm('dozent', $this->package->course_id, $user->id);
         if (!$isDozent) {
             $studentJoinConditions['Students.user_id'] = $user->id;
         }
+
         $query = [
             'joins' => [
                 [
-                    'sql' => PackageAuthority::getFilter(),
+                    'sql' => StationAuthority::getFilter(),
                     'params' => [
                         'user_id' => $user->id,
                     ]
-                ],
-                [
-                    'type' => 'left',
-                    'table' => 'yuoshi_stations',
-                    'on' => [
-                        'yuoshi_stations.package_id' => new QueryField('yuoshi_packages.id'),
-                    ],
                 ],
                 [
                     // we have two joins on the tasks table.
@@ -98,7 +98,7 @@ class Packages extends BaseModel
                     'type' => 'left',
                     'table' => 'yuoshi_tasks',
                     'on' => [
-                        'yuoshi_tasks.station_id' => new QueryField('yuoshi_tasks.station_id')
+                        'yuoshi_stations.id' => new QueryField('yuoshi_tasks.station_id')
                     ]
                 ],
                 [
@@ -121,37 +121,41 @@ class Packages extends BaseModel
                 ],
             ],
             'conditions' => [
-                'yuoshi_packages.id' => $this->id,
+                'yuoshi_stations.id' => $this->id,
             ] + ($byUsers ? [
                 'Students.user_id is not null'
             ] : []),
             'group' => $byUsers ? [
-                'yuoshi_packages.id',
+                'yuoshi_stations.id',
                 'yuoshi_user_task_solutions.user_id',
             ] : [
-                'yuoshi_packages.id'
+                'yuoshi_stations.id'
             ]
         ];
+
         $progressCount = '(' . $solvedTaskCount . '* 100) / (count(distinct `TotalTasks`.`id`) * count(distinct `yuoshi_user_task_solutions`.`user_id`))';
+
         if (!$byUsers) {
-            return UserPackageProgress::findOneWithQuery(
+            /** @var UserStationProgress|null $result */
+            $result = UserStationProgress::findOneWithQuery(
                 $query,
                 [
                     'progress' => $progressCount,
                 ]
             );
+
+            return $result;
         }
-        return UserPackageProgress::findWithQuery(
+
+        /** @var UserStationProgress[] $result */
+        $result = UserStationProgress::findWithQuery(
             $query,
             [
                 'progress' => $progressCount,
                 'user_id' => 'yuoshi_user_task_solutions.user_id'
             ]
         );
-    }
 
-    public function getAllPackages()
-    {
-        return Packages::findBySQL('1');
+        return $result;
     }
 }

@@ -7,3 +7,5 @@ DROP TABLE IF EXISTS `yuoshi_task_content_quests`;
 DROP TABLE IF EXISTS `yuoshi_task_contents`;
 DROP TABLE IF EXISTS `yuoshi_tasks`;
 DROP TABLE IF EXISTS `yuoshi_packages`;
+DROP TABLE IF EXISTS `yuoshi_stations`;
+

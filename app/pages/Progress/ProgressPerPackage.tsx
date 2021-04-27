@@ -34,10 +34,10 @@ const ProgressPerPackage: React.FC<RouteComponentProps> = () => {
                                     </Link>
                                 </td>
                                 <td>
-                                    <Progress
+                                    {/* <Progress
                                         value={pkg.getProgress() || 0}
                                         max={100}
-                                    />
+                                    /> */}
                                 </td>
                             </tr>
                         )

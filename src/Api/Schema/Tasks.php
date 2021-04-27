@@ -3,6 +3,8 @@ namespace Xyng\Yuoshi\Api\Schema;
 
 use JsonApi\Schemas\SchemaProvider;
 use Neomerx\JsonApi\Document\Link;
+use Xyng\Yuoshi\Helper\PermissionHelper;
+use TaskSolutions;
 
 class Tasks extends SchemaProvider
 {
@@ -50,7 +52,7 @@ class Tasks extends SchemaProvider
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'contents')
                 ],
-            ]
+            ],
         ];
     }
 }

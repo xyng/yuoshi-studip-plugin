@@ -23,6 +23,7 @@ class TaskContentQuestSolutions extends SchemaProvider {
     {
         /** @var \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions $resource */
         return [
+            'quest_id' => $resource->quest_id,
             'is_correct' => (bool) $resource->is_correct,
             'score' => (double) $resource->score,
             'sent_solution' => (bool) $resource->sent_solution,

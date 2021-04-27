@@ -6,13 +6,16 @@ use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Model\Tasks;
 
-class TaskAuthority implements AuthorityInterface {
-    public static function filterByUsersPackages(): string {
-        $packageJoin = PackageAuthority::filterByUsersCourses();
-        return "INNER JOIN yuoshi_packages on (yuoshi_packages.id = yuoshi_tasks.package_id) " . $packageJoin;
+class TaskAuthority implements AuthorityInterface
+{
+    public static function filterByUsersPackages(): string
+    {
+        $stationJoin = StationAuthority::filterByUsersPackages();
+        
+        return "INNER JOIN yuoshi_stations on (yuoshi_stations.id = yuoshi_tasks.station_id) " . $stationJoin;
     }
 
-    static function getFilter(): string
+    public static function getFilter(): string
     {
         return static::filterByUsersPackages();
     }
@@ -20,17 +23,17 @@ class TaskAuthority implements AuthorityInterface {
     /**
      * @inheritDoc
      */
-    static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
+    public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
         return Tasks::findWithQuery(
-            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_packages.id', $ids, $user, $perms, $conditions)
+            AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_stations.id', $ids, $user, $perms, $conditions)
         );
     }
 
     /**
      * @inheritDoc
      */
-    static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
+    public static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
     {
         return Tasks::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_tasks.id', $id, $user, $perms, $conditions)

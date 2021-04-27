@@ -37,14 +37,14 @@ const RenderProgress: React.FC<RouteComponentProps> = () => {
                                     </Link>
                                 </td>
                                 <td>
-                                    <ProgressBar
+                                    {/* <ProgressBar
                                         value={
                                             pkg
                                                 .getPackageTotalProgress()
                                                 .getProgress() || 0
                                         }
                                         max={100}
-                                    />
+                                    /> */}
                                 </td>
                             </tr>
                         )

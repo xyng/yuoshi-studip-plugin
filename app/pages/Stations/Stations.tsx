@@ -1,61 +1,56 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
 
-import { CurrentPackageContextProvider } from "../../contexts/CurrentPackageContext"
+import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
 import {
-    PackagesContextProvider,
-    usePackagesContext,
-} from "../../contexts/PackagesContext"
+    StationContextProvider,
+    useStationContext,
+} from "../../contexts/StationContext"
 import Progress from "../../components/Progress/Progress"
-import Package from "../../models/Package"
+import Station from "../../models/Station"
 import Button from "../../components/Button/Button"
 
-import EditPackage from "./EditPackage"
-import CreatePackage from "./CreatePackage"
-import ImportPackage from "./ImportPackage"
+import CreateStation from "./CreateStation"
 
-const Station = React.lazy(() => import("../Stations/Stations"))
+const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
-const Packages: React.FC<RouteComponentProps> = () => {
+const Stations: React.FC<RouteComponentProps> = () => {
     return (
-        <PackagesContextProvider>
-            <Router basepath="/packages">
-                <PackagesIndex path="/" />
-                <CreatePackage path="create" />
-                <ImportPackage path="import" />
-                <PackageSubRoute path=":packageId/*" />
-            </Router>
-        </PackagesContextProvider>
-    )
-}
-
-const PackageSubRoute: React.FC<RouteComponentProps<{
-    packageId: string
-}>> = ({ packageId }) => {
-    return (
-        <CurrentPackageContextProvider currentPackage={packageId}>
+        <StationContextProvider>
             <Router>
-                <EditPackage path="edit" />
-                <Station path="stations/*" />
+                <StationsIndex path="/" />
+
+                <CreateStation path="create" />
+                <StationSubRoute path=":stationId/*" />
             </Router>
-        </CurrentPackageContextProvider>
+        </StationContextProvider>
     )
 }
 
-const PackagesIndex: React.FC<RouteComponentProps> = () => {
+const StationSubRoute: React.FC<RouteComponentProps<{
+    stationId: string
+}>> = ({ stationId }) => {
+    return (
+        <CurrentStationContextProvider stationId={stationId}>
+            <Router>
+                <Tasks path="tasks/*" />
+            </Router>
+        </CurrentStationContextProvider>
+    )
+}
+
+const StationsIndex: React.FC<RouteComponentProps> = () => {
     return (
         <>
-            <Link className="button" to="/">
+            <Link className="button" to="/packages">
                 Zurück
             </Link>
             <Link className="button" to="create">
-                Neues Paket
+                Neue Station
             </Link>
-            <Link className="button" to="import">
-                Paket importieren
-            </Link>
+
             <table className="default">
-                <caption>Pakete</caption>
+                <caption>Stationen</caption>
                 <thead>
                     <tr>
                         <th>Position</th>
@@ -70,12 +65,12 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
                         fallback={
                             <tr>
                                 <td colSpan={1000}>
-                                    Lade Pakete. Bitte warten.
+                                    Lade Stationen. Bitte warten.
                                 </td>
                             </tr>
                         }
                     >
-                        <RenderPackageTableData />
+                        <RenderStationTableData />
                     </Suspense>
                 </tbody>
             </table>
@@ -83,8 +78,8 @@ const PackagesIndex: React.FC<RouteComponentProps> = () => {
     )
 }
 
-const RenderPackageTableData: React.FC = () => {
-    const { packages, reloadPackages, mutate } = usePackagesContext()
+const RenderStationTableData: React.FC = () => {
+    const { station, reloadStations, mutate } = useStationContext()
 
     const onRemove = useCallback(
         (id?: string) => async () => {
@@ -92,48 +87,48 @@ const RenderPackageTableData: React.FC = () => {
                 return
             }
 
-            const entity = packages.find((p) => p.getApiId() === id)
+            const entity = station.find((p) => p.getApiId() === id)
 
             if (!entity) {
                 return
             }
 
             await entity.delete()
-            await reloadPackages()
+            await reloadStations()
         },
-        [packages, reloadPackages]
+        [station, reloadStations]
     )
 
-    const movePackage = useCallback(
-        async (packageId: string, direction: number) => {
-            const packageIndex = packages.findIndex(
-                (p) => p.getApiId() === packageId
+    const moveStation = useCallback(
+        async (stationId: string, direction: number) => {
+            const stationIndex = station.findIndex(
+                (p) => p.getApiId() === stationId
             )
 
-            if (packageIndex === -1) {
+            if (stationIndex === -1) {
                 return
             }
 
             if (
-                (packageIndex === 0 && direction < 0) ||
-                (packageIndex === packages.length - 1 && direction > 0)
+                (stationIndex === 0 && direction < 0) ||
+                (stationIndex === station.length - 1 && direction > 0)
             ) {
                 return
             }
 
-            await mutate((packages) => {
+            await mutate((station) => {
                 let current = 0
-                return packages
-                    .map((packageItem, index) => {
-                        packageItem = packageItem.clone<Package>()
+                return station
+                    .map((stationItem, index) => {
+                        stationItem = stationItem.clone<Station>()
 
-                        if (index === packageIndex) {
-                            packageItem.setSort(
-                                packageItem.getSort() + direction
+                        if (index === stationIndex) {
+                            stationItem.setSort(
+                                stationItem.getSort() + direction
                             )
                         }
 
-                        return packageItem
+                        return stationItem
                     })
                     .sort((a, b) => {
                         return a.getSort() - b.getSort()
@@ -146,39 +141,39 @@ const RenderPackageTableData: React.FC = () => {
                     })
             }, true)
         },
-        [packages, mutate]
+        [station, mutate]
     )
 
-    const packageUp = useCallback(
-        (packageId: string) => async () => {
-            await movePackage(packageId, -2)
+    const stationUp = useCallback(
+        (stationId: string) => async () => {
+            await moveStation(stationId, -2)
         },
-        [movePackage]
+        [moveStation]
     )
 
-    const packageDown = useCallback(
-        (packageId: string) => async () => {
-            await movePackage(packageId, 2)
+    const stationDown = useCallback(
+        (stationId: string) => async () => {
+            await moveStation(stationId, 2)
         },
-        [movePackage]
+        [moveStation]
     )
 
     return (
         <>
-            {packages.map((packageItem) => {
+            {station.map((stationItem) => {
                 return (
-                    <tr key={packageItem.getApiId()}>
+                    <tr key={stationItem.getApiId()}>
                         <td>
                             <span className="pr">
-                                {packageItem.getSort() + 1}
+                                {stationItem.getSort() + 1}
                             </span>
-                            {packages.length > 1 && (
+                            {station.length > 1 && (
                                 <>
                                     <Button
                                         fixMargin
                                         small
-                                        onClick={packageUp(
-                                            packageItem.getApiId() as string
+                                        onClick={stationUp(
+                                            stationItem.getApiId() as string
                                         )}
                                     >
                                         &uarr;
@@ -186,8 +181,8 @@ const RenderPackageTableData: React.FC = () => {
                                     <Button
                                         fixMargin
                                         small
-                                        onClick={packageDown(
-                                            packageItem.getApiId() as string
+                                        onClick={stationDown(
+                                            stationItem.getApiId() as string
                                         )}
                                     >
                                         &darr;
@@ -196,31 +191,31 @@ const RenderPackageTableData: React.FC = () => {
                             )}
                         </td>
                         <td>
-                            <Link to={`${packageItem.getApiId()}/stations`}>
-                                {packageItem.getTitle()}
+                            <Link to={`${stationItem.getApiId()}/tasks`}>
+                                {stationItem.getTitle()}
                             </Link>
                         </td>
                         <td>
                             <Progress
                                 value={
-                                    packageItem
-                                        .getPackageTotalProgress()
+                                    stationItem
+                                        .getStationTotalProgress()
                                         .getProgress() || 0
                                 }
                                 max={100}
                             />
                         </td>
-                        <td>{packageItem.getModified().toLocaleString()}</td>
+                        <td>{stationItem.getModified().toLocaleString()}</td>
                         <td>
                             <Link
                                 className="button"
-                                to={`${packageItem.getApiId()}/edit`}
+                                to={`${stationItem.getApiId()}/edit`}
                             >
                                 Bearbeiten
                             </Link>
                             <button
                                 className="button"
-                                onClick={onRemove(packageItem.getApiId())}
+                                onClick={onRemove(stationItem.getApiId())}
                             >
                                 Löschen
                             </button>
@@ -232,4 +227,4 @@ const RenderPackageTableData: React.FC = () => {
     )
 }
 
-export default Packages
+export default Stations
