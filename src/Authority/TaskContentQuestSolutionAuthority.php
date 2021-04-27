@@ -46,11 +46,6 @@ class TaskContentQuestSolutionAuthority implements AuthorityInterface
      */
     public static function areQuestSolutionsDone($questSolutions)
     {
-        // max 3 solution attempts per run
-        // if (count($questSolutions) > 2) {
-        //     return true;
-        // }
-
         foreach ($questSolutions as $questSolution) {
             if ($questSolution->is_correct || $questSolution->sent_solution) {
                 return (double) $questSolution->score;

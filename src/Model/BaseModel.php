@@ -135,9 +135,6 @@ class BaseModel extends SimpleORMap
     public static function findOneWithQuery(array $query, array $fields = [])
     {
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql($query);
-        // dd($sql, $params);
-        // xdebug_break();
-
         return static::findOneBySQL($sql, $params, $fields);
     }
 
