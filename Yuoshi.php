@@ -112,17 +112,24 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->delete('/stations/{station_id}', StationController::class . ':delete');
         $app->post('/stations', StationController::class . ':create');
         $app->get('/stations/{id}/nextTask', TasksController::class . ':nextTask');
+        $app->get('/stations/{id}/nextTask/{task_id}', TasksController::class . ':nextTask');
+        $app->get('/stations/{station_id}/prevTask/{task_id}', TasksController::class . ':prevTask');
 
         $app->get('/tasks', TasksController::class . ':index');
         $app->post('/tasks', TasksController::class . ':create');
         $app->get('/tasks/{id}', TasksController::class . ':show');
         $app->patch('/tasks/{id}', TasksController::class . ':update');
         $app->delete('/tasks/{task_id}', TasksController::class . ':delete');
+
         $app->get('/tasks/{id}/contents', TaskContentsController::class . ':index');
         $app->get('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':show');
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
         $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/tasks/{task_id}/current_task_solution', TaskSolutionsController::class . ':getCurrentSolution');
+        $app->get('/tasks/{task_id}/start', TasksController::class . ':start');
+        $app->get('/tasks/{task_id}/nextTask', TasksController::class . ':nextTask');
+        $app->get('/tasks/{task_id}/prevTask', TasksController::class . ':prevTask');
+
         $app->get('/task_solutions', TaskSolutionsController::class . ':index');
         $app->get('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':show');
         $app->patch('/task_solutions/{task_solution_id}', TaskSolutionsController::class . ':update');

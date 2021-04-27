@@ -42,4 +42,16 @@ class Tasks extends BaseModel
 
         parent::configure($config);
     }
+    public function getSolutionForUser($user_id)
+    {
+        return UserTaskSolutions::findOneWithQuery([
+            'conditions' => [
+                'task_id' => $this->id,
+                'user_id' => $user_id
+            ],
+            'order' => [
+                'chdate DESC'
+            ]
+        ]);
+    }
 }

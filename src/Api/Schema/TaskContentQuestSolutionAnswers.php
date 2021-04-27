@@ -21,8 +21,9 @@ class TaskContentQuestSolutionAnswers extends SchemaProvider {
      */
     public function getAttributes($resource)
     {
-        /** @var \Xyng\Yuoshi\Model\UserTaskContentQuestSolutions $resource */
+        /** @var \Xyng\Yuoshi\Model\UserTaskContentQuestSolutionAnswers $resource */
         return [
+            'answer_id' => $resource->answer_id,
             'sort' => (int) $resource->sort,
             'custom' => $resource->custom,
             'mkdate' => $resource->mkdate->format('c'),
