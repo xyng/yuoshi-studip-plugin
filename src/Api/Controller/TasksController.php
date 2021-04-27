@@ -251,6 +251,10 @@ class TasksController extends JsonApiController
             throw new RecordNotFoundException();
         }
 
+        $task_count = Tasks::countWithQuery(['conditions' => [
+            'station_id' => $station_id
+        ]]);
+
         $task = Tasks::build(
             $data->getAttributes([
                 'title',
@@ -260,7 +264,7 @@ class TasksController extends JsonApiController
             ])
             +
             [
-                'sort' => 0,
+                'sort' => $task_count,
                 'is_training' => $data->getAttribute('kind') == 'training',
                 'station_id' => $station_id,
             ]
