@@ -34,6 +34,7 @@ class LearningObjectives extends SchemaProvider
             'package_id' => $resource->package_id,
             'title' => $resource->title,
             'description' => $resource->description,
+            'sort' => (int) $resource->sort,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];

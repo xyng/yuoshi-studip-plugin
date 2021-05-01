@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
+import { useCurrentPackageContext } from "contexts/CurrentPackageContext"
 
 import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
 import {
@@ -19,9 +20,9 @@ const Stations: React.FC<RouteComponentProps> = () => {
         <StationContextProvider>
             <Router>
                 <StationsIndex path="/" />
-
                 <CreateStation path="create" />
                 <StationSubRoute path=":stationId/*" />
+                {/* <CreateLearningObjective path="packages/:packageId/createObjective" /> */}
             </Router>
         </StationContextProvider>
     )
@@ -40,6 +41,7 @@ const StationSubRoute: React.FC<RouteComponentProps<{
 }
 
 const StationsIndex: React.FC<RouteComponentProps> = () => {
+    const { currentPackage } = useCurrentPackageContext()
     return (
         <>
             <Link className="button" to="/packages">
@@ -47,6 +49,13 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
             </Link>
             <Link className="button" to="create">
                 Neue Station
+            </Link>
+
+            <Link
+                className="button"
+                to={`/packages/${currentPackage.id}/objectiveCreate`}
+            >
+                Neues Fallbeispiel
             </Link>
 
             <table className="default">
