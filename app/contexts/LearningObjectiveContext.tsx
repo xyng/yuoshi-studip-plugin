@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext } from "react"
+import React, { createContext, useCallback, useContext, useMemo } from "react"
 import { PluralResponse } from "coloquent"
 import useSWR, { responseInterface } from "swr"
 
@@ -8,12 +8,12 @@ import updateModelList from "../helpers/updateModelList"
 import { useCurrentPackageContext } from "./CurrentPackageContext"
 
 interface LearningObjectiveContextInterface {
-    learningObjective: LearningObjective[]
-    updateLearningObjective: (
+    learningObjectives: LearningObjective[]
+    updateLearningObjectives: (
         updated: LearningObjective,
         reload?: boolean
     ) => Promise<void>
-    reloadLearningObjective: () => Promise<boolean>
+    reloadLearningObjectives: () => Promise<boolean>
     mutate: responseInterface<LearningObjective[], any>["mutate"]
 }
 const LearningObjectiveContext = createContext<LearningObjectiveContextInterface | null>(
@@ -28,7 +28,7 @@ export const useLearningObjectiveContext = () => {
     }
     return ctx
 }
-const fetchLearningObjectivesForPackage = async (
+const fetchLearningObjectivesForPackage = (byUser: boolean) => async (
     packageId: string
 ): Promise<LearningObjective[]> => {
     const learningObjectiveItem = (await LearningObjective.where(
@@ -39,23 +39,39 @@ const fetchLearningObjectivesForPackage = async (
     return learningObjectiveItem.getData() as LearningObjective[]
 }
 
-export const LearningContextProvider: React.FC = ({ children }) => {
+export const LearningObjectiveContextProvider: React.FC<{
+    byUser?: boolean
+}> = ({ children, byUser }) => {
     const { currentPackage } = useCurrentPackageContext()
-    const { data, mutate, revalidate } = useSWR(
-        () => [
-            currentPackage.getApiId(),
-            `learning_objectives/${currentPackage.id}`,
-        ],
-        fetchLearningObjectivesForPackage,
-        { suspense: true }
+
+    const cacheKey = useMemo(
+        () =>
+            byUser
+                ? `learning_objectives/${currentPackage.getApiId()}`
+                : "learning_objectives/packages",
+        [byUser]
     )
 
-    const updateLearningObjective = useCallback(
+    const fetch = useMemo(() => fetchLearningObjectivesForPackage(!!byUser), [
+        byUser,
+    ])
+
+    const { data, mutate, revalidate } = useSWR(
+        () =>
+            currentPackage.getApiId()
+                ? [currentPackage.getApiId(), cacheKey]
+                : null,
+        fetch,
+        { suspense: true }
+    )
+    console.log(data)
+
+    const updateLearningObjectives = useCallback(
         async (
-            updatedLearningObjective: LearningObjective,
+            updatedLearningObjectives: LearningObjective,
             reload: boolean = false
         ) => {
-            await mutate(updateModelList(updatedLearningObjective), reload)
+            await mutate(updateModelList(updatedLearningObjectives), reload)
         },
         [mutate]
     )
@@ -64,8 +80,8 @@ export const LearningContextProvider: React.FC = ({ children }) => {
         learningObjectives: (data as LearningObjective[]).sort((a, b) => {
             return a.getSort() - b.getSort()
         }),
-        updateLearningObjective,
-        reloadLearningObjective: revalidate,
+        updateLearningObjectives,
+        reloadLearningObjectives: revalidate,
         mutate,
     }
 

@@ -14,7 +14,7 @@ export default class LearningObjective extends AppModelWithDate<Attributes> {
         "image",
         "sort",
     ]
-    protected jsonApiType: string = "learningObjectives"
+    protected jsonApiType: string = "learning_objectives"
 
     getTitle(): string {
         return this.getAttribute("title")
@@ -29,5 +29,12 @@ export default class LearningObjective extends AppModelWithDate<Attributes> {
     }
     setPackage(packages: Packages) {
         return this.setRelation("package", packages)
+    }
+    getSort(): number {
+        return this.getAttribute("sort")
+    }
+
+    setSort(sort: number) {
+        return this.setAttribute("sort", sort)
     }
 }

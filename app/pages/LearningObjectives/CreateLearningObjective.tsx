@@ -1,17 +1,19 @@
 import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
+import LearningObjective from "models/LearningObjective"
 
-import Station from "../../models/Station"
-import { useStationContext } from "../../contexts/StationContext"
+import { useLearningObjectiveContext } from "../../contexts/LearningObjectiveContext"
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
 
-import StationForm, { StationFormSubmitHandler } from "./StationForm"
+import LearningObjectiveForm, {
+    LearningObjectiveFormSubmitHandler,
+} from "./LearningObjectiveForm"
 
 const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
     const { currentPackage } = useCurrentPackageContext()
-    const { reloadLearningObjectives } = useLear()
+    const { reloadLearningObjectives } = useLearningObjectiveContext()
 
-    const onSubmit = useCallback<StationFormSubmitHandler>(
+    const onSubmit = useCallback<LearningObjectiveFormSubmitHandler>(
         async (values) => {
             const newLearningObjective = new LearningObjective()
             newLearningObjective.patch(values)
@@ -22,22 +24,22 @@ const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
                 throw new Error("Wasn't able to update station")
             }
 
-            await reloadStations()
+            await reloadLearningObjectives()
         },
-        [currentPackage, reloadStations]
+        [currentPackage, reloadLearningObjectives]
     )
 
     return (
         <>
             <Link
                 className="button"
-                to={`/packages/${currentPackage.getApiId()}/stations`}
+                to={`/packages/${currentPackage.getApiId()}/packages`}
             >
                 Zurück
             </Link>
-            <h1>Neue Station</h1>
+            <h1>Neues Fallbeispiel</h1>
 
-            <StationForm onSubmit={onSubmit} />
+            <LearningObjectiveForm onSubmit={onSubmit} />
         </>
     )
 }
