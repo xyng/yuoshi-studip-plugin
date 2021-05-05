@@ -26,8 +26,13 @@ class LearningObjectivesController extends JsonApiController
         $filters = $this->getQueryParameters()->getFilteringParameters();
         
         if (!$package_id) {
+            $package_id = $filters['package'] ?? null;
+        }
+        
+        if (!$package_id) {
             throw new \InvalidArgumentException("Cannot select Package.");
         }
+
         $learning_objectives = LearningObjectiveAuthority::findFiltered([$package_id], $this->getUser($request));
         list($offset, $limit) = $this->getOffsetAndLimit();
 

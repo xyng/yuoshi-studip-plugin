@@ -21,7 +21,7 @@ const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
 
             const updated = (await newLearningObjective.save()).getModel()
             if (!updated) {
-                throw new Error("Wasn't able to update station")
+                throw new Error("Wasn't able to update learning objective")
             }
 
             await reloadLearningObjectives()

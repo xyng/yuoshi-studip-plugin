@@ -13,7 +13,7 @@ use Xyng\Yuoshi\Model\Tasks;
  * @property Packages $station
  * @property \SimpleORMapCollection|TaskContents[] $contents
  */
-class LearningObjective extends BaseModel
+class LearningObjectives extends BaseModel
 {
     protected static function configure($config = [])
     {
@@ -31,10 +31,10 @@ class LearningObjective extends BaseModel
             'on_delete' => true,
         ];
 
-        $config['belongs_to_many']['users'] = [
-            'class_name' => \User::class,
-            'foreign_key' => 'user_id'
-        ];
+        // $config['belongs_to_many']['users'] = [
+        //     'class_name' => \User::class,
+        //     'foreign_key' => 'user_id'
+        // ];
 
         parent::configure($config);
     }

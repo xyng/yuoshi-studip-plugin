@@ -64,7 +64,6 @@ export const LearningObjectiveContextProvider: React.FC<{
         fetch,
         { suspense: true }
     )
-    console.log(data)
 
     const updateLearningObjectives = useCallback(
         async (

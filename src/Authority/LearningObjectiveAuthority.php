@@ -5,18 +5,19 @@ use SimpleORMap;
 use User;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
-use Xyng\Yuoshi\Model\LearningObjective;
+use Xyng\Yuoshi\Model\LearningObjectives;
+use Xyng\Yuoshi\Model\Packages;
 
 class LearningObjectiveAuthority implements AuthorityInterface
 {
-    public static function canEditLearningObjective(User $user, Station $station)
+    public static function canEditLearningObjective(User $user, Packages $package)
     {
-        return $GLOBALS['perm']->have_studip_perm('dozent', $station->course_id, $user->id);
+        return $GLOBALS['perm']->have_studip_perm('dozent', $package->course_id, $user->id);
     }
 
-    public static function canSeeObjective(User $user, Station $station)
+    public static function canSeeObjective(User $user, Packages $package)
     {
-        return $GLOBALS['perm']->have_studip_perm('user', $station->station_id, $user->id);
+        return $GLOBALS['perm']->have_studip_perm('user', $package->course_id, $user->id);
     }
 
     public static function filterByUsersPackages()
@@ -35,7 +36,7 @@ class LearningObjectiveAuthority implements AuthorityInterface
      */
     public static function findFiltered(array $ids, User $user, array $perms = [], array $conditions = []): array
     {
-        return LearningObjectiveAuthority::findWithQuery(
+        return LearningObjectives::findWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_packages.id', $ids, $user, $perms, $conditions)
         );
     }
@@ -45,7 +46,7 @@ class LearningObjectiveAuthority implements AuthorityInterface
      */
     public static function findOneFiltered(string $id, User $user, array $perms = [], array $conditions = []): ?SimpleORMap
     {
-        return LearningObjectiveAuthority::findOneWithQuery(
+        return LearningObjectives::findOneWithQuery(
             AuthorityHelper::getFilterQuery(static::getFilter(), 'yuoshi_learning_objectives.id', $id, $user, $perms, $conditions)
         );
     }
