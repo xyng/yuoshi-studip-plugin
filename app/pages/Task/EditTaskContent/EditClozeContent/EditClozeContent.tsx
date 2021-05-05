@@ -13,6 +13,8 @@ import Button from "../../../../components/Button/Button"
 import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
 import { useEditTaskContext } from "../useEditTaskContent"
+import { uploadImage } from "../../../../helpers/fileUploadHelper"
+import { useCourseContext } from "../../../../contexts/CourseContext"
 
 import Styles from "./EditClozeContent.module.css"
 
@@ -22,6 +24,7 @@ const ClozeContentSchema = Yup.object().shape({
             id: Yup.string().required(),
             title: Yup.string().required(),
             content: Yup.string().required(),
+            file: Yup.mixed<FileList>(),
         })
     ),
 })
@@ -37,6 +40,9 @@ const EditClozeContent: EditTaskContentView = () => {
         onModifyAndSave,
     } = useEditTaskContext()
 
+    const { course } = useCourseContext()
+    const course_id = useMemo(() => course.getApiId(), [course])
+
     const contentsWithParts = useMemo(() => {
         return contents.map((content) => {
             return {
@@ -51,25 +57,38 @@ const EditClozeContent: EditTaskContentView = () => {
 
     const onSubmit = useCallback<SubmitHandler<ClozeContentData>>(
         async (value) => {
+            if (!course_id) {
+                return
+            }
+
             await onModifyAndSave((contents) => {
-                return value.contents.map((content) => {
-                    const origContent = contents.find(
-                        (c) => c.id === content.id
-                    )
+                return Promise.all(
+                    value.contents.map(async (content) => {
+                        const fileList = content.file
+                        let file_id: string | undefined = undefined
+                        if (fileList && fileList.length > 0) {
+                            file_id = await uploadImage(fileList[0], course_id)
+                        }
 
-                    if (!origContent) {
-                        throw new Error("data integrity is broken")
-                    }
+                        const origContent = contents.find(
+                            (c) => c.id === content.id
+                        )
 
-                    return {
-                        ...origContent,
-                        title: content.title,
-                        content: content.content,
-                    }
-                })
+                        if (!origContent) {
+                            throw new Error("data integrity is broken")
+                        }
+
+                        return {
+                            ...origContent,
+                            title: content.title,
+                            content: content.content,
+                            file: file_id,
+                        }
+                    })
+                )
             })
         },
-        [onModifyAndSave]
+        [onModifyAndSave, course_id]
     )
 
     return (
@@ -101,6 +120,11 @@ const EditClozeContent: EditTaskContentView = () => {
                                 label="Titel"
                                 name={`contents[${index}].title`}
                                 type="text"
+                            />
+                            <Input
+                                label="Datei"
+                                name={`contents[${index}].file`}
+                                type="file"
                             />
                             <TextArea
                                 label="Text"

@@ -10,6 +10,7 @@ type Attributes = {
     outro?: string
     title: string
     content: string
+    file?: string
 }
 export default class Content extends AppModelWithDate<Attributes> {
     protected readonly accessible: Array<keyof Attributes> = [
@@ -17,6 +18,7 @@ export default class Content extends AppModelWithDate<Attributes> {
         "outro",
         "title",
         "content",
+        "file",
     ]
     protected jsonApiType: string = "contents"
 
@@ -34,6 +36,10 @@ export default class Content extends AppModelWithDate<Attributes> {
 
     public getContent(): string {
         return this.getAttribute("content")
+    }
+
+    public getFile(): string | undefined {
+        return this.getAttribute("file")
     }
 
     quests(): ToManyRelation {

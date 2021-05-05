@@ -30,6 +30,7 @@ class Contents extends SchemaProvider
             'intro' => $resource->intro,
             'outro' => $resource->outro,
             'content' => $resource->content,
+            'file' => $resource->file,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
