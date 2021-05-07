@@ -201,7 +201,7 @@ class TaskContentQuestSolutionsController extends JsonApiController
 
         //  foreach ($correct_answers as $correctAnswer) {
         // add points for each correct answer
-        foreach ($correct_answers as $idx => $correctAnswer) {
+        foreach ($correct_answers as $correctAnswer) {
             /** @var UserTaskContentQuestSolutionAnswers $solution */
             
             // $solution = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]")[0] ?? null;
