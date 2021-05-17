@@ -8,14 +8,19 @@ use JsonApi\JsonApiController;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Valitron\Validator;
 
 use Xyng\Yuoshi\Authority\LearningObjectiveAuthority;
 use Xyng\Yuoshi\Authority\PackageAuthority;
-use Xyng\Yuoshi\Helper\QueryField;
-use Xyng\Yuoshi\Model\LearningObjective;
+use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Model\LearningObjectives;
+use Xyng\Yuoshi\Model\Stations;
 
 class LearningObjectivesController extends JsonApiController
 {
+    use ValidationTrait;
+
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['package', 'sort'];
     protected $allowedIncludePaths = [];
@@ -78,16 +83,34 @@ class LearningObjectivesController extends JsonApiController
             throw new AuthorizationFailedException();
         }
 
-        $learning_objective = LearningObjective::build(
+        $learning_objective = LearningObjectives::build(
             $attributes
             +
             [
                 'package_id' => $package_id,
             ]
         );
+        $learning_objective->sort = LearningObjectives::nextSort($package->id);
+
         if (!$learning_objective->store()) {
             throw new InternalServerError("could not persist entity");
         }
+
+           $station = Stations::build(
+            [
+                'package_id' => $package_id,
+                'title' => $learning_objective->title,
+                'slug' => strtolower($learning_objective->title),
+                'learning_objective_id' => $learning_objective->id,
+            ]
+        );
+        $station->sort = Stations::nextSort($package->id);
+        $station->package_id = $package->id;
+
+        if (!$station->store()) {
+            throw new InternalServerError("could not save belonging station");
+        }
+        // create beloning station for objective
         
         return $this->getContentResponse($learning_objective);
     }
@@ -129,5 +152,23 @@ class LearningObjectivesController extends JsonApiController
         }
 
         return $this->getContentResponse($learning_objective);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
+    {
+        $validator
+            ->rule('required', 'data.attributes.title')
+            ->rule('required', 'data.attributes.description')
+            ->rule('numeric', 'data.attributes.sort');
+
+        if ($new) {
+            $validator
+                ->rule('required', 'data.relationships.package.data.id');
+        }
+
+        return $validator;
     }
 }
