@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
+import { LearningObjectiveContextProvider } from "contexts/LearningObjectiveContext"
 
 import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
 import {
@@ -9,7 +10,9 @@ import {
 import Progress from "../../components/Progress/Progress"
 import Station from "../../models/Station"
 import Button from "../../components/Button/Button"
+import CreateLearningObjective from "../LearningObjectives/CreateLearningObjective"
 
+import { LearningObjectiveTable } from "./LearningObjectiveTable"
 import CreateStation from "./CreateStation"
 
 const Tasks = React.lazy(() => import("../Tasks/Tasks"))
@@ -17,12 +20,14 @@ const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 const Stations: React.FC<RouteComponentProps> = () => {
     return (
         <StationContextProvider>
-            <Router>
-                <StationsIndex path="/" />
-
-                <CreateStation path="create" />
-                <StationSubRoute path=":stationId/*" />
-            </Router>
+            <LearningObjectiveContextProvider>
+                <Router>
+                    <StationsIndex path="/" />
+                    <CreateStation path="create" />
+                    <CreateLearningObjective path="objectiveCreate" />
+                    <StationSubRoute path=":stationId/*" />
+                </Router>
+            </LearningObjectiveContextProvider>
         </StationContextProvider>
     )
 }
@@ -49,6 +54,10 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
                 Neue Station
             </Link>
 
+            <Link className="button" to="objectiveCreate">
+                Neues Fallbeispiel
+            </Link>
+
             <table className="default">
                 <caption>Stationen</caption>
                 <thead>
@@ -71,6 +80,31 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
                         }
                     >
                         <RenderStationTableData />
+                    </Suspense>
+                </tbody>
+            </table>
+
+            <table className="default">
+                <caption>Fallbeispiele</caption>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Beschreibung</th>
+                        <th>Bild</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <Suspense
+                        fallback={
+                            <tr>
+                                <td colSpan={1000}>
+                                    Lade Fallbeispiele. Bitte warten.
+                                </td>
+                            </tr>
+                        }
+                    >
+                        <LearningObjectiveTable />
                     </Suspense>
                 </tbody>
             </table>
