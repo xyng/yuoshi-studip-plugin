@@ -198,12 +198,19 @@ class TaskContentQuestSolutionsController extends JsonApiController
         $sort_weight = 0.3;
         $score = 0;
 
+<<<<<<< HEAD
 
         // add points for each correct answer
         foreach ($correct_answers as $correctAnswer) {
             /** @var UserTaskContentQuestSolutionAnswers $solution */
             // $solution = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]")[0] ?? null; jdierker: this  temporarily got fixed
             $solution = $userAnswers[0];
+=======
+        // add points for each correct answer
+        foreach ($correct_answers as $correctAnswer) {
+            /** @var UserTaskContentQuestSolutionAnswers $solution */
+            $solution = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]")[0] ?? null;
+>>>>>>> parent of 5086a35... fix solve task points
 
             if (!$solution) {
                 continue;
