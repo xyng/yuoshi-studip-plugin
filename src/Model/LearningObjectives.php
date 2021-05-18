@@ -38,4 +38,20 @@ class LearningObjectives extends BaseModel
 
         parent::configure($config);
     }
+
+    public static function nextSort(string $package_id)
+    {
+        $db_table = static::config('db_table');
+        $maxSortStmt = \DBManager::get()->prepare("SELECT max(`sort`) as max_sort FROM `$db_table` WHERE `package_id` = :packageId GROUP BY `package_id`");
+        $maxSortStmt->execute([
+            'packageId' => $package_id,
+        ]);
+
+        $maxSort = $maxSortStmt->fetch();
+        if ($maxSort === false) {
+            return 0;
+        }
+
+        return ((int) $maxSort['max_sort']) + 1;
+    }
 }

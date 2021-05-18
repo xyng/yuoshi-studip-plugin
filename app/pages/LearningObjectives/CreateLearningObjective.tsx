@@ -18,11 +18,12 @@ const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
             const newLearningObjective = new LearningObjective()
             newLearningObjective.patch(values)
             newLearningObjective.setPackage(currentPackage)
-
+            console.log(newLearningObjective)
             const updated = (await newLearningObjective.save()).getModel()
             if (!updated) {
                 throw new Error("Wasn't able to update learning objective")
             }
+            console.log("reach")
 
             await reloadLearningObjectives()
         },
