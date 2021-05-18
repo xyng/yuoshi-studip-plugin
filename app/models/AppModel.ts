@@ -9,8 +9,6 @@ export abstract class AppModel<T extends {}> extends Model {
         url.search = ""
         url.hash = ""
         url.pathname = process.env.API_PATH as string
-
-        console.log(url.href)
         return url.href
     }
 
