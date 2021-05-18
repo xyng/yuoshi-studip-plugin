@@ -5,7 +5,6 @@ use JsonApi\Errors\AuthorizationFailedException;
 use JsonApi\Errors\InternalServerError;
 use JsonApi\Errors\RecordNotFoundException;
 use JsonApi\JsonApiController;
-// use JsonApi\Routes\Packages\Authority as PackageAuthority;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

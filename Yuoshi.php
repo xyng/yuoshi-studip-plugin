@@ -1,6 +1,7 @@
 <?php
 
 use JsonApi\Contracts\JsonApiPlugin;
+use Xyng\Yuoshi\Api\Controller\LearningObjectivesController;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
 use Xyng\Yuoshi\Api\Controller\PackageImportController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
@@ -167,6 +168,10 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':show');
         $app->post('/yuoshi_images', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':create');
         $app->post('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':update');
+
+        $app->get('/learning_objectives', LearningObjectivesController::class . ':index');
+        $app->get('/learning_objectives/{package_id}', LearningObjectivesController::class . ':index');
+        $app->post('/learning_objectives', LearningObjectivesController::class . ':create');
     }
 
     /**
@@ -187,6 +192,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
             \Xyng\Yuoshi\Model\UserStationProgress::class => \Xyng\Yuoshi\Api\Schema\UserStationProgress::class,
             \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
             \Xyng\Yuoshi\Model\Stations::class => \Xyng\Yuoshi\Api\Schema\Stations::class,
+            \Xyng\Yuoshi\Model\LearningObjectives::class => \Xyng\Yuoshi\Api\Schema\LearningObjectives::class,
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,
             \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Api\Schema\Contents::class,
             \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Api\Schema\Quests::class,

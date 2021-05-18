@@ -13,6 +13,7 @@ class LearningObjectiveAdd extends Migration
             `title` varchar(64) DEFAULT NULL,
             `image` varchar(64) DEFAULT NULL,
             `description` varchar(255) NOT NULL,
+            `sort` int NOT NULL,
             `mkdate` datetime NOT NULL DEFAULT current_timestamp(),
             `chdate` datetime NOT NULL DEFAULT current_timestamp(),
             PRIMARY KEY (`id`),
