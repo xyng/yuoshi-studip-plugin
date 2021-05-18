@@ -169,7 +169,9 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->post('/yuoshi_images', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':create');
         $app->post('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':update');
 
+        $app->get('/learning_objectives', LearningObjectivesController::class . ':index');
         $app->get('/learning_objectives/{package_id}', LearningObjectivesController::class . ':index');
+        $app->post('/learning_objectives', LearningObjectivesController::class . ':create');
     }
 
     /**

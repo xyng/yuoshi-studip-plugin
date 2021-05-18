@@ -18,7 +18,6 @@ const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
             const newLearningObjective = new LearningObjective()
             newLearningObjective.patch(values)
             newLearningObjective.setPackage(currentPackage)
-
             const updated = (await newLearningObjective.save()).getModel()
             if (!updated) {
                 throw new Error("Wasn't able to update station")
