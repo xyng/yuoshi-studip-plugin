@@ -161,13 +161,13 @@ class TaskContentQuestSolutionsController extends JsonApiController
         if ($sawSolution) {
             throw new ConflictException();
         }
+
         $rawUserAnswers = $data->getRelation('answers');
 
-        // We will put this in later on
-        // if (!$quest->multiple) {
-        //     this quest only accepts one answer. we will take the first one.
-        //     $rawUserAnswers = array_slice($rawUserAnswers, 0, 1);
-        // }
+        if (!$quest->multiple) {
+            // this quest only accepts one answer. we will take the first one.
+            $rawUserAnswers = array_slice($rawUserAnswers, 0, 1);
+        }
 
         $sanitizer = HtmlSanitizerFactory::create();
 
@@ -202,8 +202,8 @@ class TaskContentQuestSolutionsController extends JsonApiController
         // add points for each correct answer
         foreach ($correct_answers as $correctAnswer) {
             /** @var UserTaskContentQuestSolutionAnswers $solution */
-            $extract = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]");
-            $solution = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]")[0] ?? null;
+            // $solution = Hash::extract($userAnswers, "{n}[answer_id=$correctAnswer->id]")[0] ?? null; jdierker: this  temporarily got fixed
+            $solution = $userAnswers[0];
 
             if (!$solution) {
                 continue;
