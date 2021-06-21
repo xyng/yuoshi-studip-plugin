@@ -57,6 +57,11 @@ class TasksController extends JsonApiController
             $where['sort'] = $sort;
         }
 
+        $where = [
+            'conditions' => [],
+            'order' => '`yuoshi_tasks`.`sort` ASC'
+        ];
+        
         if (!$station_ids) {
             throw new \InvalidArgumentException("Cannot select Tasks without station filter.");
         }
