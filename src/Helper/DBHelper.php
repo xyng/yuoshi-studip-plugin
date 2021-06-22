@@ -174,6 +174,13 @@ class DBHelper {
         }
 
         $orders = $query['order'] ?? [];
+
+        // fallback when string is given instead of array
+        if ($orders && is_string($orders)) {
+            $orders = trim($orders);
+            $orders = $orders ? [$orders] : false;
+        }
+
         if ($orders) {
             $sql .= "\nORDER BY\n" . join(",\n", $orders);
         }
