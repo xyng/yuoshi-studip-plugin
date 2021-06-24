@@ -186,15 +186,36 @@ class TaskSolutionsController extends JsonApiController
         return $this->getContentResponse($solution);
     }
 
+    
+    public function getAllUserSolutions(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        if (!$this->getUser($request)) {
+            throw new RecordNotFoundException();
+        }
+
+        $solutions =  UserTaskSolutions::findWithQuery([
+            'conditions' => [
+                'yuoshi_user_task_solutions.user_id ' => $this->getUser($request)->id,
+            ]
+        ]);
+
+        if (!$solutions) {
+            throw new RecordNotFoundException();
+        }
+        list($offset, $limit) = $this->getOffsetAndLimit();
+
+        return $this->getPaginatedContentResponse(
+            array_slice($solutions, $offset, $limit),
+            count($solutions)
+        );
+    }
+
     /**
      * @inheritDoc
      */
     protected function buildResourceValidationRules(Validator $validator, $new = false): Validator
     {
-        $validator
-            ->rule('numeric', 'data.attributes.points')
-        ;
-
+        $validator->rule('numeric', 'data.attributes.points');
         return $validator;
     }
 }
