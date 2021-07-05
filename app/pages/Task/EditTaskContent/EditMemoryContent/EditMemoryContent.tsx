@@ -10,7 +10,6 @@ import useGlobalContent from "../hooks/useGlobalContent"
 import Button from "../../../../components/Button/Button"
 import ValidatedForm from "../../../../components/Form/ValidatedForm"
 import Input from "../../../../components/Form/Input"
-import TextArea from "../../../../components/Form/Textarea"
 
 import Styles from "./EditMemoryContent.module.css"
 
@@ -24,15 +23,12 @@ const createNewAnswer = (): QuizAnswer => {
 }
 
 const MemoryContentSchema = Yup.object().shape({
-    contentTitle: Yup.string().required(),
-    contentText: Yup.string().required(),
     contents: Yup.array().of(
         Yup.object().shape({
             id: Yup.string().required(),
             quests: Yup.array().of(
                 Yup.object().shape({
                     id: Yup.string().required(),
-                    name: Yup.string().required(),
                     answers: Yup.array()
                         .min(2)
                         .max(2)
@@ -147,8 +143,6 @@ const EditMemoryContent: EditTaskContentView = () => {
 
                     return {
                         ...origContent,
-                        title: value.contentTitle,
-                        content: value.contentText,
                         quests: content.quests.map((quest) => {
                             const origQuest = origContent.quests.find(
                                 (q) => q.id === quest.id
@@ -160,8 +154,6 @@ const EditMemoryContent: EditTaskContentView = () => {
 
                             return {
                                 ...origQuest,
-                                name: quest.name,
-                                question: quest.name,
                                 answers: quest.answers.map((answer) => {
                                     const origAnswer = origQuest.answers.find(
                                         (a) => a.id === answer.id
@@ -194,8 +186,6 @@ const EditMemoryContent: EditTaskContentView = () => {
         <ValidatedForm
             validation={MemoryContentSchema}
             initialData={{
-                contentTitle: firstContent?.title,
-                contentText: firstContent?.content,
                 contents,
             }}
             onSubmit={onSubmit}
@@ -204,11 +194,10 @@ const EditMemoryContent: EditTaskContentView = () => {
             <h1>Memory Aufgabe: {task.getTitle()}</h1>
 
             <Button type="submit">Speichern</Button>
+            <Button onClick={createPair(firstContent.id)}>Neues Paar</Button>
 
             <div>
                 <h2>Inhalt</h2>
-                <Input label="Titel" name="contentTitle" type="text" />
-                <TextArea label="Text" name="contentText" />
             </div>
 
             {contents.map((content, contentIndex) => {
@@ -232,7 +221,7 @@ const EditMemoryContent: EditTaskContentView = () => {
                                     key={`memory-quest-${quest.id}`}
                                 >
                                     <summary className={Styles.pairSummary}>
-                                        Paar {index + 1}: {quest.name}
+                                        Paar {index + 1}
                                     </summary>
 
                                     <div className={Styles.pairContent}>
@@ -241,24 +230,19 @@ const EditMemoryContent: EditTaskContentView = () => {
                                             name={`${questPath}.id`}
                                             type="hidden"
                                         />
-                                        <Input
-                                            label="Paar-Name"
-                                            name={`${questPath}.name`}
-                                            type="text"
-                                        />
                                         {quest.answers.map((answer, index) => {
                                             return (
                                                 <div
                                                     key={`memory-answer-${answer.id}`}
                                                 >
-                                                    <h3>Teil {index + 1}</h3>
+                                                    <h3>Karte {index + 1}</h3>
                                                     <Input
                                                         label=""
                                                         name={`${questPath}.answers[${index}].id`}
                                                         type="hidden"
                                                     />
                                                     <Input
-                                                        label="Text"
+                                                        label=""
                                                         name={`${questPath}.answers[${index}].content`}
                                                         type="text"
                                                     />
@@ -272,7 +256,6 @@ const EditMemoryContent: EditTaskContentView = () => {
                     </div>
                 )
             })}
-            <Button onClick={createPair(firstContent.id)}>Neues Paar</Button>
         </ValidatedForm>
     )
 }

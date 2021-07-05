@@ -78,9 +78,7 @@ class TaskContentQuestsController extends JsonApiController
 
         $quest = TaskContentQuests::build(
             $data->getAttributes([
-                'name',
                 'prePhrase',
-                'question',
                 'multiple',
                 'require_order',
                 'custom_answer',
@@ -157,8 +155,6 @@ class TaskContentQuestsController extends JsonApiController
         }
 
         return $validator
-            ->rule('required', 'data.attributes.name')
-            ->rule('required', 'data.attributes.question')
             ->rule('required', 'data.attributes.multiple')
             ->rule('boolean', 'data.attributes.multiple')
             ->rule('required', 'data.attributes.require_order')
