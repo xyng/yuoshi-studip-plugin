@@ -472,7 +472,6 @@ const useEditTask = () => {
 
     const createQuest = useCallback(
         (content_id: string, defaults?: Partial<QuizQuest>) => () => {
-            console.log("QUEST", content_id)
             return updateContent(
                 content_id,
                 "quests",
