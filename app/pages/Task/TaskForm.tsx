@@ -48,7 +48,12 @@ const TaskForm: React.FC<{
                 })}
             </Select>
             <TextArea label="Beschreibung" name="description" />
-            <Input label="Punkte" name="credits" type="number" />
+            <Input
+                label="Punkte"
+                name="credits"
+                type="number"
+                placeholder="0"
+            />
             <Button type="submit">Speichern</Button>
         </ValidatedForm>
     )
