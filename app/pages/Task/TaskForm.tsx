@@ -37,7 +37,7 @@ const TaskForm: React.FC<{
             errorMessage="Die Aufgabe konnte nicht gespeichert werden."
             successMessage="Die Aufgabe wurde erfolgreich gespeichert."
         >
-            <Input name="title" label="Title" type="text" />
+            <Input name="title" label="Titel" type="text" />
             <Select label="Typ" name="kind">
                 {Object.entries(Task.taskTypes).map(([key, value]) => {
                     return (
