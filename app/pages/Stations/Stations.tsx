@@ -3,6 +3,7 @@ import { Link, RouteComponentProps, Router } from "@reach/router"
 import { LearningObjectiveContextProvider } from "contexts/LearningObjectiveContext"
 
 import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
+import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
 import {
     StationContextProvider,
     useStationContext,
@@ -45,6 +46,55 @@ const StationSubRoute: React.FC<RouteComponentProps<{
 }
 
 const StationsIndex: React.FC<RouteComponentProps> = () => {
+    const { currentPackage } = useCurrentPackageContext()
+
+    const exportPackage = useCallback(
+        async (values) => {
+            // generate export url
+            const url = new URL(window.location.href)
+            url.search = ""
+            url.hash = ""
+            url.pathname =
+                "jsonapi.php/v1/packages/export/" + currentPackage.getApiId()
+
+            // create xhr request
+            try {
+                const res = await fetch(url.href, {
+                    method: "GET",
+                    credentials: "include",
+                })
+                if (res.status >= 400) {
+                    console.log(res.status)
+                } else {
+                    let json = await res.json()
+                    let filename = json.package.title
+
+                    // generate downloadable blob from json
+                    let blob = new Blob([JSON.stringify(json)], {
+                        type: "application/json",
+                    })
+                    // create temporary download anchor
+                    let a = document.createElement("a")
+                    document.body.append(a)
+                    // set download url
+                    let url = window.URL.createObjectURL(blob)
+                    a.href = url
+                    // set filename
+                    a.download = filename + ".json"
+                    // start download
+                    a.click()
+
+                    // remove download anchor
+                    document.body.removeChild(a)
+                    window.URL.revokeObjectURL(url)
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        },
+        [currentPackage]
+    )
+
     return (
         <>
             <Link className="button" to="/packages">
@@ -53,10 +103,12 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="create">
                 Neue Station
             </Link>
-
             <Link className="button" to="objectiveCreate">
                 Neues Fallbeispiel
             </Link>
+            <button className="button" onClick={exportPackage}>
+                Paket exportieren
+            </button>
 
             <table className="default">
                 <caption>Stationen</caption>

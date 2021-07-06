@@ -46,53 +46,6 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
     const { station } = useCurrentStationContext()
     const { currentPackage } = useCurrentPackageContext()
 
-    const onClick = useCallback(
-        async (values) => {
-            // generate export url
-            const url = new URL(window.location.href)
-            url.search = ""
-            url.hash = ""
-            url.pathname =
-                "jsonapi.php/v1/packages/export/" + currentPackage.getApiId()
-
-            // create xhr request
-            try {
-                const res = await fetch(url.href, {
-                    method: "GET",
-                    credentials: "include",
-                })
-                if (res.status >= 400) {
-                    console.log(res.status)
-                } else {
-                    let json = await res.json()
-                    let filename = json.package.title
-
-                    // generate downloadable blob from json
-                    let blob = new Blob([JSON.stringify(json)], {
-                        type: "application/json",
-                    })
-                    // create temporary download anchor
-                    let a = document.createElement("a")
-                    document.body.append(a)
-                    // set download url
-                    let url = window.URL.createObjectURL(blob)
-                    a.href = url
-                    // set filename
-                    a.download = filename + ".json"
-                    // start download
-                    a.click()
-
-                    // remove download anchor
-                    document.body.removeChild(a)
-                    window.URL.revokeObjectURL(url)
-                }
-            } catch (e) {
-                console.log(e)
-            }
-        },
-        [currentPackage]
-    )
-
     return (
         <>
             <h1>Station: {station.getTitle()}</h1>
@@ -105,9 +58,6 @@ const TasksIndex: React.FC<RouteComponentProps> = () => {
             <Link className="button" to="create">
                 Neue Aufgabe
             </Link>
-            <button className="button" onClick={onClick}>
-                Paket exportieren
-            </button>
             <table className="default">
                 <caption>Aufgaben</caption>
                 <thead>
