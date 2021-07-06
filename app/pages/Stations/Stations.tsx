@@ -88,9 +88,9 @@ const StationsIndex: React.FC<RouteComponentProps> = () => {
                 <caption>Fallbeispiele</caption>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Beschreibung</th>
-                        <th>Bild</th>
+                        <th>Position</th>
+                        <th>Name des/der Schüler:in</th>
+                        <th>Letzte Aktualisierung</th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>
