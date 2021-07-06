@@ -23,12 +23,15 @@ const createNewAnswer = (): QuizAnswer => {
 }
 
 const MemoryContentSchema = Yup.object().shape({
+    contentTitle: Yup.string(),
+    contentText: Yup.string(),
     contents: Yup.array().of(
         Yup.object().shape({
             id: Yup.string().required(),
             quests: Yup.array().of(
                 Yup.object().shape({
                     id: Yup.string().required(),
+                    name: Yup.string(),
                     answers: Yup.array()
                         .min(2)
                         .max(2)
@@ -131,6 +134,8 @@ const EditMemoryContent: EditTaskContentView = () => {
 
     const onSubmit = useCallback<SubmitHandler<MemoryContentData>>(
         async (value) => {
+            value.contentText = "-"
+            value.contentTitle = "-"
             await onModifyAndSave((contents) => {
                 return value.contents.map((content) => {
                     const origContent = contents.find(
@@ -151,6 +156,8 @@ const EditMemoryContent: EditTaskContentView = () => {
                             if (!origQuest) {
                                 throw new Error("data integrity broken")
                             }
+                            origQuest.name = "-"
+                            origQuest.question = "-"
 
                             return {
                                 ...origQuest,
