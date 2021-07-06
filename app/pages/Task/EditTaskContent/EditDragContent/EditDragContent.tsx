@@ -19,8 +19,8 @@ import TextArea from "../../../../components/Form/Textarea"
 import Styles from "./EditDragContent.module.css"
 
 const DragContentSchema = Yup.object().shape({
-    contentTitle: Yup.string().required(),
-    contentText: Yup.string().required(),
+    contentTitle: Yup.string(),
+    contentText: Yup.string(),
     contents: Yup.array().of(
         Yup.object().shape({
             id: Yup.string().required(),
@@ -117,6 +117,8 @@ const EditDragContent: EditTaskContentView = () => {
 
     const onSubmit = useCallback<SubmitHandler<DragContentData>>(
         async (value) => {
+            value.contentText = "-"
+            value.contentTitle = "-"
             await onModifyAndSave((contents) => {
                 return value.contents.map((content) => {
                     const origContent = findOrFail(contents, "id", content.id)
@@ -186,8 +188,6 @@ const EditDragContent: EditTaskContentView = () => {
                 </div>
                 <div>
                     <h2>Inhalt</h2>
-                    <Input label="Titel" name="contentTitle" type="text" />
-                    <TextArea label="Text" name="contentText" />
                 </div>
                 <div className={Styles.categories}>
                     {!questCount && (
