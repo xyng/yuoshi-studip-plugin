@@ -28,7 +28,7 @@ const LearningObjectiveForm: React.FC<{
             className="default"
             onSubmit={onSubmit}
         >
-            <Input label="Titel" name="title" type="text" />
+            <Input label="Name des/der Schüler:in" name="title" type="text" />
             <Input label="Beschreibung" name="description" type="text" />
 
             <Button type="submit">Speichern</Button>
