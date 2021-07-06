@@ -13,9 +13,6 @@ const EditQuizContent = React.lazy(() =>
 const EditDragContent = React.lazy(() =>
     import("./EditDragContent/EditDragContent")
 )
-const EditCardContent = React.lazy(() =>
-    import("./EditCardContent/EditCardContent")
-)
 const EditMemoryContent = React.lazy(() =>
     import("./EditMemoryContent/EditMemoryContent")
 )
@@ -36,11 +33,8 @@ const RenderTaskViews: React.FC = () => {
     switch (task.getType()) {
         case TaskTypeName.DRAG:
             return <EditDragContent />
-        case TaskTypeName.CARD:
-            return <EditCardContent />
         case TaskTypeName.MULTI:
         case TaskTypeName.SURVEY:
-        case TaskTypeName.TRAINING:
             return <EditQuizContent />
         case TaskTypeName.MEMORY:
             return <EditMemoryContent />
