@@ -179,24 +179,10 @@ const EditDragContent: EditTaskContentView = () => {
                 onSubmit={onSubmit}
             >
                 <div className={Styles.settingsHeader}>
-                    <label className={Styles.requireOrder}>
-                        <input
-                            checked={!!requireOrder}
-                            onChange={updateRequireOrder}
-                            type="checkbox"
-                        />
-                        <span>
-                            Reihenfolge der Elemente bei allen Kategorien
-                            beachten
-                        </span>
-                    </label>
-
-                    <div className={Styles.save}>
-                        <Button onClick={createQuest(firstContent.id)}>
-                            Neue Kategorie
-                        </Button>
-                        <Button type="submit">Speichern</Button>
-                    </div>
+                    <Button onClick={createQuest(firstContent.id)}>
+                        Neue Kategorie
+                    </Button>
+                    <Button type="submit">Speichern</Button>
                 </div>
                 <div>
                     <h2>Inhalt</h2>
