@@ -8,7 +8,7 @@ import Button from "../../components/Button/Button"
 
 const StationFormSchema = Yup.object().shape({
     title: Yup.string().required(),
-    slug: Yup.string().required(),
+    slug: Yup.string(),
 })
 type StationFormData = Yup.InferType<typeof StationFormSchema>
 export type StationFormSubmitHandler = SubmitHandler<StationFormData>
@@ -25,7 +25,6 @@ const StationForm: React.FC<{
             onSubmit={onSubmit}
         >
             <Input label="Titel" name="title" type="text" />
-            <Input label="Kürzel" name="slug" type="text" />
 
             <Button type="submit">Speichern</Button>
         </ValidatedForm>
