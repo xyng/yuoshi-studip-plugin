@@ -136,7 +136,7 @@ const EditTagContent: EditTaskContentView = () => {
             onSubmit={onSubmit}
             className="default"
         >
-            <h1>Memory Aufgabe: {task.getTitle()}</h1>
+            <h1>Tag Aufgabe: {task.getTitle()}</h1>
 
             <Button type="submit">Speichern</Button>
 

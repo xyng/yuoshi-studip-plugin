@@ -106,7 +106,8 @@ class TaskContentsController extends JsonApiController
                 'title',
                 'content',
                 'intro',
-                'outro'
+                'outro',
+                'file',
             ])
         );
 
@@ -135,7 +136,8 @@ class TaskContentsController extends JsonApiController
             'title',
             'content',
             'intro',
-            'outro'
+            'outro',
+            'file',
         ]);
         foreach ($attributes as $key => $value) {
             $content->{$key} = $value;
