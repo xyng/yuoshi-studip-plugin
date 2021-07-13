@@ -1,6 +1,7 @@
 import React from "react"
 import * as Yup from "yup"
 import { SubmitHandler } from "@unform/core"
+import TextArea from "components/Form/Textarea"
 
 import ValidatedForm from "../../components/Form/ValidatedForm"
 import Input from "../../components/Form/Input"
@@ -28,8 +29,8 @@ const LearningObjectiveForm: React.FC<{
             className="default"
             onSubmit={onSubmit}
         >
-            <Input label="Titel" name="title" type="text" />
-            <Input label="Beschreibung" name="description" type="text" />
+            <Input label="Name des/der Schüler:in" name="title" type="text" />
+            <TextArea label="Beschreibung" name="description" />
 
             <Button type="submit">Speichern</Button>
         </ValidatedForm>
