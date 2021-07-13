@@ -49,7 +49,7 @@ class LearningObjectivesController extends JsonApiController
 
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $id = $args['id'] ?? null;
+        $id = $args['learning_objective_id'] ?? null;
         if (!$id) {
             $filters = $this->getQueryParameters()->getFilteringParameters();
             $id = $filters['id'] ?? null;
