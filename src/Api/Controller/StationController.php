@@ -17,6 +17,7 @@ use Xyng\Yuoshi\Api\Helper\ValidationTrait;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
+use Xyng\Yuoshi\Model\LearningObjectives;
 use Xyng\Yuoshi\Model\stations;
 
 class StationController extends JsonApiController
@@ -73,6 +74,17 @@ class StationController extends JsonApiController
         }
 
         return $this->getContentResponse($station);
+    }
+
+    public function getStationsForLearningObjective(ServerRequestInterface $request, ResponseInterface $response, $args) {
+
+        $learning_objective_id = $args['learning_objective_id'] ?? null;
+        if (!$learning_objective_id) {
+            $learning_objective_id = $filters['package'] ?? null;
+        }
+
+        $stations = Stations::findBySQL('learning_objective_id = ?', [$learning_objective_id]);
+        return $this->getContentResponse($stations);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
