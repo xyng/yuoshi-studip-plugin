@@ -76,15 +76,19 @@ class StationController extends JsonApiController
         return $this->getContentResponse($station);
     }
 
-    public function getStationsForLearningObjective(ServerRequestInterface $request, ResponseInterface $response, $args) {
-
+    public function getStationsForLearningObjective(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $learning_objective_id = $args['learning_objective_id'] ?? null;
         if (!$learning_objective_id) {
             $learning_objective_id = $filters['package'] ?? null;
         }
 
         $stations = Stations::findBySQL('learning_objective_id = ?', [$learning_objective_id]);
-        return $this->getContentResponse($stations);
+        list($offset, $limit) = $this->getOffsetAndLimit();
+        return $this->getPaginatedContentResponse(
+            array_slice($stations, $offset, $limit),
+            count($stations)
+        );
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
