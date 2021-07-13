@@ -31,14 +31,12 @@ export default class Task extends AppModelWithDate<Attributes> {
     public static readonly taskTypes: {
         [key in TaskTypeName]: string
     } = {
-        // [TaskTypeName.CARD]: "Karteikarte",
         [TaskTypeName.CLOZE]: "Lückentext",
         [TaskTypeName.DRAG]: "Drag n' Drop",
         [TaskTypeName.MEMORY]: "Memory",
         [TaskTypeName.MULTI]: "Multiple-Choice",
         [TaskTypeName.SURVEY]: "Umfrage",
         [TaskTypeName.TAG]: "Text markieren",
-        // [TaskTypeName.TRAINING]: "Quiz",
     }
 
     public getTitle(): string {
