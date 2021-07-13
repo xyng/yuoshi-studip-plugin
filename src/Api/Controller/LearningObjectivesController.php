@@ -154,6 +154,23 @@ class LearningObjectivesController extends JsonApiController
         return $this->getContentResponse($learning_objective);
     }
 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) 
+    {
+        $objective_id = $args['objective_id'] ?? null;
+        
+        if(!objective_id) {
+            throw new RecordNotFoundException();
+        }
+
+        $objective = LearningObjectiveAuthority::findOneFiltered($objective_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
+        
+        if(!$objective->delete()) {
+            throw new InternalServerError("could not delete entity");
+        }
+
+        return $response->withStatus(204);
+    }
+
     /**
      * @inheritDoc
      */
