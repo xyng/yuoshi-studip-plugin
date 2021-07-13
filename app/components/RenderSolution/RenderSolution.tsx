@@ -32,10 +32,6 @@ const RenderWithSolutionRenderer: SolutionRenderer = ({
             return (
                 <DragSolutionRenderer taskSolution={taskSolution} task={task} />
             )
-        case TaskTypeName.CARD:
-            return (
-                <CardSolutionRenderer taskSolution={taskSolution} task={task} />
-            )
         case TaskTypeName.MEMORY:
             return (
                 <MemorySolutionRenderer
@@ -49,7 +45,6 @@ const RenderWithSolutionRenderer: SolutionRenderer = ({
             )
         case TaskTypeName.MULTI:
         case TaskTypeName.SURVEY:
-        case TaskTypeName.TRAINING:
             return (
                 <QuizSolutionRenderer taskSolution={taskSolution} task={task} />
             )

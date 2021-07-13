@@ -8,7 +8,7 @@ const Input: React.FC<
         label: string
         name: string
     }
-> = ({ label, name, type, checked, value, ...props }) => {
+> = ({ label, name, type, checked, value, placeholder, ...props }) => {
     const inputRef = useRef(null)
     const { fieldName, defaultValue = "", registerField, error } = useField(
         name
@@ -48,7 +48,9 @@ const Input: React.FC<
                 id={fieldName}
                 defaultValue={
                     type !== "checkbox" && value === undefined
-                        ? defaultValue
+                        ? defaultValue === undefined || defaultValue === ""
+                            ? placeholder
+                            : defaultValue
                         : undefined
                 }
                 defaultChecked={
