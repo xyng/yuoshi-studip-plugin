@@ -1,5 +1,6 @@
 import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
+import { v4 as uuidv4 } from "uuid"
 
 import Package from "../../models/Package"
 import { usePackagesContext } from "../../contexts/PackagesContext"
@@ -13,6 +14,8 @@ const CreatePackage: React.FC<RouteComponentProps> = () => {
 
     const onSubmit = useCallback<PackageFormSubmitHandler>(
         async (values) => {
+            values.slug = uuidv4()
+
             const newPackage = new Package()
             newPackage.patch(values)
             newPackage.setCourse(course)

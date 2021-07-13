@@ -1,5 +1,6 @@
 import React, { useCallback } from "react"
 import { RouteComponentProps, Link } from "@reach/router"
+import { v4 as uuidv4 } from "uuid"
 
 import Station from "../../models/Station"
 import { useStationContext } from "../../contexts/StationContext"
@@ -13,6 +14,8 @@ const CreateStation: React.FC<RouteComponentProps> = () => {
 
     const onSubmit = useCallback<StationFormSubmitHandler>(
         async (values) => {
+            values.slug = uuidv4()
+
             const newStation = new Station()
             newStation.patch(values)
             newStation.setPackage(currentPackage)
