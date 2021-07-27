@@ -136,7 +136,7 @@ const EditTagContent: EditTaskContentView = () => {
             onSubmit={onSubmit}
             className="default"
         >
-            <h1>Memory Aufgabe: {task.getTitle()}</h1>
+            <h1>Text lesen Aufgabe: {task.getTitle()}</h1>
 
             <Button type="submit">Speichern</Button>
 
@@ -151,11 +151,7 @@ const EditTagContent: EditTaskContentView = () => {
                         key={`tag-content-${content.id}`}
                     >
                         <summary className={Styles.toggleContent}>
-                            <span>
-                                {content.title.length
-                                    ? `Inhalt: ${content.title}`
-                                    : "Neuer Inhalt"}
-                            </span>
+                            <span>Inhalt</span>
                             <div className={Styles.toggleContentButton}>
                                 <Button
                                     fixMargin
@@ -173,9 +169,10 @@ const EditTagContent: EditTaskContentView = () => {
                                 type="hidden"
                             />
                             <Input
-                                label="Title"
+                                label=""
                                 name={`${contentPath}.title`}
-                                type="text"
+                                value="text lesen"
+                                type="hidden"
                             />
                             <TextArea
                                 label="Text"
