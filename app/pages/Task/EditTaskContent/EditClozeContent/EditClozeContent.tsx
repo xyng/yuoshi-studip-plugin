@@ -14,8 +14,6 @@ import Input from "../../../../components/Form/Input"
 import TextArea from "../../../../components/Form/Textarea"
 import { useEditTaskContext } from "../useEditTaskContent"
 
-import Styles from "./EditClozeContent.module.css"
-
 const ClozeContentSchema = Yup.object().shape({
     contents: Yup.array().of(
         Yup.object().shape({
@@ -98,9 +96,10 @@ const EditClozeContent: EditTaskContentView = () => {
                                 type="hidden"
                             />
                             <Input
-                                label="Titel"
+                                label=""
                                 name={`contents[${index}].title`}
-                                type="text"
+                                value="Lückentext"
+                                type="hidden"
                             />
                             <TextArea
                                 label="Text"
@@ -116,29 +115,6 @@ const EditClozeContent: EditTaskContentView = () => {
                                 sollte hierbei eine aufsteigende natürliche Zahl
                                 sein.
                             </small>
-                        </div>
-
-                        <h4>Vorschau:</h4>
-                        <div className={Styles.preview}>
-                            {content.parts.map((part, index) => {
-                                return (
-                                    <div
-                                        key={`content-${content.id}-part-${index}`}
-                                    >
-                                        {part.content}
-                                        {part.name === "input" && part.id && (
-                                            <input
-                                                className="reset"
-                                                type="text"
-                                                name={`content-${content.id}-input-${part.id}`}
-                                            />
-                                        )}
-                                        {part.name === "image" && part.id && (
-                                            <img alt={`${part.id}`} />
-                                        )}
-                                    </div>
-                                )
-                            })}
                         </div>
 
                         <Button onClick={removeContent(content.id)}>
