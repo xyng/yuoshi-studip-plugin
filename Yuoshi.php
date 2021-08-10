@@ -1,6 +1,7 @@
 <?php
 
 use JsonApi\Contracts\JsonApiPlugin;
+use Xyng\Yuoshi\Api\Controller\LearningObjectivesController;
 use Xyng\Yuoshi\Api\Controller\PackagesController;
 use Xyng\Yuoshi\Api\Controller\PackageImportController;
 use Xyng\Yuoshi\Api\Controller\TaskContentQuestAnswersController;
@@ -19,7 +20,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         parent::__construct();
 
         // Enable this when changing tables.
-        // SimpleORMap::expireTableScheme();
+        SimpleORMap::expireTableScheme();
 
         require_once 'vendor/autoload.php';
     }
@@ -108,6 +109,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/stations', StationController::class . ':index');
         $app->get('/stations/{id}', StationController::class . ':show');
         $app->get('/stations/{id}/tasks', TasksController::class . ':index');
+        $app->patch('/stations/{id}', StationController::class . ':update');
 
         $app->delete('/stations/{station_id}', StationController::class . ':delete');
         $app->post('/stations', StationController::class . ':create');
@@ -125,6 +127,8 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':show');
         $app->patch('/tasks/{task_id}/contents/{content_id}', TaskContentsController::class . ':update');
         $app->get('/tasks/{task_id}/task_solutions', TaskSolutionsController::class . ':index');
+        $app->get('/userTask_solutions/{user_id}', TaskSolutionsController::class . ':getAllUserSolutions');
+
         $app->get('/tasks/{task_id}/current_task_solution', TaskSolutionsController::class . ':getCurrentSolution');
         $app->get('/tasks/{task_id}/start', TasksController::class . ':start');
         $app->get('/tasks/{task_id}/nextTask', TasksController::class . ':nextTask');
@@ -167,6 +171,12 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
         $app->get('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':show');
         $app->post('/yuoshi_images', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':create');
         $app->post('/yuoshi_images/{image_id}', \Xyng\Yuoshi\Api\Controller\ImagesController::class . ':update');
+
+        $app->get('/learning_objectives', LearningObjectivesController::class . ':index');
+        $app->get('/learning_objectives/{id}', LearningObjectivesController::class . ':index');
+        $app->get('/learning_objective/{learning_objective_id}', StationController::class . ':getStationsForLearningObjective');
+        $app->post('/learning_objectives', LearningObjectivesController::class . ':create');
+        $app->delete('/learning_objectives/{objective_id}', LearningObjectivesController::class . ':delete');
     }
 
     /**
@@ -187,6 +197,7 @@ class Yuoshi extends StudIPPlugin implements StandardPlugin, SystemPlugin, JsonA
             \Xyng\Yuoshi\Model\UserStationProgress::class => \Xyng\Yuoshi\Api\Schema\UserStationProgress::class,
             \Xyng\Yuoshi\Model\Packages::class => \Xyng\Yuoshi\Api\Schema\Packages::class,
             \Xyng\Yuoshi\Model\Stations::class => \Xyng\Yuoshi\Api\Schema\Stations::class,
+            \Xyng\Yuoshi\Model\LearningObjectives::class => \Xyng\Yuoshi\Api\Schema\LearningObjectives::class,
             \Xyng\Yuoshi\Model\Tasks::class => \Xyng\Yuoshi\Api\Schema\Tasks::class,
             \Xyng\Yuoshi\Model\TaskContents::class => \Xyng\Yuoshi\Api\Schema\Contents::class,
             \Xyng\Yuoshi\Model\TaskContentQuests::class => \Xyng\Yuoshi\Api\Schema\Quests::class,

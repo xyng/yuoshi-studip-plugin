@@ -8,7 +8,7 @@ import Button from "../../components/Button/Button"
 
 const PackageFormSchema = Yup.object().shape({
     title: Yup.string().required(),
-    slug: Yup.string().required(),
+    slug: Yup.string(),
 })
 type PackageFormData = Yup.InferType<typeof PackageFormSchema>
 export type PackageFormSubmitHandler = SubmitHandler<PackageFormData>
@@ -25,7 +25,6 @@ const PackageForm: React.FC<{
             onSubmit={onSubmit}
         >
             <Input label="Titel" name="title" type="text" />
-            <Input label="Kürzel" name="slug" type="text" />
 
             <Button type="submit">Speichern</Button>
         </ValidatedForm>

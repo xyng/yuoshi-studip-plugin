@@ -45,6 +45,7 @@ class AuthorityHelper {
                 ]
             ] + ($conditions['joins'] ?? []),
             'conditions' => $queryCond + ($conditions['conditions'] ?? []),
+            'order' => $conditions['order'] ?? [],
         ];
     }
 }

@@ -53,9 +53,6 @@ const contentTransform: {
 
         return [contentModel]
     },
-    [TaskTypeName.CARD]: function (content) {
-        return []
-    },
     [TaskTypeName.CLOZE]: function (data) {
         const { content: contents } = data
         if (!(contents instanceof Array)) {
@@ -232,9 +229,6 @@ const contentTransform: {
         contentModel.setQuests(quests)
 
         return [contentModel]
-    },
-    [TaskTypeName.TRAINING]: function (content) {
-        return []
     },
 }
 
