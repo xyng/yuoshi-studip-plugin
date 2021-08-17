@@ -36,7 +36,7 @@ export default class Task extends AppModelWithDate<Attributes> {
         [TaskTypeName.MEMORY]: "Memory",
         [TaskTypeName.MULTI]: "Multiple-Choice",
         [TaskTypeName.SURVEY]: "Umfrage",
-        [TaskTypeName.TAG]: "Text lesen",
+        [TaskTypeName.TAG]: "Text markieren",
     }
 
     public getTitle(): string {
