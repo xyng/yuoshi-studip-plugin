@@ -10,6 +10,20 @@ export const LearningObjectiveTable: React.FC = () => {
         reloadLearningObjectives,
     } = useLearningObjectiveContext()
 
+    // const LearningObjectiveSubRoute: React.FC<RouteComponentProps<{
+    //     learningObjectiveId: string
+    // }>> = ({ learningObjectiveId }) => {
+    //     return (
+    //         <CurrentLearningObjectiveContextProvider
+    //             learningObjectiveId={learningObjectiveId}
+    //         >
+    //             <Router>
+    //                 <EditLearningObjective path="edit" />
+    //             </Router>
+    //         </CurrentLearningObjectiveContextProvider>
+    //     )
+    // }
+
     const onRemove = useCallback(
         (id?: string) => async () => {
             if (!id) {
