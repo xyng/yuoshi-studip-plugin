@@ -13,6 +13,7 @@ import Station from "../../models/Station"
 import Button from "../../components/Button/Button"
 import CreateLearningObjective from "../LearningObjectives/CreateLearningObjective"
 
+import EditStation from "./EditStation"
 import { LearningObjectiveTable } from "./LearningObjectiveTable"
 import CreateStation from "./CreateStation"
 
@@ -39,6 +40,7 @@ const StationSubRoute: React.FC<RouteComponentProps<{
     return (
         <CurrentStationContextProvider stationId={stationId}>
             <Router>
+                <EditStation path="edit" />
                 <Tasks path="tasks/*" />
             </Router>
         </CurrentStationContextProvider>
