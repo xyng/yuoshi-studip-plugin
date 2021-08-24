@@ -1,8 +1,9 @@
-import React, { useCallback } from "react"
 import { Link } from "@reach/router"
+import { useCurrentPackageContext } from "contexts/CurrentPackageContext"
+import React, { useCallback } from "react"
 
-import { useLearningObjectiveContext } from "../../contexts/LearningObjectiveContext"
 import Button from "../../components/Button/Button"
+import { useLearningObjectiveContext } from "../../contexts/LearningObjectiveContext"
 
 export const LearningObjectiveTable: React.FC = () => {
     const {
@@ -10,20 +11,7 @@ export const LearningObjectiveTable: React.FC = () => {
         reloadLearningObjectives,
     } = useLearningObjectiveContext()
 
-    // const LearningObjectiveSubRoute: React.FC<RouteComponentProps<{
-    //     learningObjectiveId: string
-    // }>> = ({ learningObjectiveId }) => {
-    //     return (
-    //         <CurrentLearningObjectiveContextProvider
-    //             learningObjectiveId={learningObjectiveId}
-    //         >
-    //             <Router>
-    //                 <EditLearningObjective path="edit" />
-    //             </Router>
-    //         </CurrentLearningObjectiveContextProvider>
-    //     )
-    // }
-
+    const { currentPackage } = useCurrentPackageContext()
     const onRemove = useCallback(
         (id?: string) => async () => {
             if (!id) {
@@ -71,7 +59,9 @@ export const LearningObjectiveTable: React.FC = () => {
                             )}
                         </td>
                         <td>
-                            <Link to={`${learningObjectiveItem.getApiId()}`}>
+                            <Link
+                                to={`learningObjectives/${learningObjectiveItem.getApiId()}`}
+                            >
                                 {learningObjectiveItem.getTitle()}
                             </Link>
                         </td>
@@ -84,7 +74,7 @@ export const LearningObjectiveTable: React.FC = () => {
                         <td>
                             <Link
                                 className="button"
-                                to={`/learning_objectives/${learningObjectiveItem.getApiId()}/edit`}
+                                to={`learningObjectives/${learningObjectiveItem.getApiId()}`}
                             >
                                 Bearbeiten
                             </Link>

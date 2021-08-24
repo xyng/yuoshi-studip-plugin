@@ -1,21 +1,23 @@
 import React, { createContext, useContext } from "react"
+import LearningObjective from "models/LearningObjective"
 
 import useGetModelFromListOrFetch from "../helpers/useGetModelFromListOrFetch"
-import Station from "../models/Station"
 
-import { useStationContext } from "./StationContext"
+import { useLearningObjectiveContext } from "./LearningObjectiveContext"
 
 interface CurrentLearningObjectiveContextInterface {
-    station: Station
-    updateStation: (station: Station, reload?: boolean) => Promise<void>
+    currentLearningObjective: LearningObjective
+    updateLearningObjective: (
+        learningObjective: LearningObjective,
+        reload?: boolean
+    ) => Promise<void>
 }
-const CurrentLearningObjective = createContext<CurrentLearningObjectiveContextInterface | null>(
+const CurrentLearningObjectiveContext = createContext<CurrentLearningObjectiveContextInterface | null>(
     null
 )
 
-export const useCurrentLearningObjectiveContext = () => {
-    const ctx = useContext(CurrentLearningObjective)
-
+export const useCurrentLearningObjective = () => {
+    const ctx = useContext(CurrentLearningObjectiveContext)
     if (ctx === null) {
         throw new Error("No CurrentLearningObjective available.")
     }
@@ -23,39 +25,44 @@ export const useCurrentLearningObjectiveContext = () => {
     return ctx
 }
 
-const fetchStation = async (stationId: string) => {
-    const station = (
-        await Station.with("station").find(stationId)
-    ).getData() as Station | null
-
-    if (!station) {
-        throw new Error("Station not found")
+const fetchLearningObjective = async (learning_objective_id: string) => {
+    const learningObjectiveItem = (
+        await LearningObjective.with("package").find(learning_objective_id)
+    ).getData() as LearningObjective | null
+    if (!learningObjectiveItem) {
+        throw new Error("LearningObjective not found")
     }
 
-    return station
+    return learningObjectiveItem
 }
 
 export const CurrentLearningObjectiveProvider: React.FC<{
-    stationId?: string
-}> = ({ children, stationId }) => {
-    const { station, updateStation, reloadStations } = useStationContext()
+    learningObjectiveId?: string
+}> = ({ children, learningObjectiveId }) => {
+    const {
+        learningObjectives,
+        updateLearningObjectives,
+        reloadLearningObjectives,
+    } = useLearningObjectiveContext()
     const { entityData, updateEntity } = useGetModelFromListOrFetch(
-        stationId,
-        station,
-        stationId ? [stationId, "stationId"] : null,
-        fetchStation,
-        updateStation,
-        reloadStations
+        learningObjectiveId,
+        learningObjectives,
+        learningObjectiveId
+            ? [learningObjectiveId, "learningObjectiveId"]
+            : null,
+        fetchLearningObjective,
+        updateLearningObjectives,
+        reloadLearningObjectives
     )
 
     const ctx = {
-        station: entityData,
-        updateStation: updateEntity,
+        currentLearningObjective: entityData,
+        updateLearningObjective: updateEntity,
     }
 
     return (
-        <CurrentLearningObjective.Provider value={ctx}>
+        <CurrentLearningObjectiveContext.Provider value={ctx}>
             {children}
-        </CurrentLearningObjective.Provider>
+        </CurrentLearningObjectiveContext.Provider>
     )
 }
