@@ -32,7 +32,7 @@ const CreateLearningObjective: React.FC<RouteComponentProps> = () => {
         <>
             <Link
                 className="button"
-                to={`/packages/${currentPackage.getApiId()}/packages`}
+                to={`/packages/${currentPackage.getApiId()}/stations`}
             >
                 Zurück
             </Link>

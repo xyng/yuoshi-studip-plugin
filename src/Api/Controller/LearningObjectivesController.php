@@ -23,7 +23,7 @@ class LearningObjectivesController extends JsonApiController
 
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['package', 'sort'];
-    protected $allowedIncludePaths = [];
+    protected $allowedIncludePaths = ['package'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
@@ -49,7 +49,8 @@ class LearningObjectivesController extends JsonApiController
 
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $id = $args['learning_objective_id'] ?? null;
+        $id = $args['id'] ?? null;
+        
         if (!$id) {
             $filters = $this->getQueryParameters()->getFilteringParameters();
             $id = $filters['id'] ?? null;
@@ -96,7 +97,7 @@ class LearningObjectivesController extends JsonApiController
             throw new InternalServerError("could not persist entity");
         }
 
-           $station = Stations::build(
+        $station = Stations::build(
             [
                 'package_id' => $package_id,
                 'title' => $learning_objective->title,
@@ -154,17 +155,17 @@ class LearningObjectivesController extends JsonApiController
         return $this->getContentResponse($learning_objective);
     }
 
-    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $objective_id = $args['objective_id'] ?? null;
         
-        if(!objective_id) {
+        if (!objective_id) {
             throw new RecordNotFoundException();
         }
 
         $objective = LearningObjectiveAuthority::findOneFiltered($objective_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
         
-        if(!$objective->delete()) {
+        if (!$objective->delete()) {
             throw new InternalServerError("could not delete entity");
         }
 
