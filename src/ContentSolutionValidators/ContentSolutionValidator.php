@@ -9,7 +9,7 @@ interface ContentSolutionValidator {
     /**
      * Validate given Task, return points as int
      * @param UserTaskContentSolutions $contentSolution
-     * @return int
+     * @return float
      */
-    public function validate(UserTaskContentSolutions $contentSolution): int;
+    public function validate(UserTaskContentSolutions $contentSolution): float;
 }

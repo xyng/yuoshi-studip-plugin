@@ -141,11 +141,6 @@ class TaskContentSolutionsController extends JsonApiController {
             'value' => $value,
         ]);
 
-        $validator = ContentSolutionValidatorService::getValidator($taskSolution->task);
-        if ($validator) {
-            $content_solution->points = $validator->validate($content_solution);
-        }
-
         if (!$content_solution->store()) {
             throw new InternalServerError('could not persist entity');
         }
