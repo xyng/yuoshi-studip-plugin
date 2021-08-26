@@ -15,10 +15,12 @@ use Xyng\Yuoshi\Authority\TaskContentSolutionAuthority;
 use Xyng\Yuoshi\Authority\TaskSolutionAuthority;
 use Xyng\Yuoshi\Api\Helper\JsonApiDataHelper;
 use Xyng\Yuoshi\Api\Helper\ValidationTrait;
+use Xyng\Yuoshi\ContentSolutionValidators\ContentSolutionValidatorService;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Helper\HtmlSanitizerFactory;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Model\TaskContents;
+use Xyng\Yuoshi\Model\Tasks;
 use Xyng\Yuoshi\Model\UserTaskContentSolutions;
 use Xyng\Yuoshi\Model\UserTaskSolutions;
 
@@ -132,6 +134,7 @@ class TaskContentSolutionsController extends JsonApiController {
             }
         }
 
+        /** @var UserTaskContentSolutions $content_solution */
         $content_solution = UserTaskContentSolutions::build([
             'solution_id' => $taskSolution->id,
             'content_id' => $data->getRelationId('content'),

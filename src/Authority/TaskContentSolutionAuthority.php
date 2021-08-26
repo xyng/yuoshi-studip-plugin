@@ -3,6 +3,7 @@ namespace Xyng\Yuoshi\Authority;
 
 use SimpleORMap;
 use User;
+use Xyng\Yuoshi\ContentSolutionValidators\ContentSolutionValidatorService;
 use Xyng\Yuoshi\Helper\AuthorityHelper;
 use Xyng\Yuoshi\Model\TaskContents;
 use Xyng\Yuoshi\Model\UserTaskContentQuestSolutions;
@@ -53,6 +54,11 @@ class TaskContentSolutionAuthority implements AuthorityInterface {
         $totalQuests = $quests->count();
 
         $questsSolutions = $contentSolution->quest_solutions;
+
+        $validator = ContentSolutionValidatorService::getValidator($contentSolution->task_solution->task);
+        if ($validator) {
+            return $validator->validate($contentSolution);
+        }
 
         foreach ($quests as $quest) {
             /** @var \SimpleCollection|UserTaskContentQuestSolutions[] $questSolutions */

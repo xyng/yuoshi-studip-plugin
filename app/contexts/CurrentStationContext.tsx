@@ -27,7 +27,6 @@ const fetchStation = async (stationId: string) => {
     const station = (
         await Station.with("station").find(stationId)
     ).getData() as Station | null
-
     if (!station) {
         throw new Error("Station not found")
     }

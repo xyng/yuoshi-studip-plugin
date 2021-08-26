@@ -158,9 +158,10 @@ const RenderQuestForm: React.FC<{
             <div className={Styles.contentMain}>
                 <Input label="" name={getQuestInputName("id")} type="hidden" />
                 <Input
-                    label="Name"
+                    label=""
                     name={getQuestInputName("name")}
-                    type="text"
+                    value="QuizName"
+                    type="hidden"
                 />
                 <Input
                     label="Frage"
@@ -168,24 +169,25 @@ const RenderQuestForm: React.FC<{
                     type="text"
                 />
                 <Input
-                    label="Text"
+                    label=""
                     name={getQuestInputName("prePhrase")}
-                    type="text"
+                    value="QuizText"
+                    type="hidden"
                 />
                 <Input
-                    label="Reihenfolge der Antworten beachten"
+                    label=""
                     name={getQuestInputName("requireOrder")}
-                    type="checkbox"
+                    type="hidden"
                 />
                 <Input
-                    label="Mehrere Antworten möglich"
+                    label=""
                     name={getQuestInputName("multiple")}
-                    type="checkbox"
+                    type="hidden"
                 />
                 <Input
-                    label="Eigene Antwort (Freitext) möglich"
+                    label=""
                     name={getQuestInputName("customAnswer")}
-                    type="checkbox"
+                    type="hidden"
                 />
 
                 <div className={Styles.header}>
@@ -250,13 +252,18 @@ const RenderContentForm: React.FC<{
                 </div>
             </summary>
             <div className={Styles.contentMain}>
-                <span className={Styles.heading}>Meta-Informationen</span>
                 <Input label="" name={`contents[${index}].id`} type="hidden" />
-                <Input label="Title" name={getInputName("title")} type="text" />
                 <Input
-                    label="Text"
+                    label=""
+                    name={getInputName("title")}
+                    value="MultipleChoice"
+                    type="hidden"
+                />
+                <Input
+                    label=""
                     name={getInputName("content")}
-                    type="text"
+                    value="Multiple Choice"
+                    type="hidden"
                 />
                 <div className={Styles.header}>
                     <span className={Styles.heading}>Fragen</span>

@@ -1,20 +1,23 @@
-import React, { Suspense, useCallback } from "react"
 import { Link, RouteComponentProps, Router } from "@reach/router"
+import { CurrentLearningObjectiveProvider } from "contexts/CurrentLearningObjectiveContext"
 import { LearningObjectiveContextProvider } from "contexts/LearningObjectiveContext"
+import EditLearningObjective from "pages/LearningObjectives/EditLearningObjective"
+import React, { Suspense, useCallback } from "react"
 
-import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
+import Button from "../../components/Button/Button"
+import Progress from "../../components/Progress/Progress"
 import { useCurrentPackageContext } from "../../contexts/CurrentPackageContext"
+import { CurrentStationContextProvider } from "../../contexts/CurrentStationContext"
 import {
     StationContextProvider,
     useStationContext,
 } from "../../contexts/StationContext"
-import Progress from "../../components/Progress/Progress"
 import Station from "../../models/Station"
-import Button from "../../components/Button/Button"
 import CreateLearningObjective from "../LearningObjectives/CreateLearningObjective"
 
-import { LearningObjectiveTable } from "./LearningObjectiveTable"
 import CreateStation from "./CreateStation"
+import EditStation from "./EditStation"
+import { LearningObjectiveTable } from "./LearningObjectiveTable"
 
 const Tasks = React.lazy(() => import("../Tasks/Tasks"))
 
@@ -27,18 +30,32 @@ const Stations: React.FC<RouteComponentProps> = () => {
                     <CreateStation path="create" />
                     <CreateLearningObjective path="objectiveCreate" />
                     <StationSubRoute path=":stationId/*" />
+                    <LearningObjectiveSubRoute path="learningObjectives/:learningObjectiveId/*" />
                 </Router>
             </LearningObjectiveContextProvider>
         </StationContextProvider>
     )
 }
-
+const LearningObjectiveSubRoute: React.FC<RouteComponentProps<{
+    learningObjectiveId: string
+}>> = ({ learningObjectiveId }) => {
+    return (
+        <CurrentLearningObjectiveProvider
+            learningObjectiveId={learningObjectiveId}
+        >
+            <Router>
+                <EditLearningObjective path="/*" />
+            </Router>
+        </CurrentLearningObjectiveProvider>
+    )
+}
 const StationSubRoute: React.FC<RouteComponentProps<{
     stationId: string
 }>> = ({ stationId }) => {
     return (
         <CurrentStationContextProvider stationId={stationId}>
             <Router>
+                <EditStation path="edit" />
                 <Tasks path="tasks/*" />
             </Router>
         </CurrentStationContextProvider>
