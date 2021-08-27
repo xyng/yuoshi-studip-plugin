@@ -65,7 +65,7 @@ const EditClozeContent: EditTaskContentView = () => {
                         const fileList = content.file
                         let file_id: string | undefined = undefined
                         if (fileList && fileList.length > 0) {
-                            file_id = await uploadImage(fileList[0], course_id)
+                            file_id = await uploadImage(fileList[0], 'contents', content.id, 'image')
                         }
 
                         const origContent = contents.find(
