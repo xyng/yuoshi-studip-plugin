@@ -39,4 +39,28 @@ class LearningObjectives extends SchemaProvider
             'chdate' => $resource->chdate->format('c'),
         ];
     }
+
+    /**
+     * @param \Xyng\Yuoshi\Model\LearningObjectives $resource
+     * @param bool $isPrimary
+     * @param array $includeRelationships
+     * @return array[]
+     */
+    public function getRelationships($resource, $isPrimary, array $includeRelationships)
+    {
+        $images = null;
+        if ($includeRelationships['images'] ?? null) {
+            $images = $resource->images;
+        }
+
+        return [
+            'images' => [
+                self::DATA => $images,
+                self::SHOW_SELF => true,
+//                self::LINKS => [
+//                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'images')
+//                ],
+            ],
+        ];
+    }
 }

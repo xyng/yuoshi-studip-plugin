@@ -40,6 +40,10 @@ class TaskContentQuests extends BaseModel {
             'foreign_key' => 'content_id'
         ];
 
+        $config['file_groups'] = [
+            'images' => 'images',
+        ];
+
         parent::configure($config);
     }
 }

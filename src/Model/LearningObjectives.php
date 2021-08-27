@@ -9,8 +9,10 @@ use Xyng\Yuoshi\Model\Tasks;
 /**
  * Class LearningObjective
  * @package Xyng\Yuoshi\Model
- * @property Stations $station
- * @property Packages $station
+ * @property \SimpleORMapCollection|Stations[] $station
+ * @property Packages $package
+ * @property \SimpleORMapCollection|Files[] $images
+ * @property \SimpleORMapCollection|Files[] $attachments
  * @property \SimpleORMapCollection|TaskContents[] $contents
  */
 class LearningObjectives extends BaseModel
@@ -31,10 +33,9 @@ class LearningObjectives extends BaseModel
             'on_delete' => true,
         ];
 
-        // $config['belongs_to_many']['users'] = [
-        //     'class_name' => \User::class,
-        //     'foreign_key' => 'user_id'
-        // ];
+        $config['file_groups'] = [
+            'images' => 'images',
+        ];
 
         parent::configure($config);
     }

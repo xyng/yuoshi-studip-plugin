@@ -1,7 +1,11 @@
-export const uploadImage = async (file: File, course_id: string) => {
+export const uploadImage = async (file: File, model: string, model_id: string, group?: string) => {
     const data = new FormData()
-    data.append("course", course_id)
-    data.append("image", file)
+    data.append("model", model)
+    data.append("key", model_id)
+    if (group) {
+        data.append("group", group)
+    }
+    data.append("file", file)
 
     const resp = await fetch(`${process.env.API_PATH}/yuoshi_images`, {
         method: "post",

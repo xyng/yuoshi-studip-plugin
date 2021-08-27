@@ -27,7 +27,8 @@ class TaskContentsController extends JsonApiController
 
     protected $allowedIncludePaths = [
         'quests',
-        'quests.answers'
+        'quests.answers',
+        'images',
     ];
 
     protected $allowedFilteringParameters = [

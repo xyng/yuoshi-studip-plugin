@@ -22,6 +22,8 @@ use Xyng\Yuoshi\Authority\TaskContentQuestAuthority;
 use Xyng\Yuoshi\Helper\DBHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
+use Xyng\Yuoshi\Model\Files;
+use Xyng\Yuoshi\Model\LearningObjectives;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\TaskContents;
@@ -55,10 +57,60 @@ class ImagesController extends NonJsonApiController {
         );
     }
 
+    /**
+     * @param string $model
+     * @param string $id
+     * @return TaskContents|LearningObjectives|null
+     */
+    protected function _getForeignEntity(string $model, string $id) {
+        // TODO: add cases for all models that have files
+
+        switch ($model) {
+            case \Xyng\Yuoshi\Api\Schema\Contents::TYPE:
+                return TaskContents::find($id);
+            case \Xyng\Yuoshi\Api\Schema\LearningObjectives::TYPE:
+                return LearningObjectives::find($id);
+        }
+    }
+
+    protected function _getCourseIdForModel(SimpleORMap $model): string {
+        if ($model instanceof TaskContents) {
+            /** @var TaskContents $model */
+            return $model->task->station->package->course_id;
+        }
+
+        if ($model instanceof LearningObjectives) {
+            /** @var LearningObjectives $model */
+            return $model->package->course_id;
+        }
+
+        // TODO: implement for other models
+
+        throw new UnprocessableEntityException();
+    }
+
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         /** @var UploadedFileInterface|null $image */
-        $image = $request->getUploadedFiles()['image'] ?? null;
-        $course_id = $request->getParsedBody()['course'] ?? null;
+        $image = $request->getUploadedFiles()['file'] ?? null;
+        $fk_model = $request->getParsedBody()['model'] ?? null;
+        $fk_key = $request->getParsedBody()['key'] ?? null;
+        $fk_group = $request->getParsedBody()['group'] ?? null;
+
+        $model = $this->_getForeignEntity($fk_model, $fk_key);
+
+        if (!$model) {
+            throw new UnprocessableEntityException();
+        }
+
+        try {
+            $model->getValue($fk_group);
+        } catch (\Exception $e) {
+            throw new UnprocessableEntityException();
+        }
+
+        $course_id = $this->_getCourseIdForModel($model);
+
+        // TODO: check if user has access to course
 
         if (!$image || !$course_id) {
             throw new UnprocessableEntityException();
@@ -95,6 +147,16 @@ class ImagesController extends NonJsonApiController {
         $this->updateFile($file, $image);
 
         $fileRef = $folder->createFile($file);
+
+        try {
+            $model->{$fk_group} = [
+                Files::buildForRef($fileRef),
+            ];
+
+            $model->store();
+        } catch (\Exception $e) {
+            // ignore for now
+        }
 
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->write(json_encode([

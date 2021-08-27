@@ -15,6 +15,7 @@ use Xyng\Yuoshi\Helper\DBHelper;
  * @property string $id
  * @property DateTime $chdate
  * @property DateTime $mkdate
+ * @property \SimpleORMapCollection|Files[] $files
  */
 class BaseModel extends SimpleORMap
 {
@@ -25,6 +26,34 @@ class BaseModel extends SimpleORMap
     public function __construct($id = null)
     {
         parent::__construct($id);
+    }
+
+    protected static function configure($config = [])
+    {
+        $config['has_many']['files'] = [
+            'on_store' => true,
+            'on_delete' => true,
+            'class_name' => Files::class,
+            'assoc_func' => 'getByForeign',
+            'assoc_foreign_key' => function ($entity, $params) {
+                return Files::setForeign($entity, $params);
+            },
+            'foreign_key' => function (self $model, $name, $options) {
+                return [static::class, $model->id, $options['file_group'] ?? null];
+            },
+        ];
+
+        $file_groups = $config['file_groups'] ?? [];
+
+        foreach ($file_groups as $key => $file_group) {
+            $config['has_many'][$key] = $config['has_many']['files'];
+            $config['has_many'][$key]['file_group'] = $file_group;
+        }
+
+        // remove option to prevent confusion of SimpleORM.
+        unset($config['file_groups']);
+
+        parent::configure($config);
     }
 
     public function getValue($field)

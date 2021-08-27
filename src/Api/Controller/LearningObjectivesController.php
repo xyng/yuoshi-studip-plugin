@@ -14,6 +14,7 @@ use Valitron\Validator;
 use Xyng\Yuoshi\Authority\LearningObjectiveAuthority;
 use Xyng\Yuoshi\Authority\PackageAuthority;
 use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Model\Files;
 use Xyng\Yuoshi\Model\LearningObjectives;
 use Xyng\Yuoshi\Model\Stations;
 
@@ -23,17 +24,17 @@ class LearningObjectivesController extends JsonApiController
 
     protected $allowedPagingParameters = ['offset', 'limit'];
     protected $allowedFilteringParameters = ['package', 'sort'];
-    protected $allowedIncludePaths = ['package'];
+    protected $allowedIncludePaths = ['package', 'images.file.file'];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $package_id = $args['id'] ?? null;
         $filters = $this->getQueryParameters()->getFilteringParameters();
-        
+
         if (!$package_id) {
             $package_id = $filters['package'] ?? null;
         }
-        
+
         if (!$package_id) {
             throw new \InvalidArgumentException("Cannot select Package.");
         }
@@ -50,15 +51,16 @@ class LearningObjectivesController extends JsonApiController
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $id = $args['id'] ?? null;
-        
+
         if (!$id) {
             $filters = $this->getQueryParameters()->getFilteringParameters();
             $id = $filters['id'] ?? null;
         }
 
         $user = $this->getUser($request);
+        /** @var LearningObjectives|null $learning_objective */
         $learning_objective = LearningObjectiveAuthority::findOneFiltered($id, $user);
-        
+
         if (!$learning_objective) {
             throw new RecordNotFoundException();
         }
@@ -112,7 +114,7 @@ class LearningObjectivesController extends JsonApiController
             throw new InternalServerError("could not save belonging station");
         }
         // create beloning station for objective
-        
+
         return $this->getContentResponse($learning_objective);
     }
 
@@ -124,7 +126,7 @@ class LearningObjectivesController extends JsonApiController
         }
 
         $learning_objective= LearningObjectiveAuthority::findOneFiltered($learning_objective_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
-        
+
         if (!$learning_objective_id) {
             throw new RecordNotFoundException();
         }
@@ -143,7 +145,7 @@ class LearningObjectivesController extends JsonApiController
         if ($image = $data->getAttribute('image')) {
             $learning_objective->image = $image;
         }
-        
+
         if ($sort = $data->getAttribute('sort')) {
             $learning_objective->sort = $sort;
         }
@@ -158,13 +160,13 @@ class LearningObjectivesController extends JsonApiController
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $objective_id = $args['objective_id'] ?? null;
-        
+
         if (!objective_id) {
             throw new RecordNotFoundException();
         }
 
         $objective = LearningObjectiveAuthority::findOneFiltered($objective_id, $this->getUser($request), PermissionHelper::getMasters('dozent'));
-        
+
         if (!$objective->delete()) {
             throw new InternalServerError("could not delete entity");
         }

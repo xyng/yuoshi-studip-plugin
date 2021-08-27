@@ -38,7 +38,8 @@ class TasksController extends JsonApiController
     protected $allowedIncludePaths = [
         'contents',
         'contents.quests',
-        'contents.quests.answers'
+        'contents.quests.answers',
+        'contents.images.file.file',
     ];
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
