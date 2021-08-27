@@ -1,15 +1,13 @@
 <?php
 namespace Xyng\Yuoshi\Model;
 
-use eTask\Task;
-
 /**
  * Class TaskContents
  * @package Xyng\Yuoshi\Model
  *
  * @property string $task_id
  *
- * @property \SimpleORMap|Task $task
+ * @property \SimpleORMap|Tasks $task
  * @property \SimpleORMapCollection|TaskContentQuests[] $quests
  * @property \SimpleORMapCollection|Files[] $images
  */
