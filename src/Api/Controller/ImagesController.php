@@ -21,6 +21,9 @@ use Xyng\Yuoshi\Authority\TaskContentQuestAnswerAuthority;
 use Xyng\Yuoshi\Authority\TaskContentQuestAuthority;
 use Xyng\Yuoshi\Helper\DBHelper;
 use Xyng\Yuoshi\Helper\PermissionHelper;
+use Xyng\Yuoshi\Helper\QueryField;
+use Xyng\Yuoshi\Model\Files;
+use Xyng\Yuoshi\Model\LearningObjectives;
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\TaskContents;
@@ -55,61 +58,70 @@ class ImagesController extends NonJsonApiController {
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param string $perm
-     * @return SimpleORMap|TaskContentQuestAnswers|TaskContentQuests|TaskContents
+     * @param string $model
+     * @param string $id
+     * @return TaskContents|LearningObjectives|null
      */
-    protected function findEntity(ServerRequestInterface $request, string $perm) {
-        $body = $request->getParsedBody();
+    protected function _getForeignEntity(string $model, string $id) {
+        // TODO: add cases for all models that have files
 
-        $type = $body['type'] ?? null;
-        $id = $body['id'] ?? null;
+        switch ($model) {
+            case \Xyng\Yuoshi\Api\Schema\Contents::TYPE:
+                return TaskContents::find($id);
+            case \Xyng\Yuoshi\Api\Schema\LearningObjectives::TYPE:
+                return LearningObjectives::find($id);
+        }
+    }
 
-        if (!$type || !$id) {
-            throw new UnprocessableEntityException();
+    protected function _getCourseIdForModel(SimpleORMap $model): string {
+        if ($model instanceof TaskContents) {
+            /** @var TaskContents $model */
+            return $model->task->station->package->course_id;
         }
 
-        $user = $this->getUser($request);
-
-        $req_perms = PermissionHelper::getMasters($perm);
-
-        switch ($type) {
-            case "content":
-                $entity = TaskContentAuthority::findOneFiltered($id, $user, $req_perms);
-                break;
-            case "quest":
-                $entity = TaskContentQuestAuthority::findOneFiltered($id, $user, $req_perms);
-                break;
-            case "answer":
-                $entity = TaskContentQuestAnswerAuthority::findOneFiltered($id, $user, $req_perms);
-                break;
-            default:
-                throw new \InvalidArgumentException("unknown entity type");
+        if ($model instanceof LearningObjectives) {
+            /** @var LearningObjectives $model */
+            return $model->package->course_id;
         }
 
-        if (!$entity) {
-            throw new RecordNotFoundException();
-        }
+        // TODO: implement for other models
 
-        return $entity;
+        throw new UnprocessableEntityException();
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         /** @var UploadedFileInterface|null $image */
-        $image = $request->getUploadedFiles()['image'] ?? null;
+        $image = $request->getUploadedFiles()['file'] ?? null;
+        $fk_model = $request->getParsedBody()['model'] ?? null;
+        $fk_key = $request->getParsedBody()['key'] ?? null;
+        $fk_group = $request->getParsedBody()['group'] ?? null;
 
-        if (!$image) {
+        $model = $this->_getForeignEntity($fk_model, $fk_key);
+
+        if (!$model) {
             throw new UnprocessableEntityException();
         }
 
-        $entity = $this->findEntity($request, 'dozent');
+        try {
+            $model->getValue($fk_group);
+        } catch (\Exception $e) {
+            throw new UnprocessableEntityException();
+        }
+
+        $course_id = $this->_getCourseIdForModel($model);
+
+        // TODO: check if user has access to course
+
+        if (!$image || !$course_id) {
+            throw new UnprocessableEntityException();
+        }
 
         /** @var Folder|null $dbFolder */
         $dbFolder = \Folder::findOneBySQL(
             "parent_id='' AND range_id = :range_id AND range_type = :range_type",
             [
-                'range_id' => $entity->id,
-                'range_type' => get_class($entity),
+                'range_id' => $course_id,
+                'range_type' => 'course',
             ]
         );
 
@@ -135,6 +147,16 @@ class ImagesController extends NonJsonApiController {
         $this->updateFile($file, $image);
 
         $fileRef = $folder->createFile($file);
+
+        try {
+            $model->{$fk_group} = [
+                Files::buildForRef($fileRef),
+            ];
+
+            $model->store();
+        } catch (\Exception $e) {
+            // ignore for now
+        }
 
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->write(json_encode([
@@ -191,43 +213,34 @@ class ImagesController extends NonJsonApiController {
             'seminar_user.status IN' => PermissionHelper::getMasters($perm)
         ] : [];
 
-        // filter file-ref of image by related content,
-        // or content that belongs to related quest,
-        // or content that belongs to a quest that belongs to a related answer
-        // SO MANY OPTIONS!
-        // it's ugly, but it works!
+        // filter files by course so that only files of users courses can be found.
         ['sql' => $sql, 'params' => $params] = DBHelper::queryToSql([
             'conditions' => [
                 'file_refs.id' => $id
             ],
             'joins' => [
                 [
-                    'sql' => 'INNER JOIN folders on (folders.id = file_refs.folder_id)'
-                ],
-                [
-                    'sql' => 'LEFT JOIN yuoshi_task_content_quest_answers on (yuoshi_task_content_quest_answers.id = folders.range_id and folders.range_type = :task_content_quest_answer_range_type)',
-                    'params' => [
-                        'task_content_quest_answer_range_type' => TaskContentQuests::class,
-                    ]
-                ],
-                [
-                    'sql' => 'LEFT JOIN yuoshi_task_content_quests on (yuoshi_task_content_quests.id = folders.range_id and folders.range_type = :task_content_quest_range_type) or (yuoshi_task_content_quests.id = yuoshi_task_content_quest_answers.quest_id)',
-                    'params' => [
-                        'task_content_quest_range_type' => TaskContentQuests::class,
-                    ]
-                ],
-                [
-                    'sql' => 'INNER JOIN yuoshi_task_contents on (yuoshi_task_contents.id = folders.range_id and folders.range_type = :task_content_range_type) or (yuoshi_task_contents.id = yuoshi_task_content_quests.content_id)',
-                    'params' => [
-                        'task_content_range_type' => TaskContents::class,
-                    ]
-                ],
-                [
-                    'sql' => TaskContentAuthority::getFilter(),
-                    'params' => [
-                        'user_id' => $this->getUser($request)->id
+                    'type' => 'INNER',
+                    'table' => 'folders',
+                    'on' => [
+                        'folders.id' => new QueryField('file_refs.folder_id')
                     ],
-                    'conditions' => $conditions,
+                ],
+                [
+                    'type' => 'INNER',
+                    'table' => 'seminare',
+                    'on' => [
+                        'seminare.Seminar_id' => new QueryField('folders.range_id'),
+                        'folders.range_type' => 'course',
+                    ],
+                ],
+                [
+                    'type' => 'INNER',
+                    'table' => 'seminar_user',
+                    'on' => array_merge($conditions, [
+                        'seminar_user.Seminar_id' => new QueryField('seminare.Seminar_id'),
+                        'seminar_user.user_id' => $this->getUser($request)->id
+                    ]),
                 ],
             ]
         ]);

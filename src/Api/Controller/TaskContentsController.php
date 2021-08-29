@@ -27,7 +27,8 @@ class TaskContentsController extends JsonApiController
 
     protected $allowedIncludePaths = [
         'quests',
-        'quests.answers'
+        'quests.answers',
+        'images',
     ];
 
     protected $allowedFilteringParameters = [
@@ -106,7 +107,8 @@ class TaskContentsController extends JsonApiController
                 'title',
                 'content',
                 'intro',
-                'outro'
+                'outro',
+                'file',
             ])
         );
 
@@ -135,7 +137,8 @@ class TaskContentsController extends JsonApiController
             'title',
             'content',
             'intro',
-            'outro'
+            'outro',
+            'file',
         ]);
         foreach ($attributes as $key => $value) {
             $content->{$key} = $value;

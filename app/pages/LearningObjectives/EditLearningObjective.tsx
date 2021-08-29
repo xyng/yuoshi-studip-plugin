@@ -2,13 +2,16 @@ import { Link, RouteComponentProps } from "@reach/router"
 import { useCurrentLearningObjective } from "contexts/CurrentLearningObjectiveContext"
 import { useCurrentPackageContext } from "contexts/CurrentPackageContext"
 import LearningObjective from "models/LearningObjective"
-import React, { useCallback } from "react"
+import React, { ChangeEventHandler, useCallback } from "react"
 
 import LearningObjectiveForm, {
     LearningObjectiveFormSubmitHandler,
 } from "./LearningObjectiveForm"
+import { uploadImage } from "../../helpers/fileUploadHelper"
+import { useCourseContext } from "../../contexts/CourseContext"
 
 const EditLearningObjective: React.FC<RouteComponentProps> = () => {
+    const { course } = useCourseContext()
     const { currentPackage } = useCurrentPackageContext()
     const {
         currentLearningObjective,
@@ -27,6 +30,19 @@ const EditLearningObjective: React.FC<RouteComponentProps> = () => {
         },
         [currentLearningObjective, updateLearningObjective]
     )
+
+    const handleFile = useCallback<ChangeEventHandler<HTMLInputElement>>(async (event) => {
+        const file = event.currentTarget.files?.[0]
+
+        if (!file) {
+            return
+        }
+
+        const ref = await uploadImage(file, currentLearningObjective.getJsonApiType(), currentLearningObjective.getApiId() as string, 'image')
+
+        console.log(ref)
+    }, [course, currentLearningObjective])
+
     if (!currentLearningObjective) return <p> test </p>
     return (
         <>
@@ -39,6 +55,8 @@ const EditLearningObjective: React.FC<RouteComponentProps> = () => {
             <h1>
                 Fallbeispiel bearbeiten: {currentLearningObjective.getTitle()}
             </h1>
+
+            <input type="file" onChange={handleFile} />
 
             <LearningObjectiveForm
                 defaultValues={{

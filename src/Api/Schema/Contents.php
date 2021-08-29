@@ -30,16 +30,28 @@ class Contents extends SchemaProvider
             'intro' => $resource->intro,
             'outro' => $resource->outro,
             'content' => $resource->content,
+            //'file' => $resource->file,
             'mkdate' => $resource->mkdate->format('c'),
             'chdate' => $resource->chdate->format('c'),
         ];
     }
 
+    /**
+     * @param TaskContents $resource
+     * @param bool $isPrimary
+     * @param array $includeRelationships
+     * @return array[]
+     */
     public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
         $quests = null;
         if ($includeRelationships['quests'] ?? null) {
             $quests = $resource->quests;
+        }
+
+        $images = null;
+        if ($includeRelationships['images'] ?? null) {
+            $images = $resource->images;
         }
 
         return [
@@ -49,6 +61,13 @@ class Contents extends SchemaProvider
                 self::LINKS => [
                     Link::RELATED => $this->getRelationshipRelatedLink($resource, 'quests')
                 ],
+            ],
+            'images' => [
+                self::DATA => $images,
+                self::SHOW_SELF => true,
+//                self::LINKS => [
+//                    Link::RELATED => $this->getRelationshipRelatedLink($resource, 'images')
+//                ],
             ],
         ];
     }

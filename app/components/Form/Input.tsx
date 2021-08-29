@@ -29,6 +29,9 @@ const Input: React.FC<
             case "datetime-local":
                 path = "value"
                 break
+            case "file":
+                path = "files"
+                break
             default:
                 path = "value"
         }

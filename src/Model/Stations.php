@@ -15,7 +15,7 @@ use Xyng\Yuoshi\Helper\QueryField;
  * @property string $title
  * @property string $slug
  * @property int $sort
- * @property Course $course
+ * @property Packages $package
  * @property Tasks[] $tasks
  *
  * @method static Stations find(string $id)

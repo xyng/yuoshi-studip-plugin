@@ -38,6 +38,7 @@ export interface QuizContent extends Creatable {
     intro?: string
     outro?: string
     quests: QuizQuest[]
+    file?: string
 }
 
 function handleChangeEvent(element: Element) {
@@ -132,10 +133,14 @@ const useEditTask = () => {
     }, [task])
 
     const onModifyAndSave = useCallback(
-        async (mapper?: (content: QuizContent[]) => QuizContent[]) => {
+        async (
+            mapper?: (
+                content: QuizContent[]
+            ) => QuizContent[] | Promise<QuizContent[]>
+        ) => {
             setIsSaving(true)
 
-            const localContents = mapper ? mapper(contents) : contents
+            const localContents = mapper ? await mapper(contents) : contents
 
             try {
                 const apiContents = task.getContents() || []
@@ -174,6 +179,7 @@ const useEditTask = () => {
                             content: content.content || "",
                             intro: content.intro,
                             outro: content.outro,
+                            file: content.file,
                         })
                         apiContent.setTask(task)
 

@@ -1,16 +1,15 @@
 <?php
 namespace Xyng\Yuoshi\Model;
 
-use eTask\Task;
-
 /**
  * Class TaskContents
  * @package Xyng\Yuoshi\Model
  *
  * @property string $task_id
  *
- * @property \SimpleORMap|Task $task
+ * @property \SimpleORMap|Tasks $task
  * @property \SimpleORMapCollection|TaskContentQuests[] $quests
+ * @property \SimpleORMapCollection|Files[] $images
  */
 class TaskContents extends BaseModel {
     protected static function configure($config = []) {
@@ -32,6 +31,10 @@ class TaskContents extends BaseModel {
         $config['belongs_to']['task'] = [
             'class_name' => Tasks::class,
             'foreign_key' => 'task_id'
+        ];
+
+        $config['file_groups'] = [
+            'images' => 'images',
         ];
 
         parent::configure($config);
