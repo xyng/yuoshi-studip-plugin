@@ -26,16 +26,16 @@ class LearningObjectives extends BaseModel
             'foreign_key' => 'package_id'
         ];
 
-        $config['has_many']['station'] = [
+        $config['has_one']['station'] = [
             'on_store' => true,
             'class_name' => Stations::class,
-            'assoc_foreign_key' => 'learning_objective_id',
-            'on_delete' => true,
+            // 'assoc_foreign_key' => 'learning_objective_id',
+            'on_delete' => 'delete',
         ];
 
-        $config['file_groups'] = [
-            'images' => 'images',
-        ];
+        // $config['file_groups'] = [
+        //     'images' => 'images'
+        // ];
 
         parent::configure($config);
     }

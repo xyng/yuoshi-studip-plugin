@@ -30,14 +30,15 @@ class Tasks extends BaseModel
             'on_store' => true,
             'class_name' => TaskContents::class,
             'assoc_foreign_key' => 'task_id',
-            'on_delete' => true,
+            // TODO: check if taskcontents get deleted
+            // 'on_delete' => true,
         ];
 
         $config['has_many']['solutions'] = [
             'on_store' => true,
             'class_name' => UserTaskSolutions::class,
             'assoc_foreign_key' => 'task_id',
-            'on_delete' => true,
+            // 'on_delete' => true,
         ];
 
         parent::configure($config);
