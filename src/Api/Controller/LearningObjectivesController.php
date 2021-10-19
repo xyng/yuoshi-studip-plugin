@@ -41,11 +41,6 @@ class LearningObjectivesController extends JsonApiController
 
         $learning_objectives = LearningObjectiveAuthority::findFiltered([$package_id], $this->getUser($request));
         list($offset, $limit) = $this->getOffsetAndLimit();
-
-        $test = $this->getPaginatedContentResponse(
-            array_slice($learning_objectives, $offset, $limit),
-            count($learning_objectives)
-        );
         
         return $this->getPaginatedContentResponse(
             array_slice($learning_objectives, $offset, $limit),
