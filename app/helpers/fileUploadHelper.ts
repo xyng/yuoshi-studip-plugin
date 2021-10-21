@@ -1,4 +1,9 @@
-export const uploadImage = async (file: File, model: string, model_id: string, group?: string) => {
+export const uploadImage = async (
+    file: File,
+    model: string,
+    model_id: string,
+    group?: string
+) => {
     const data = new FormData()
     data.append("model", model)
     data.append("key", model_id)
@@ -18,5 +23,5 @@ export const uploadImage = async (file: File, model: string, model_id: string, g
 
     const result = await resp.json()
 
-    return result.file as string
+    return result
 }
