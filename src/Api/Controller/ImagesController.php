@@ -152,6 +152,7 @@ class ImagesController extends NonJsonApiController {
             $model->{$fk_group} = [
                 Files::buildForRef($fileRef),
             ];
+            $model->image = $file->id;
 
             $model->store();
         } catch (\Exception $e) {
@@ -160,7 +161,9 @@ class ImagesController extends NonJsonApiController {
 
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->write(json_encode([
-            'file' => $fileRef->id
+            'fileRefId' => $fileRef->id,
+            'fileId' => $fileRef->file_id,
+            'fileName' => $fileRef->name
         ]));
 
         return $response
