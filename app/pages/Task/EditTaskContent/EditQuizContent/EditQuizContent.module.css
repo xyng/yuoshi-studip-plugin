@@ -46,9 +46,13 @@
 }
 
 .headerButtons {
-    @apply ml-auto mr-0
+    @apply ml-auto mr-0;
 }
 
 .heading {
     @apply block text-3xl font-bold my-4;
+}
+
+.imagePreview {
+    max-width: 130px;
 }
