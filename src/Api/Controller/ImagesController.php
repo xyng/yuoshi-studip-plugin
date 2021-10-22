@@ -24,12 +24,16 @@ use Xyng\Yuoshi\Helper\PermissionHelper;
 use Xyng\Yuoshi\Helper\QueryField;
 use Xyng\Yuoshi\Model\Files;
 use Xyng\Yuoshi\Model\LearningObjectives;
+use Xyng\Yuoshi\Model\Tasks;
+
 use Xyng\Yuoshi\Model\TaskContentQuestAnswers;
 use Xyng\Yuoshi\Model\TaskContentQuests;
 use Xyng\Yuoshi\Model\TaskContents;
 
-class ImagesController extends NonJsonApiController {
-    public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
+class ImagesController extends NonJsonApiController
+{
+    public function show(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         $image_id = $args['image_id'] ?? null;
 
         if (!$image_id) {
@@ -62,7 +66,8 @@ class ImagesController extends NonJsonApiController {
      * @param string $id
      * @return TaskContents|LearningObjectives|null
      */
-    protected function _getForeignEntity(string $model, string $id) {
+    protected function _getForeignEntity(string $model, string $id)
+    {
         // TODO: add cases for all models that have files
 
         switch ($model) {
@@ -70,16 +75,20 @@ class ImagesController extends NonJsonApiController {
                 return TaskContents::find($id);
             case \Xyng\Yuoshi\Api\Schema\LearningObjectives::TYPE:
                 return LearningObjectives::find($id);
+            case \Xyng\Yuoshi\Api\Schema\Tasks::TYPE:
+                return Tasks::find($id);
         }
     }
 
-    protected function _getCourseIdForModel(SimpleORMap $model): string {
-        if ($model instanceof TaskContents) {
+    protected function _getCourseIdForModel(SimpleORMap $model): string
+    {
+        if ($model instanceof Tasks) {
+            /** @var Tasks $model */
+            return $model->station->package->course_id;
+        } elseif ($model instanceof TaskContents) {
             /** @var TaskContents $model */
             return $model->task->station->package->course_id;
-        }
-
-        if ($model instanceof LearningObjectives) {
+        } elseif ($model instanceof LearningObjectives) {
             /** @var LearningObjectives $model */
             return $model->package->course_id;
         }
@@ -89,7 +98,8 @@ class ImagesController extends NonJsonApiController {
         throw new UnprocessableEntityException();
     }
 
-    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         /** @var UploadedFileInterface|null $image */
         $image = $request->getUploadedFiles()['file'] ?? null;
         $fk_model = $request->getParsedBody()['model'] ?? null;
@@ -175,7 +185,8 @@ class ImagesController extends NonJsonApiController {
             ->withBody($stream);
     }
 
-    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
         /** @var UploadedFileInterface|null $image */
         $image = $request->getUploadedFiles()['image'] ?? null;
 
@@ -211,7 +222,8 @@ class ImagesController extends NonJsonApiController {
      * @param string|null $perm (optional) required user permissions in TaskContent
      * @return FileRef|null
      */
-    protected function findFileRef(string $id, ServerRequestInterface $request, string $perm = null) {
+    protected function findFileRef(string $id, ServerRequestInterface $request, string $perm = null)
+    {
         $conditions = $perm ? [
             'seminar_user.status IN' => PermissionHelper::getMasters($perm)
         ] : [];
@@ -262,7 +274,7 @@ class ImagesController extends NonJsonApiController {
     {
         $newPath = $file->getPath();
         if (!is_dir(pathinfo($newPath, PATHINFO_DIRNAME))) {
-            mkdir(pathinfo($newPath, PATHINFO_DIRNAME), 0777,true);
+            mkdir(pathinfo($newPath, PATHINFO_DIRNAME), 0777, true);
         }
 
         $image->moveTo($file->getPath());
