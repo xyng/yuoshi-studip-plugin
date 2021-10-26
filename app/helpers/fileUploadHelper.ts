@@ -16,7 +16,6 @@ export const uploadImage = async (
         method: "post",
         body: data,
     })
-
     if (resp.status !== 201) {
         throw new Error("could not save image")
     }

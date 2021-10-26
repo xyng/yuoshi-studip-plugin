@@ -1,6 +1,12 @@
-import React, { useCallback } from "react"
+import React, {
+    ChangeEventHandler,
+    useCallback,
+    useState,
+    useEffect,
+} from "react"
 import { SubmitHandler } from "@unform/core"
 import * as Yup from "yup"
+import { uploadImage } from "helpers/fileUploadHelper"
 
 import { EditTaskContentView } from "../EditTaskContent"
 import { uniqueId } from "../../../../helpers/uniqueId"
@@ -48,6 +54,8 @@ const EditTagContent: EditTaskContentView = () => {
         removeAnswer,
         onModifyAndSave,
     } = useEditTaskContext()
+    const [imageName, setImageName] = useState("")
+    const [imageFileRefId, setImageFileRefId] = useState("")
 
     const createTagContent = useCallback(() => {
         return createContent({
@@ -79,6 +87,28 @@ const EditTagContent: EditTaskContentView = () => {
             })
         },
         [contents, createAnswer]
+    )
+
+    const handleFile = useCallback<ChangeEventHandler<HTMLInputElement>>(
+        async (event) => {
+            console.log(event.currentTarget.files)
+            const file = event.currentTarget.files?.[0]
+            if (!file) {
+                return
+            }
+            console.log(task.getJsonApiType())
+            console.log(task.getApiId())
+            const ref = await uploadImage(
+                file,
+                task.getJsonApiType(),
+                task.getApiId() as string,
+                "image"
+            )
+            console.log(ref)
+            setImageName(ref.fileName)
+            setImageFileRefId(ref.fileRefId)
+        },
+        [task]
     )
 
     const onSubmit = useCallback<SubmitHandler<TagContentData>>(
@@ -127,6 +157,38 @@ const EditTagContent: EditTaskContentView = () => {
         [onModifyAndSave]
     )
 
+    function renderTaskImage() {
+        const imageIsSelected = !!task.getAttributes().image
+        if (!imageIsSelected) return null
+        return (
+            <>
+                <p> Dein zuletzt ausgewähltes Bild: </p>
+                <img
+                    src={`${process.env.STUDIP_URL}/sendfile.php?type=0&file_id=${imageFileRefId}&;file_name=${imageName}`}
+                    alt="#"
+                    className={Styles.imagePreview}
+                ></img>
+            </>
+        )
+    }
+
+    useEffect(() => {
+        async function fetchImage() {
+            const imageId = task.getAttributes().image
+            // TODO: @Daniel how to get file-ref from relation???
+            const imageRefRaw = await fetch(
+                `${process.env.API_PATH}/files/${imageId}/file-refs`,
+                {
+                    method: "get",
+                }
+            )
+            const imageRef = await imageRefRaw.json()
+            setImageName(imageRef.data[0].attributes.name)
+            setImageFileRefId(imageRef.data[0].id)
+        }
+        fetchImage()
+    }, [task])
+
     return (
         <ValidatedForm
             validation={TagContentSchema}
@@ -141,6 +203,10 @@ const EditTagContent: EditTaskContentView = () => {
             <Button type="submit">Speichern</Button>
 
             <Button onClick={createTagContent}>Neuer Inhalt</Button>
+            <span> Neues Bild hinzufügen: </span>
+            <span> (Bitte nur JPEG und PNG)</span>
+            <input type="file" onChange={handleFile} />
+            <div className="tasks-image">{renderTaskImage()}</div>
 
             {contents.map((content, index) => {
                 const contentPath = `contents[${index}]`
