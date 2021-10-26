@@ -1,38 +1,33 @@
-const { EnvironmentPlugin } = require("webpack");
-
 const path = require("path")
+
+const { EnvironmentPlugin } = require("webpack")
 const { CheckerPlugin } = require("awesome-typescript-loader")
 const WebpackAssetsManifest = require("webpack-assets-manifest")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-
-const TerserJSPlugin = require('terser-webpack-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const TerserJSPlugin = require("terser-webpack-plugin")
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin")
 const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
-
 const dotenv = require("dotenv")
 
 // make sure NODE_ENV is always set.
 process.env.NODE_ENV = process.env.NODE_ENV || "development"
 const prod = process.env.NODE_ENV === "production"
 
-const { parsed: env } = dotenv.config({ path: path.resolve(__dirname, "./.webpack.env") })
+const { parsed: env } = dotenv.config({
+    path: path.resolve(__dirname, "./.webpack.env"),
+})
 
 module.exports = {
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
         alias: {
-            "react-dom": prod ? "react-dom" : "@hot-loader/react-dom"
+            "react-dom": prod ? "react-dom" : "@hot-loader/react-dom",
         },
-        plugins: [
-            new TsConfigPathsPlugin(),
-        ]
+        plugins: [new TsConfigPathsPlugin()],
     },
     context: path.resolve(__dirname, "./app"),
     mode: prod ? "production" : "development",
-    entry: [
-        "react-hot-loader/patch",
-        "./index.tsx"
-    ],
+    entry: ["react-hot-loader/patch", "./index.tsx"],
     output: {
         // TODO: add hash to output file (make studip load the has file)
         filename: "js/bundle.[hash].js",
@@ -49,7 +44,11 @@ module.exports = {
             },
             {
                 test: /\.tsx?$/,
-                use: ["babel-loader", "awesome-typescript-loader", "eslint-loader"],
+                use: [
+                    "babel-loader",
+                    "awesome-typescript-loader",
+                    "eslint-loader",
+                ],
                 exclude: /node_modules/,
             },
             {
@@ -59,14 +58,14 @@ module.exports = {
                     {
                         loader: "css-loader",
                         options: {
-                            importLoaders: 1
-                        }
+                            importLoaders: 1,
+                        },
                     },
                     {
-                        loader: "postcss-loader"
-                    }
+                        loader: "postcss-loader",
+                    },
                 ],
-                exclude: /\.module\.css$/
+                exclude: /\.module\.css$/,
             },
             {
                 test: /\.module\.css$/,
@@ -76,18 +75,21 @@ module.exports = {
                         loader: "css-loader",
                         options: {
                             importLoaders: 1,
-                            modules: prod ? true : {
-                                // nicer class names for dev
-                                localIdentName: '[name]__[local]___[hash:base64:8]'
-                            },
-                        }
+                            modules: prod
+                                ? true
+                                : {
+                                      // nicer class names for dev
+                                      localIdentName:
+                                          "[name]__[local]___[hash:base64:8]",
+                                  },
+                        },
                     },
                     {
-                        loader: "postcss-loader"
-                    }
+                        loader: "postcss-loader",
+                    },
                 ],
             },
-        ]
+        ],
     },
     plugins: [
         CheckerPlugin,
@@ -96,7 +98,7 @@ module.exports = {
             integrity: true,
             writeToDisk: true,
             output: "manifest.json",
-            customize: entry => {
+            customize: (entry) => {
                 // make sure that entry keys match up with the values in the entrypoints
                 return {
                     key: entry.value,
@@ -104,36 +106,35 @@ module.exports = {
             },
         }),
         new MiniCssExtractPlugin({
-            filename: 'css/[name].[hash].css',
-            chunkFilename: 'css/[id].[hash].css',
+            filename: "css/[name].[hash].css",
+            chunkFilename: "css/[id].[hash].css",
         }),
         new EnvironmentPlugin({
-            'NODE_ENV': process.env.NODE_ENV,
-            'PLUGIN_PATH': env.PLUGIN_PATH,
-            'API_PATH': env.API_PATH,
+            NODE_ENV: process.env.NODE_ENV,
+            PLUGIN_PATH: env.PLUGIN_PATH,
+            API_PATH: env.API_PATH,
+            // we try to transfer studipurl here
+            STUDIP_URL: env.STUDIP_URL,
         }),
     ],
     devtool: "source-map",
     watch: !prod,
     optimization: {
-        minimizer: [
-            new TerserJSPlugin({}),
-            new OptimizeCSSAssetsPlugin({})
-        ],
+        minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
         splitChunks: {
             chunks: "all",
         },
     },
     devServer: {
-		proxy: {
-			[`!${env.PLUGIN_PATH}/dist/**`]: {
-				target: env.STUDIP_URL,
-				secure: false,
-			},
-		},
+        proxy: {
+            [`!${env.PLUGIN_PATH}/dist/**`]: {
+                target: env.STUDIP_URL,
+                secure: false,
+            },
+        },
 
-		hot: true,
-		inline: true,
-		disableHostCheck: true,
-	},
-};
+        hot: true,
+        inline: true,
+        disableHostCheck: true,
+    },
+}

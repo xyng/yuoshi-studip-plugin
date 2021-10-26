@@ -4,7 +4,6 @@ import { useCurrentPackageContext } from "contexts/CurrentPackageContext"
 import LearningObjective from "models/LearningObjective"
 import React, {
     ChangeEventHandler,
-    ReactNode,
     useCallback,
     useEffect,
     useState,
@@ -23,6 +22,7 @@ const EditLearningObjective: React.FC<RouteComponentProps> = () => {
     const { currentPackage } = useCurrentPackageContext()
     const [imageName, setImageName] = useState("")
     const [imageFileRefId, setImageFileRefId] = useState("")
+
     const {
         currentLearningObjective,
         updateLearningObjective,
@@ -82,7 +82,7 @@ const EditLearningObjective: React.FC<RouteComponentProps> = () => {
             <>
                 <p> Dein zuletzt ausgewähltes Bild: </p>
                 <img
-                    src={`http://localhost/sendfile.php?type=0&file_id=${imageFileRefId}&;file_name=${imageName}`}
+                    src={`${process.env.STUDIP_URL}/sendfile.php?type=0&file_id=${imageFileRefId}&;file_name=${imageName}`}
                     alt="#"
                     className={Styles.imagePreview}
                 ></img>
